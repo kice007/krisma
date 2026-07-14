@@ -35,13 +35,13 @@ export default function Nav() {
       // Solid bar only once we're past the dark hero
       setScrolled(!overHero && y > 40)
 
-      if (overHero) {
-        // Keep the navbar still and fully visible for the whole hero / parallax
+      if (lg && overHero) {
+        // Desktop only: hold the navbar still through the whole hero / parallax
         setHidden(false)
-      } else if (y > lastY.current && y > heroDone + 8) {
-        setHidden(true) // scrolling down, past the hero
+      } else if (y > lastY.current && y > 80) {
+        setHidden(true) // scrolling down (mobile hides over the hero too)
       } else if (y < lastY.current) {
-        setHidden(false) // scrolling up
+        setHidden(false) // scrolling up → reveal
       }
       lastY.current = y
     }
