@@ -1,11 +1,14 @@
 import { ArrowUpRight } from 'lucide-react'
 import Reveal from '../components/Reveal'
+import { useLang } from '../i18n'
 
 function Num({ children }) {
   return <span className="font-display text-[15px] font-bold text-indigo">{children}</span>
 }
 
 export default function Industries() {
+  const { t } = useLang()
+  const s = t.industries
   return (
     <section id="industries" className="bg-deepindigo">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-5 px-6 py-16 lg:px-16 lg:py-[88px]">
@@ -15,20 +18,19 @@ export default function Industries() {
           <Reveal className="lg:w-[460px] lg:shrink-0">
             <div className="flex flex-col gap-5 pb-1">
               <span className="w-fit rounded-full border border-white/15 bg-white/10 px-4 py-2 font-body text-[13px] font-semibold text-white">
-                Profils
+                {s.badge}
               </span>
               <h2 className="font-display text-[32px] font-semibold leading-[1.05] text-white lg:text-[44px]">
-                Des services pensés pour chaque profil
+                {s.heading}
               </h2>
               <p className="font-body text-[15px] leading-[1.55] text-[#c4c9e8]">
-                Que vous étudiez à l’étranger, souteniez votre famille ou lanciez votre activité, Krisma
-                s’adapte à votre réalité.
+                {s.paragraph}
               </p>
               <a
                 href="#contact"
                 className="flex w-fit items-center gap-2 rounded-full bg-indigo px-6 py-[13px] text-[14px] font-semibold text-white hover:-translate-y-0.5"
               >
-                Être notifié
+                {s.cta}
                 <ArrowUpRight size={15} />
               </a>
             </div>
@@ -39,15 +41,14 @@ export default function Industries() {
             <div className="flex h-full flex-col gap-3 overflow-hidden rounded-2xl bg-white p-7 lg:flex-row lg:items-center lg:gap-6">
               <div className="flex flex-col gap-3 lg:flex-1">
                 <Num>01.</Num>
-                <h3 className="font-display text-[22px] font-bold text-ink">Pour les étudiants</h3>
+                <h3 className="font-display text-[22px] font-bold text-ink">{s.studentsTitle}</h3>
                 <p className="font-body text-[14px] leading-[1.5] text-muted">
-                  Ouvrez votre compte depuis l’Afrique, obtenez votre visa étudiant avec compte bloqué et
-                  trouvez un logement sans garant sur place.
+                  {s.studentsDesc}
                 </p>
               </div>
               <img
                 src="/img/etudiants.png"
-                alt="Étudiants"
+                alt={s.studentsTitle}
                 className="h-[200px] w-full rounded-2xl object-cover lg:h-[240px] lg:flex-1"
               />
             </div>
@@ -61,14 +62,14 @@ export default function Industries() {
             <div className="flex flex-col gap-3 overflow-hidden rounded-2xl bg-white p-7 lg:flex-row lg:items-center lg:gap-6">
               <div className="flex flex-col gap-3 lg:flex-1">
                 <Num>02.</Num>
-                <h3 className="font-display text-[22px] font-bold text-ink">Pour les familles</h3>
+                <h3 className="font-display text-[22px] font-bold text-ink">{s.familiesTitle}</h3>
                 <p className="font-body text-[14px] leading-[1.5] text-muted">
-                  Restez connectés à ceux que vous aimez. Envoyez et recevez de l'argent instantanément dans les deux sens.
+                  {s.familiesDesc}
                 </p>
               </div>
               <img
                 src="/img/familles.png"
-                alt="Familles"
+                alt={s.familiesTitle}
                 className="h-[200px] w-full rounded-2xl object-cover lg:h-[280px] lg:flex-1"
               />
             </div>
@@ -78,13 +79,13 @@ export default function Industries() {
           <Reveal className="lg:flex-1" delay={0.05}>
             <div className="flex flex-col gap-3 overflow-hidden rounded-2xl bg-white p-7">
               <Num>03.</Num>
-              <h3 className="font-display text-[22px] font-bold text-ink">Pour la diaspora</h3>
+              <h3 className="font-display text-[22px] font-bold text-ink">{s.diasporaTitle}</h3>
               <p className="font-body text-[14px] leading-[1.5] text-muted">
-                La banque qui vous accompagne de votre premier jour en Europe jusqu'à votre réussite.
+                {s.diasporaDesc}
               </p>
               <img
                 src="/img/entrepreneurs.png"
-                alt="Entrepreneurs"
+                alt={s.diasporaTitle}
                 className="mt-1 h-[200px] w-full rounded-2xl object-cover lg:h-[300px]"
               />
             </div>

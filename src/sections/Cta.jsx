@@ -1,6 +1,7 @@
 import { ArrowUpRight, ArrowRight, ArrowDownLeft } from 'lucide-react'
 import Reveal from '../components/Reveal'
 import { AppleIcon, GooglePlayIcon } from '../components/BrandIcons'
+import { useLang } from '../i18n'
 
 function StoreBadge({ icon, small, name }) {
   return (
@@ -15,27 +16,29 @@ function StoreBadge({ icon, small, name }) {
 }
 
 function TransferCard() {
+  const { t } = useLang()
+  const c = t.cta
   return (
     <div className="w-[320px] rounded-[18px] border border-white/40 bg-white/15 p-[22px] text-white backdrop-blur-md">
       <div className="flex gap-6">
         <div className="flex flex-1 flex-col gap-1">
           <div className="flex items-center gap-1.5 text-white/80">
             <ArrowUpRight size={13} />
-            <span className="font-body text-[12px]">Vous envoyez</span>
+            <span className="font-body text-[12px]">{c.youSend}</span>
           </div>
           <span className="font-display text-[24px] font-extrabold">300 €</span>
         </div>
         <div className="flex flex-1 flex-col gap-1">
           <div className="flex items-center gap-1.5 text-white/80">
             <ArrowDownLeft size={13} />
-            <span className="font-body text-[12px]">Ils reçoivent</span>
+            <span className="font-body text-[12px]">{c.theyReceive}</span>
           </div>
           <span className="font-display text-[24px] font-extrabold">196 750 F</span>
         </div>
       </div>
-      <p className="mt-3.5 font-body text-[12px] text-white/70">Taux du jour · 1 € = 655,96 F</p>
+      <p className="mt-3.5 font-body text-[12px] text-white/70">{c.rate}</p>
       <div className="mt-3.5 flex h-[46px] items-center justify-center gap-2 rounded-[10px] bg-white font-body text-[14px] font-semibold text-indigo">
-        Confirmer l’envoi
+        {c.confirm}
         <ArrowRight size={16} />
       </div>
     </div>
@@ -43,20 +46,19 @@ function TransferCard() {
 }
 
 function SpendingCard() {
-  const rows = [
-    { n: 'Envoi à Maman', d: 'Abidjan · Orange Money', a: '- 120,90 €' },
-    { n: 'Café Starbucks', d: 'Yuzu Cold Brew', a: '- 4,20 €' },
-  ]
+  const { t } = useLang()
+  const c = t.cta
+  const rows = c.rows
   return (
     <div className="w-[320px] rounded-[18px] border border-white/40 bg-white/15 p-[22px] text-white backdrop-blur-md">
       <div className="flex items-center justify-between">
-        <span className="font-body text-[14px] font-semibold">Dépenses cette semaine</span>
+        <span className="font-body text-[14px] font-semibold">{c.spending}</span>
         <span className="font-display text-[22px] font-extrabold">124 €</span>
       </div>
       <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/30">
         <div className="h-full w-1/2 rounded-full bg-white" />
       </div>
-      <p className="mt-2 font-body text-[12px] text-white/70">124 € restants à dépenser</p>
+      <p className="mt-2 font-body text-[12px] text-white/70">{c.remaining}</p>
       <div className="mt-3 flex flex-col gap-2.5">
         {rows.map((r) => (
           <div key={r.n} className="flex items-center gap-2.5">
@@ -74,6 +76,8 @@ function SpendingCard() {
 }
 
 export default function Cta() {
+  const { t } = useLang()
+  const c = t.cta
   return (
     <section id="contact" className="bg-white px-4 py-11 lg:px-12 lg:py-16">
       <div className="mx-auto max-w-[1440px]">
@@ -93,11 +97,10 @@ export default function Cta() {
             {/* Center */}
             <div className="relative z-10 mx-auto flex max-w-[560px] flex-col items-center gap-5 text-center">
               <h2 className="font-display text-[32px] font-semibold leading-[1.06] text-white lg:text-[48px]">
-                Être notifié du lancement.
+                {c.heading}
               </h2>
               <p className="font-body text-[15px] leading-[1.55] text-[#e4e7fb] lg:text-[16px]">
-                Laissez votre email pour être informé du lancement. Vos données ne seront jamais partagées ni
-                revendues.
+                {c.paragraph}
               </p>
               <form
                 onSubmit={(e) => e.preventDefault()}
@@ -105,20 +108,20 @@ export default function Cta() {
               >
                 <input
                   type="email"
-                  placeholder="Entrez votre email…"
+                  placeholder={c.placeholder}
                   className="min-w-0 flex-1 bg-transparent font-body text-[15px] text-ink outline-none placeholder:text-muted"
                 />
                 <button
                   type="submit"
-                  aria-label="Envoyer"
+                  aria-label={c.send}
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-indigo text-white hover:-translate-y-0.5"
                 >
                   <ArrowUpRight size={20} />
                 </button>
               </form>
               <div className="flex flex-wrap items-center justify-center gap-3">
-                <StoreBadge icon={<AppleIcon size={22} className="text-white" />} small="Bientot sur" name="App Store" />
-                <StoreBadge icon={<GooglePlayIcon size={22} className="text-white" />} small="bientot sur" name="Google Play" />
+                <StoreBadge icon={<AppleIcon size={22} className="text-white" />} small={c.soon} name="App Store" />
+                <StoreBadge icon={<GooglePlayIcon size={22} className="text-white" />} small={c.soon} name="Google Play" />
               </div>
             </div>
           </div>

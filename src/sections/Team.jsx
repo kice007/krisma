@@ -1,18 +1,20 @@
 import { ArrowUpRight } from 'lucide-react'
 import Reveal from '../components/Reveal'
+import { useLang } from '../i18n'
 
 const U = 'https://images.unsplash.com/'
 const P = 'crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080'
 
-const MEMBERS = [
-  { name: 'Christian Ehouman', role: 'CEO & CO-FONDATEUR', img: `${U}photo-1758519290841-a80214cdf5df?${P}` },
-  { name: 'Ivan Ehouman', role: 'CTO & CO-FONDATEUR', img: `${U}photo-1704286602312-71b5bedda30e?${P}` },
-  { name: 'Élyse Ehouman', role: 'LEAD MOBILE', img: `${U}photo-1586232902955-df204f34b36e?${P}` },
-  // { name: 'Blesson', role: 'CFO — ABIDJAN', img: `${U}photo-1544077449-985cfb071c9a?${P}` },
-  // { name: 'Ami', role: 'COMPLIANCE  EX-ECOBANK & SG', img: `${U}photo-1737735413046-dcc4d940cb36?${P}` },
+const PEOPLE = [
+  { name: 'Christian Ehouman', img: '../public/img/team_1.jpg' },
+  { name: 'Ivan Ehouman', img: '../public/img/team_2.png' },
+  { name: 'Élyse Ehouman', img: '../public/img/team_3.jpg' },
 ]
 
 export default function Team() {
+  const { t } = useLang()
+  const tm = t.team
+  const MEMBERS = PEOPLE.map((m, i) => ({ ...m, role: tm.roles[i] }))
   return (
     <section id="equipe" className="bg-white">
       <div className="mx-auto max-w-[1440px] px-6 py-16 lg:px-16 lg:py-20">
@@ -20,14 +22,14 @@ export default function Team() {
         <Reveal className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
           <div className="flex flex-col gap-[18px]">
             <span className="w-fit rounded-full bg-bgalt px-4 py-2 font-body text-[12px] font-bold text-indigo">
-              Notre équipe
+              {tm.badge}
             </span>
             <h2 className="font-display text-[30px] font-semibold leading-[1.1] text-ink lg:text-[44px]">
-              Une équipe bicontinentale.
+              {tm.heading}
             </h2>
           </div>
           <p className="font-body text-[16px] leading-[1.55] text-ink lg:max-w-[400px]">
-            Fondée par des membres de la diaspora africaine, Krisma est opérée depuis Paris et Abidjan.
+            {tm.paragraph}
           </p>
         </Reveal>
 
@@ -46,7 +48,7 @@ export default function Team() {
             href="#contact"
             className="mt-4 flex w-fit items-center gap-2.5 rounded-full bg-ink px-7 py-4 text-[15px] font-semibold text-white hover:-translate-y-0.5"
           >
-            Voir toute l’équipe
+            {tm.seeAll}
             <ArrowUpRight size={16} />
           </a>
         </div>
@@ -64,15 +66,17 @@ export default function Team() {
               </div>
             </Reveal>
           ))}
-          {/* <div className="flex items-center justify-center">
-            <a
-              href="#contact"
-              className="flex items-center gap-2.5 rounded-full bg-ink px-7 py-4 text-[15px] font-semibold text-white hover:-translate-y-0.5"
-            >
-              Voir toute l’équipe
-              <ArrowUpRight size={16} />
-            </a>
-          </div> */}
+        </div>
+
+        {/* Desktop CTA — centered below the team row */}
+        <div className="mt-14 hidden justify-center lg:flex">
+          <a
+            href="#contact"
+            className="flex items-center gap-2.5 rounded-full bg-ink px-7 py-4 text-[15px] font-semibold text-white transition-transform hover:-translate-y-0.5"
+          >
+            {tm.seeAll}
+            <ArrowUpRight size={16} />
+          </a>
         </div>
       </div>
     </section>

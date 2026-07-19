@@ -1,15 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Menu, X, ArrowUpRight } from 'lucide-react'
-
-const LINKS = [
-  { label: 'Fonctionnalités', href: '#features' },
-  { label: 'Services', href: '#industries' },
-  { label: 'Tarifs', href: '#tarifs' },
-  { label: 'Équipe', href: '#equipe' },
-  { label: 'Contact', href: '#contact' },
-]
+import { useLang } from '../i18n'
+import LangToggle from './LangToggle'
 
 export default function Nav() {
+  const { t } = useLang()
+  const LINKS = t.nav.links
   const [scrolled, setScrolled] = useState(false)
   const [hidden, setHidden] = useState(false)
   const [open, setOpen] = useState(false)
@@ -86,28 +82,33 @@ export default function Nav() {
           ))}
         </nav>
 
-        {/* Desktop CTA */}
-        <a
-          href="#contact"
-          className={`hidden items-center rounded-full px-6 py-[13px] text-[15px] font-semibold transition-all hover:-translate-y-0.5 lg:flex ${dark ? 'bg-indigo text-white' : 'bg-white text-indigo'
-            }`}
-        >
-          Être notifié
-        </a>
+        {/* Desktop CTA + language switch */}
+        <div className="hidden items-center gap-4 lg:flex">
+          <LangToggle dark={dark} />
+          <a
+            href="#contact"
+            className={`flex items-center rounded-full px-6 py-[13px] text-[15px] font-semibold transition-all hover:-translate-y-0.5 ${dark ? 'bg-indigo text-white' : 'bg-white text-indigo'
+              }`}
+          >
+            {t.nav.notify}
+          </a>
+        </div>
 
-        {/* Mobile hamburger */}
-        <button
-          type="button"
-          aria-label="Menu"
-          onClick={() => setOpen((v) => !v)}
-          className="lg:hidden"
-        >
-          {open ? (
-            <X size={26} className={dark ? 'text-ink' : 'text-white'} />
-          ) : (
-            <Menu size={26} className={dark ? 'text-ink' : 'text-white'} />
-          )}
-        </button>
+        {/* Mobile: language switch + hamburger */}
+        <div className="flex items-center gap-3 lg:hidden">
+          <LangToggle dark={dark} />
+          <button
+            type="button"
+            aria-label="Menu"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? (
+              <X size={26} className={dark ? 'text-ink' : 'text-white'} />
+            ) : (
+              <Menu size={26} className={dark ? 'text-ink' : 'text-white'} />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu panel */}
@@ -131,7 +132,7 @@ export default function Nav() {
             onClick={() => setOpen(false)}
             className="mt-3 mb-2 flex items-center justify-center gap-2 rounded-full bg-indigo px-6 py-3.5 text-[15px] font-semibold text-white"
           >
-            Être notifié du lancement
+            {t.nav.notifyLaunch}
             <ArrowUpRight size={16} />
           </a>
         </nav>

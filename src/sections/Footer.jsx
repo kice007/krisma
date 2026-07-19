@@ -1,38 +1,23 @@
 import Reveal from '../components/Reveal'
 import { XIcon, LinkedinIcon, InstagramIcon, FacebookIcon } from '../components/BrandIcons'
+import { useLang } from '../i18n'
 
-const COLS = [
-  {
-    h: 'Produit',
-    links: [
-      ['Compte européen', '#features'],
-      ['Transferts', '#features'],
-      ['Visa étudiant', '#features'],
-      ['Garantie locative', '#features'],
-    ],
-  },
-  {
-    h: 'Liens',
-    links: [
-      ['Équipe', '#equipe'],
-      ['Tarifs', '#tarifs'],
-      ['Contact', '#contact'],
-    ],
-  },
-  {
-    h: 'Légal',
-    links: [
-      ['CGU', '#'],
-      ['Confidentialité', '#'],
-      ['Cookies', '#'],
-      ['Mentions légales', '#'],
-    ],
-  },
+// Hrefs per column (order matches the translated labels in i18n.jsx footer.cols).
+const HREFS = [
+  ['#features', '#features', '#features', '#features'],
+  ['#equipe', '#tarifs', '#contact'],
+  ['#', '#', '#', '#'],
 ]
 
 const SOCIALS = [XIcon, LinkedinIcon, InstagramIcon, FacebookIcon]
 
 export default function Footer() {
+  const { t } = useLang()
+  const f = t.footer
+  const COLS = f.cols.map((c, i) => ({
+    h: c.h,
+    links: c.labels.map((label, j) => [label, HREFS[i][j]]),
+  }))
   return (
     <footer className="bg-indigo p-3.5 lg:px-5 lg:py-6">
       <div className="mx-auto max-w-[1440px]">
@@ -44,10 +29,10 @@ export default function Footer() {
             <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-16">
               <div className="flex flex-col gap-4 lg:w-[480px]">
                 <h3 className="font-display text-[26px] font-bold leading-[1.1] text-ink lg:text-[34px]">
-                  La banque de la diaspora africaine
+                  {f.heading}
                 </h3>
                 <p className="font-body text-[15px] leading-[1.55] text-muted">
-                  La banque qui vous accompagne de votre premier jour en Europe jusqu'à votre réussite
+                  {f.paragraph}
                 </p>
               </div>
 
@@ -87,7 +72,7 @@ export default function Footer() {
                   </a>
                 ))}
               </div>
-              <span className="font-body text-[14px] text-muted">© 2026 Krisma — Tous droits réservés.</span>
+              <span className="font-body text-[14px] text-muted">{f.copyright}</span>
             </div>
           </div>
         </Reveal>

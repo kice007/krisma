@@ -1,12 +1,12 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowUpRight, ChevronDown } from 'lucide-react'
-
-const TAGLINE = 'La banque de la diaspora africaine.'
-const SUB =
-  'Compte bancaire européen, transferts entre l’Afrique et l’Europe, comptes bloqués, tout en une application.'
+import { useLang } from '../i18n'
 
 function MobileHero() {
+  const { t } = useLang()
+  const TAGLINE = t.hero.tagline
+  const SUB = t.hero.sub
   return (
     <div
       className="bg-cover bg-center lg:hidden"
@@ -20,18 +20,21 @@ function MobileHero() {
           href="#contact"
           className="flex w-fit items-center gap-2 rounded-full bg-base px-[26px] py-[15px] text-[15px] font-semibold text-white hover:-translate-y-0.5"
         >
-          Être notifié du lancement
+          {t.hero.cta}
           <ArrowUpRight size={16} />
         </a>
       </div>
       <div className="px-6 pb-10">
-        <img src="/img/iphone-mockup.png" alt="Application Krisma" className="h-[402px] w-full rounded-2xl object-cover" />
+        <img src="/img/iphone-mockup.png" alt={t.hero.appAlt} className="h-[402px] w-full rounded-2xl object-cover" />
       </div>
     </div>
   )
 }
 
 function DesktopHero() {
+  const { t } = useLang()
+  const TAGLINE = t.hero.tagline
+  const SUB = t.hero.sub
   const trackRef = useRef(null)
   const { scrollYProgress } = useScroll({
     target: trackRef,
@@ -74,7 +77,7 @@ function DesktopHero() {
             <div className="absolute inset-0 flex items-center justify-center">
               <motion.img
                 src="/img/iphone-mockup.png"
-                alt="Application Krisma"
+                alt={t.hero.appAlt}
                 style={{ y: imgY, scale: imgScale, opacity: imgOpacity }}
                 className="w-[680px] rounded-2xl object-contain drop-shadow-2xl"
               />
@@ -98,7 +101,7 @@ function DesktopHero() {
                   href="#contact"
                   className="flex w-fit items-center gap-2 rounded-full bg-base px-[26px] py-[15px] text-[15px] font-semibold text-white transition-transform duration-300 hover:-translate-y-1"
                 >
-                  Être notifié du lancement
+                  {t.hero.cta}
                   <ArrowUpRight size={16} />
                 </a>
               </motion.div>
