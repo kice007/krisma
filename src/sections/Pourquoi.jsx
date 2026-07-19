@@ -5,8 +5,10 @@ const IMG =
   'https://images.unsplash.com/photo-1706827183359-6b015aaad56c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3ODM3MTM0MjR8&ixlib=rb-4.1.0&q=80&w=1080'
 
 const CHECKS = [
-  'Taux EUR/FCFA affiché avant chaque envoi',
-  'Un vrai compte européen et une carte Mastercard',
+  'Taux  de conversion affichés avant chaque envoi',
+  'Carte Mastercard acceptée partout en Europe',
+  'Construisez votre score de crédit dès votre arrivée en Europe',
+  'Accédez à des prêts adaptés à votre situation'
 ]
 
 export default function Pourquoi() {
@@ -18,8 +20,7 @@ export default function Pourquoi() {
             Pourquoi Krisma
           </span>
           <h2 className="mt-6 max-w-[960px] font-display text-[26px] font-semibold leading-[1.15] text-ink lg:text-[44px]">
-            Un compte européen, des transferts Afrique ↔ Europe et un visa étudiant — pensés pour votre
-            installation.
+            Conçue par la diaspora, pour la diaspora.
           </h2>
         </Reveal>
 
@@ -33,7 +34,7 @@ export default function Pourquoi() {
                   IA
                 </span>
                 <p className="font-display text-[20px] font-bold leading-[1.2] text-white">
-                  Un assistant en français, dioula et wolof
+                  Un assistant multilingue à votre service
                 </p>
               </div>
             </div>
@@ -43,13 +44,13 @@ export default function Pourquoi() {
           <Reveal className="flex-1" delay={0.05}>
             <div className="flex flex-col gap-5">
               <p className="font-body text-[16px] leading-[1.6] text-muted">
-                Krisma réunit compte bancaire européen, transferts entre l’Afrique et l’Europe, visa étudiant
-                et garantie locative. Notre priorité : la clarté, la rapidité et des frais transparents.
+                Les banques traditionnelles ne comprennent pas votre réalité. Krisma oui.
+                Frais transparents, transferts instantanés, et un assistant qui parle votre langue.
               </p>
               {CHECKS.map((c) => (
-                <div key={c} className="flex items-center gap-3">
+                <div key={c} className="flex gap-3">
                   <CircleCheckBig size={20} className="shrink-0 text-indigo" />
-                  <span className="font-body text-[15px] font-medium text-ink">{c}</span>
+                  <span className="font-body text-[14px] font-medium text-ink">{c}</span>
                 </div>
               ))}
               <a

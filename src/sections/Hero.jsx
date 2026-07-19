@@ -4,7 +4,7 @@ import { ArrowUpRight, ChevronDown } from 'lucide-react'
 
 const TAGLINE = 'La banque de la diaspora africaine.'
 const SUB =
-  'Compte bancaire européen, transferts entre l’Afrique et l’Europe, visa étudiant,  tout en une application.'
+  'Compte bancaire européen, transferts entre l’Afrique et l’Europe, comptes bloqués, tout en une application.'
 
 function MobileHero() {
   return (

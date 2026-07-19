@@ -35,12 +35,12 @@ export default function Features() {
             <FeatureCard
               img="/img/feat-visa.png"
               title="Visa étudiant"
-              desc="Compte bloqué en 24h depuis l’Afrique. Attestation officielle. 3% de frais seulement. Vous n’avez pas le montant complet ? Krisma Visa Flex complète le reste."
+              desc="Compte bloqué en 24h depuis l’Afrique. Attestation officielle. Vous n’avez pas le montant complet ? Krisma Visa Flex complète le reste."
             />
             <FeatureCard
               img="/img/feat-compte.png"
               title="Compte bancaire européen"
-              desc="IBAN français, carte Mastercard virtuelle et physique. Ouvrez votre compte depuis l’Afrique avant votre départ"
+              desc="IBAN européen, carte Mastercard / Visa virtuelle et physique. Ouvrez votre compte depuis l’Afrique avant votre départ"
               delay={0.05}
             />
           </div>
@@ -52,20 +52,20 @@ export default function Features() {
                 {/* Mobile: single "Envoyer" app screen (matches the mobile design) */}
                 <img
                   src="/img/feat-transferts-mobile.png"
-                  alt="Transferts Afrique Europe"
+                  alt="Transferts entre l'Afrique et l'Europe"
                   className="h-full w-[90%] mx-auto object-cover object-top lg:hidden"
                 />
                 {/* Desktop: wide 2-panel illustration */}
                 <img
                   src="/img/feat-transferts.png"
-                  alt="Transferts Afrique Europe"
+                  alt="Transferts entre l'Afrique et l'Europe"
                   className="hidden h-full w-full rounded-t-[15px] object-cover object-top lg:block"
                 />
               </div>
               <div className="flex flex-col gap-2 p-6 lg:items-center lg:py-7 lg:text-center">
-                <h3 className="font-display text-[20px] font-bold text-ink">Transferts Afrique ↔ Europe</h3>
+                <h3 className="font-display text-[20px] font-bold text-ink">Transferts entre l'Afrique et l'Europe</h3>
                 <p className="max-w-[580px] font-body text-[14px] leading-[1.55] text-muted">
-                  Envoyez et recevez de l’argent dans les deux sens, instantanément et au meilleur taux
+                  Envoyez et recevez de l’argent dans les deux sens, instantanément et aux meilleurs taux
                 </p>
               </div>
             </div>
@@ -80,8 +80,8 @@ export default function Features() {
             />
             <FeatureCard
               img="/img/feat-assistant.png"
-              title="Assistant personnel IA"
-              desc="Disponible 24h/24, en français, dioula et wolof"
+              title="Assistant personnel IA multilingue"
+              desc="Disponible 24h/24"
               delay={0.05}
             />
           </div>

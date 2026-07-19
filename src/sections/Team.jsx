@@ -8,8 +8,8 @@ const MEMBERS = [
   { name: 'Christian Ehouman', role: 'CEO & CO-FONDATEUR', img: `${U}photo-1758519290841-a80214cdf5df?${P}` },
   { name: 'Ivan Ehouman', role: 'CTO & CO-FONDATEUR', img: `${U}photo-1704286602312-71b5bedda30e?${P}` },
   { name: 'Élyse Ehouman', role: 'LEAD MOBILE', img: `${U}photo-1586232902955-df204f34b36e?${P}` },
-  { name: 'Blesson', role: 'CFO — ABIDJAN', img: `${U}photo-1544077449-985cfb071c9a?${P}` },
-  { name: 'Ami', role: 'COMPLIANCE  EX-ECOBANK & SG', img: `${U}photo-1737735413046-dcc4d940cb36?${P}` },
+  // { name: 'Blesson', role: 'CFO — ABIDJAN', img: `${U}photo-1544077449-985cfb071c9a?${P}` },
+  // { name: 'Ami', role: 'COMPLIANCE  EX-ECOBANK & SG', img: `${U}photo-1737735413046-dcc4d940cb36?${P}` },
 ]
 
 export default function Team() {
@@ -64,7 +64,7 @@ export default function Team() {
               </div>
             </Reveal>
           ))}
-          <div className="flex items-center justify-center">
+          {/* <div className="flex items-center justify-center">
             <a
               href="#contact"
               className="flex items-center gap-2.5 rounded-full bg-ink px-7 py-4 text-[15px] font-semibold text-white hover:-translate-y-0.5"
@@ -72,7 +72,7 @@ export default function Team() {
               Voir toute l’équipe
               <ArrowUpRight size={16} />
             </a>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

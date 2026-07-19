@@ -47,8 +47,7 @@ export default function Footer() {
                   La banque de la diaspora africaine
                 </h3>
                 <p className="font-body text-[15px] leading-[1.55] text-muted">
-                  Compte bancaire européen, transferts entre l’Afrique et l’Europe, visa étudiant — tout en
-                  une application.
+                  La banque qui vous accompagne de votre premier jour en Europe jusqu'à votre réussite
                 </p>
               </div>
 

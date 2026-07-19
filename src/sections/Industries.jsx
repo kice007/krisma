@@ -21,7 +21,7 @@ export default function Industries() {
                 Des services pensés pour chaque profil
               </h2>
               <p className="font-body text-[15px] leading-[1.55] text-[#c4c9e8]">
-                Que vous étudiiez à l’étranger, souteniez votre famille ou lanciez votre activité, Krisma
+                Que vous étudiez à l’étranger, souteniez votre famille ou lanciez votre activité, Krisma
                 s’adapte à votre réalité.
               </p>
               <a
@@ -41,7 +41,7 @@ export default function Industries() {
                 <Num>01.</Num>
                 <h3 className="font-display text-[22px] font-bold text-ink">Pour les étudiants</h3>
                 <p className="font-body text-[14px] leading-[1.5] text-muted">
-                  Ouvrez votre compte depuis l’Afrique, obtenez votre visa étudiant avec compte bloqué à 3% et
+                  Ouvrez votre compte depuis l’Afrique, obtenez votre visa étudiant avec compte bloqué et
                   trouvez un logement sans garant sur place.
                 </p>
               </div>
@@ -63,8 +63,7 @@ export default function Industries() {
                 <Num>02.</Num>
                 <h3 className="font-display text-[22px] font-bold text-ink">Pour les familles</h3>
                 <p className="font-body text-[14px] leading-[1.5] text-muted">
-                  Envoyez et recevez de l’argent entre l’Afrique et l’Europe, instantanément et au meilleur
-                  taux, dans les deux sens.
+                  Restez connectés à ceux que vous aimez. Envoyez et recevez de l'argent instantanément dans les deux sens.
                 </p>
               </div>
               <img
@@ -79,10 +78,9 @@ export default function Industries() {
           <Reveal className="lg:flex-1" delay={0.05}>
             <div className="flex flex-col gap-3 overflow-hidden rounded-2xl bg-white p-7">
               <Num>03.</Num>
-              <h3 className="font-display text-[22px] font-bold text-ink">Pour les entrepreneurs</h3>
+              <h3 className="font-display text-[22px] font-bold text-ink">Pour la diaspora</h3>
               <p className="font-body text-[14px] leading-[1.5] text-muted">
-                Un compte européen, une carte Mastercard et des transferts fiables pour développer votre
-                activité entre l’Afrique et l’Europe.
+                La banque qui vous accompagne de votre premier jour en Europe jusqu'à votre réussite.
               </p>
               <img
                 src="/img/entrepreneurs.png"
