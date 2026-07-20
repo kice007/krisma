@@ -7,7 +7,7 @@ const P = 'crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080'
 
 const PEOPLE = [
   { name: 'Christian Ehouman', img: '../public/img/team_1.jpg' },
-  { name: 'Ivan Ehouman', img: '../public/img/team_2.png' },
+  { name: 'Ivan Ehouman', img: '../public/img/team_2.1.png' },
   { name: 'Élyse Ehouman', placeholder: true },
 ]
 
@@ -68,8 +68,8 @@ export default function Team() {
           </a>
         </div>
 
-        {/* Desktop: grid */}
-        <div className="mt-12 hidden grid-cols-3 gap-x-9 gap-y-11 lg:grid">
+        {/* Desktop: centered row */}
+        <div className="mt-12 hidden justify-center gap-9 lg:flex">
           {MEMBERS.map((m, i) => (
             <Reveal key={m.name} delay={(i % 3) * 0.05}>
               <div className="flex flex-col gap-5">
