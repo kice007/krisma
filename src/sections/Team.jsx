@@ -8,8 +8,23 @@ const P = 'crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080'
 const PEOPLE = [
   { name: 'Christian Ehouman', img: '../public/img/team_1.jpg' },
   { name: 'Ivan Ehouman', img: '../public/img/team_2.png' },
-  { name: 'Élyse Ehouman', img: '../public/img/team_3.jpg' },
+  { name: 'Élyse Ehouman', placeholder: true },
 ]
+
+// WhatsApp-style default avatar (grey person silhouette) when there's no photo.
+function Avatar({ m, className }) {
+  if (m.placeholder) {
+    return (
+      <div className={`flex items-center justify-center bg-[#dfe5e7] ${className}`}>
+        <svg viewBox="0 0 24 24" fill="#aeb9c1" className="h-[64%] w-[64%]" aria-hidden="true">
+          <circle cx="12" cy="8.5" r="4.2" />
+          <path d="M12 14.2c-4.4 0-8 2.7-8 6.1v.7h16v-.7c0-3.4-3.6-6.1-8-6.1z" />
+        </svg>
+      </div>
+    )
+  }
+  return <img src={m.img} alt={m.name} className={className} />
+}
 
 export default function Team() {
   const { t } = useLang()
@@ -37,7 +52,7 @@ export default function Team() {
         <div className="mt-8 flex flex-col gap-4 lg:hidden">
           {MEMBERS.map((m) => (
             <div key={m.name} className="flex items-center gap-4">
-              <img src={m.img} alt={m.name} className="h-[130px] w-[110px] shrink-0 rounded-[14px] object-cover" />
+              <Avatar m={m} className="h-[130px] w-[110px] shrink-0 rounded-[14px] object-cover" />
               <div className="flex flex-col gap-1.5">
                 <p className="font-display text-[20px] font-bold text-ink">{m.name}</p>
                 <p className="font-body text-[12px] font-semibold tracking-[1px] text-indigolt">{m.role}</p>
@@ -58,7 +73,7 @@ export default function Team() {
           {MEMBERS.map((m, i) => (
             <Reveal key={m.name} delay={(i % 3) * 0.05}>
               <div className="flex flex-col gap-5">
-                <img src={m.img} alt={m.name} className="h-[230px] w-[200px] rounded-[14px] object-cover" />
+                <Avatar m={m} className="h-[230px] w-[200px] rounded-[14px] object-cover" />
                 <div className="flex flex-col gap-1.5">
                   <p className="font-display text-[22px] font-bold text-ink">{m.name}</p>
                   <p className="font-body text-[12px] font-semibold tracking-[1px] text-indigolt">{m.role}</p>
