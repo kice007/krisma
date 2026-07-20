@@ -7,7 +7,7 @@ const P = 'crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080'
 
 const PEOPLE = [
   { name: 'Christian Ehouman', img: '../public/img/team_1.jpg' },
-  { name: 'Ivan Ehouman', img: '../public/img/team_2.1.png' },
+  { name: 'Ivan Ehouman', img: '../public/img/team_21.png' },
   { name: 'Élyse Ehouman', placeholder: true },
 ]
 
