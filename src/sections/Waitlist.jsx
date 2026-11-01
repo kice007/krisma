@@ -1,0 +1,86 @@
+import { useRef, useState } from 'react'
+import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
+import { Check } from 'lucide-react'
+import Button from '../components/Button'
+import Rays from '../components/Rays'
+import Reveal from '../components/Reveal'
+import { useLang } from '../i18n'
+
+export default function Waitlist({ vote }) {
+  const { t } = useLang()
+  const w = t.waitlist
+  const [sent, setSent] = useState(false)
+  const [consent, setConsent] = useState(false)
+  const ref = useRef(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'start 0.5'] })
+  const scale = useTransform(scrollYProgress, [0, 1], [0.92, 1])
+
+  const submit = (e) => {
+    e.preventDefault()
+    setSent(true)
+  }
+
+  return (
+    <section id="contact" ref={ref} className="bg-white px-5 py-8 lg:px-10 lg:pb-20 lg:pt-[120px] xl:px-[100px]">
+      <motion.div
+        style={{ scale }}
+        className="relative mx-auto flex max-w-[1240px] flex-col items-center gap-3.5 overflow-hidden rounded-[28px] bg-noir px-[22px] py-9 lg:gap-[18px] lg:rounded-[40px] lg:px-12 lg:py-20"
+      >
+        <Rays desktop="rayons-liste" mobile="rayons-mobile-haut" />
+        <Reveal scale={0.5} y={0} className="relative">
+          <img src="/img/landing/k-white.png" alt="" className="h-[38px] w-[30px] object-contain lg:h-[51px] lg:w-10" />
+        </Reveal>
+        <Reveal delay={0.08} as="h2" className="relative mt-1.5 text-center font-display text-[40px] font-semibold leading-[1.08] tracking-[-1.4px] text-white lg:mt-2.5 lg:text-[64px] lg:leading-[1.06] lg:tracking-[-2px]">
+          {w.title}
+        </Reveal>
+        <Reveal delay={0.16} as="p" className="relative max-w-[620px] text-center font-body text-[16px] leading-[1.5] text-[#d4d4d4] lg:text-[18px] lg:leading-[1.55]">
+          {w.text}
+        </Reveal>
+
+        <Reveal delay={0.24} className="relative mt-1.5 w-full lg:mt-3 lg:max-w-[640px]">
+          <AnimatePresence mode="wait">
+            {sent ? (
+              <motion.p
+                key="ok"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex min-h-16 items-center justify-center gap-2.5 rounded-[32px] bg-white px-6 py-3 text-center font-body text-[16px] font-semibold text-noir"
+              >
+                <Check size={20} className="shrink-0 text-vert" />
+                {w.success}
+              </motion.p>
+            ) : (
+              <motion.form key="form" exit={{ opacity: 0, y: -12 }} onSubmit={submit} className="flex flex-col gap-3.5 lg:h-16 lg:flex-row lg:items-center lg:gap-0 lg:rounded-full lg:bg-white lg:pl-[26px] lg:pr-1.5">
+                <input
+                  type="email"
+                  required
+                  aria-label={w.placeholder}
+                  placeholder={w.placeholder}
+                  className="h-[54px] min-w-0 rounded-full bg-white px-[22px] font-body text-[16px] text-noir outline-none placeholder:text-gris lg:h-full lg:flex-1 lg:bg-transparent lg:px-0"
+                />
+                <Button type="submit" className="h-[54px] shrink-0 whitespace-nowrap lg:h-[52px]">
+                  {w.cta}
+                </Button>
+              </motion.form>
+            )}
+          </AnimatePresence>
+        </Reveal>
+
+        <Reveal delay={0.3} className="relative flex flex-col gap-2">
+          <label className="flex cursor-pointer gap-2.5 font-body text-[14px] leading-[1.4] text-[#d4d4d4]">
+            <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="peer sr-only" />
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] border-[1.5px] border-[#bdbdbd] transition-colors peer-checked:border-marque peer-checked:bg-marque">
+              {consent && <Check size={14} className="text-noir" />}
+            </span>
+            {w.consent}
+          </label>
+          {vote && (
+            <p className="text-center font-body text-[14px] text-[#d4d4d4]">
+              {w.vote} <span className="font-semibold text-white">{t.countries.names[vote]}</span>
+            </p>
+          )}
+        </Reveal>
+      </motion.div>
+    </section>
+  )
+}

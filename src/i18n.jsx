@@ -2,212 +2,294 @@ import { createContext, useContext, useEffect, useState } from 'react'
 
 export const translations = {
   fr: {
+    meta: { title: 'KRISMA — La finance sans frontières' },
     nav: {
       links: [
-        { label: 'Fonctionnalités', href: '#features' },
-        { label: 'Services', href: '#industries' },
-        { label: 'Tarifs', href: '#tarifs' },
+        { label: 'Accueil', href: '#hero' },
+        { label: 'Fonctionnalités', href: '#fonctionnalites' },
+        { label: 'Pour qui ?', href: '#parcours' },
+        { label: 'Partenaires', href: '#partenaires' },
+        { label: 'Notre avancement', href: '#avancement' },
         { label: 'Équipe', href: '#equipe' },
-        { label: 'Contact', href: '#contact' },
+        { label: 'FAQ', href: '#faq' },
       ],
-      notify: 'Être notifié',
-      notifyLaunch: 'Être notifié du lancement',
+      cta: "Rejoindre la liste d'attente",
+      open: 'Ouvrir le menu',
+      close: 'Fermer le menu',
+      language: 'Langue',
     },
     hero: {
-      tagline: 'La banque de la diaspora africaine.',
-      sub: 'Compte bancaire européen, transferts entre l’Afrique et l’Europe, comptes bloqués, tout en une application.',
-      cta: 'Être notifié du lancement',
-      appAlt: 'Application Krisma',
+      eyebrow: 'La finance sans frontières',
+      title: ['Votre argent,', 'ici et là-bas.'],
+      sub: "Le compte et la carte pour vivre en Europe et rester connecté à l'Afrique.",
+      perks: ['Simple au quotidien', "Connecté à l'Afrique", 'Pensé pour votre avenir'],
     },
-    pourquoi: {
-      badge: 'Pourquoi Krisma',
-      heading: 'Conçue par la diaspora, pour la diaspora.',
-      aiTag: 'IA',
-      aiText: 'Un assistant multilingue à votre service',
-      paragraph:
-        'Les banques traditionnelles ne comprennent pas votre réalité. Krisma oui. Frais transparents, transferts instantanés, et un assistant qui parle votre langue.',
-      checks: [
-        'Taux de conversion affichés avant chaque envoi',
-        'Carte Mastercard acceptée partout en Europe',
-        'Construisez votre score de crédit dès votre arrivée en Europe',
-        'Accédez à des prêts adaptés à votre situation',
+    presentation: {
+      lead: "Un compte européen, une carte pour vos dépenses, des transferts entre l'Europe et l'Afrique et des avantages chez nos partenaires.",
+      rest: 'KRISMA prépare une nouvelle manière de gérer votre argent, où que la vie vous mène.',
+    },
+    parcours: {
+      title: ['Une solution pour chaque étape', 'de votre parcours'],
+      sub: 'KRISMA commence avec les étudiants et la diaspora africaine, et ambitionne de servir à terme les voyageurs.',
+      here: 'Ici',
+      there: 'Là-bas',
+      steps: [
+        { n: '01', title: 'Vous arrivez en Europe', text: 'Préparez votre nouvelle vie avec une solution financière conçue pour accompagner votre installation.', tag: 'Étudiants internationaux', short: 'Étudiants internationaux' },
+        { n: '02', title: 'Vous vivez entre deux continents', text: "Gérez votre quotidien en Europe tout en restant connecté financièrement à l'Afrique.", tag: 'Diaspora africaine', short: 'Diaspora africaine' },
+        { n: '03', title: 'Vous voyagez en Europe', text: 'À terme, KRISMA pourrait proposer des solutions adaptées aux séjours temporaires.', tag: 'Voyageurs et touristes (à venir)', short: 'Voyageurs (à venir)' },
       ],
-      more: 'En savoir plus',
     },
-    features: {
-      badge: 'Nos fonctionnalités',
-      heading: 'Une banque conçue pour vous.',
-      visaTitle: 'Visa étudiant',
-      visaDesc:
-        'Compte bloqué en 24h depuis l’Afrique. Attestation officielle. Vous n’avez pas le montant complet ? Krisma Visa Flex complète le reste.',
-      compteTitle: 'Compte bancaire européen',
-      compteDesc:
-        'IBAN européen, carte Mastercard / Visa virtuelle et physique. Ouvrez votre compte depuis l’Afrique avant votre départ',
-      transfersTitle: "Transferts entre l'Afrique et l'Europe",
-      transfersDesc:
-        'Envoyez et recevez de l’argent dans les deux sens, instantanément et aux meilleurs taux',
-      garantieTitle: 'Garantie locative',
-      garantieDesc: 'Trouvez votre logement en France sans garant sur place.',
-      assistantTitle: 'Assistant personnel IA multilingue',
-      assistantDesc: 'Disponible 24h/24',
+    bento: {
+      title: ['Un compte, une carte, des transferts', 'et des avantages'],
+      account: {
+        title: 'Un compte européen',
+        text: 'Un IBAN et une carte pour gérer votre quotidien.',
+        balance: 'Solde total',
+        deposit: 'Déposer',
+        send: 'Envoyer',
+        spending: 'Dépenses',
+        income: 'Revenus',
+        month: 'Ce mois-ci',
+      },
+      partners: { title: 'KRISMA Partners', text: 'Du cashback chez les commerçants partenaires.' },
+      offer: {
+        title: 'Offre envisagée',
+        badge: 'En étude',
+        price: '4,99 €',
+        per: '/ mois',
+        free: '3 premiers mois gratuits envisagés',
+        note: "Tarif indicatif, susceptible d'évoluer avant le lancement. Les éventuels frais de transfert seront présentés séparément.",
+      },
+      transfer: {
+        title: 'Transferts internationaux',
+        text: "Envoyez de l'argent vers l'Afrique, simplement.",
+        send: 'Vous envoyez',
+        receive: 'Le bénéficiaire reçoit',
+        fee: 'Frais 1,99 €',
+        rate: '1 € = 655,00 XOF',
+        cta: 'Continuer',
+      },
+      community: { title: 'Communauté', text: 'Des solutions pensées pour rester connecté à vos proches.' },
     },
-    industries: {
-      badge: 'Profils',
-      heading: 'Des services pensés pour chaque profil',
-      paragraph:
-        'Que vous étudiez à l’étranger, souteniez votre famille ou lanciez votre activité, Krisma s’adapte à votre réalité.',
-      cta: 'Être notifié',
-      studentsTitle: 'Pour les étudiants',
-      studentsDesc:
-        'Ouvrez votre compte depuis l’Afrique, obtenez votre visa étudiant avec compte bloqué et trouvez un logement sans garant sur place.',
-      familiesTitle: 'Pour les familles',
-      familiesDesc:
-        "Restez connectés à ceux que vous aimez. Envoyez et recevez de l'argent instantanément dans les deux sens.",
-      diasporaTitle: 'Pour la diaspora',
-      diasporaDesc:
-        "La banque qui vous accompagne de votre premier jour en Europe jusqu'à votre réussite.",
+    partners: {
+      eyebrow: 'KRISMA Partners',
+      title: ['Votre carte pourrait', 'vous rapporter plus.'],
+      text: 'Restaurants, commerces, services du quotidien… KRISMA ambitionne de développer un réseau de partenaires pour récompenser vos achats éligibles.',
+      cta: 'Devenir partenaire',
+    },
+    advantages: {
+      eyebrow: 'KRISMA Partners',
+      title: ['Un réseau de partenaires', 'pour récompenser vos achats'],
+      items: [
+        { title: 'Cashback', text: 'chez nos partenaires' },
+        { title: 'Des avantages', text: 'sur vos achats du quotidien' },
+        { title: 'Un réseau de commerçants', text: "à travers l'Europe" },
+        { title: 'Des offres exclusives', text: 'pour la communauté KRISMA' },
+      ],
+    },
+    countries: {
+      title: ['Quel pays voulez-vous', 'voir en premier ?'],
+      text: 'Votez pour votre pays : vos réponses nous aideront à choisir les premières destinations de KRISMA.',
+      cta: 'Voter pour mon pays',
+      names: { ci: "Côte d'Ivoire", sn: 'Sénégal', ml: 'Mali', bf: 'Burkina Faso', bj: 'Bénin', tg: 'Togo', cm: 'Cameroun', ga: 'Gabon' },
+    },
+    photoAlt: 'Un jeune homme africain sourit dans une rue parisienne',
+    status: {
+      title: 'Où en est KRISMA ?',
+      text: 'KRISMA est une fintech en phase de développement. La société est créée et nous avançons avec des partenaires réglementés pour vous proposer une solution fiable, sécurisée et conforme.',
+      done: 'Réalisé',
+      doing: 'En cours',
+      next: 'À venir',
+      items: {
+        company: { title: 'Société créée', text: 'La société KRISMA existe : la première étape est franchie.' },
+        model: { title: 'Modèle défini', text: "Compte, carte, transferts et avantages : l'offre est cadrée." },
+        partners: { title: 'Partenaires en discussion', text: 'Nous avançons avec des partenaires réglementés.' },
+        tests: { title: 'Tests et validation', text: 'Nous préparons une solution fiable, sécurisée et conforme.' },
+        launch: { title: 'Lancement', text: "Rejoignez la liste d'attente pour être parmi les premiers." },
+      },
+      cta: "Rejoindre la liste d'attente",
     },
     team: {
-      badge: 'Notre équipe',
-      heading: 'Une équipe multicontinentale.',
-      paragraph:
-        'Fondée par des membres de la diaspora africaine, Krisma est opérée depuis Paris et Abidjan.',
-      roles: ['CEO & CO-FONDATEUR', 'CTO & CO-FONDATEUR', 'LEAD MOBILE'],
-      seeAll: 'Voir toute l’équipe',
+      title: 'Le premier cercle',
+      text: 'Fondée par des membres de la diaspora africaine, KRISMA se construit depuis Paris et Abidjan.',
+      roles: ['CEO & co-fondateur', 'CTO & co-fondateur', 'Lead mobile'],
     },
-    cta: {
-      youSend: 'Vous envoyez',
-      theyReceive: 'Ils reçoivent',
-      rate: 'Taux du jour · 1 € = 655,96 F',
-      confirm: 'Confirmer l’envoi',
-      spending: 'Dépenses cette semaine',
-      remaining: '124 € restants à dépenser',
-      rows: [
-        { n: 'Envoi à Maman', d: 'Abidjan · Orange Money', a: '- 120,90 €' },
-        { n: 'Café Starbucks', d: 'Yuzu Cold Brew', a: '- 4,20 €' },
+    faq: {
+      title: 'Questions fréquentes',
+      all: 'Voir toutes les questions',
+      items: [
+        { q: 'Quand KRISMA sera-t-il disponible ?', a: "KRISMA est en préparation et les services présentés ne sont pas encore disponibles. Rejoignez la liste d'attente pour être prévenu du lancement." },
+        { q: 'Comment pourrai-je ouvrir un compte ?', a: "Les modalités d'ouverture seront précisées avant le lancement. Les inscrits à la liste d'attente seront informés en premier." },
+        { q: 'Quels pays seront couverts au lancement ?', a: "La liste n'est pas encore arrêtée. Votez pour votre pays : vos réponses nous aideront à choisir les premières destinations." },
+        { q: 'KRISMA est-elle une banque ?', a: 'KRISMA est une fintech en phase de développement. Nous avançons avec des partenaires réglementés pour proposer une solution fiable, sécurisée et conforme.' },
+        { q: 'Combien coûtera KRISMA ?', a: "L'offre envisagée est de 4,99 € par mois, avec 3 premiers mois gratuits. Ce tarif est indicatif et susceptible d'évoluer avant le lancement." },
       ],
-      heading: 'Être notifié du lancement.',
-      paragraph:
-        'Laissez votre email pour être informé du lancement. Vos données ne seront jamais partagées ni revendues.',
-      placeholder: 'Entrez votre email…',
-      send: 'Envoyer',
-      soon: 'Bientôt sur',
+    },
+    waitlist: {
+      title: 'Soyez parmi les premiers.',
+      text: "Rejoignez la liste d'attente et participez à la construction de votre future expérience financière.",
+      placeholder: 'Votre adresse e-mail',
+      cta: "Rejoindre la liste d'attente",
+      consent: 'Je souhaite également recevoir des actualités sur KRISMA Partners (commerçants).',
+      vote: 'Votre vote :',
+      success: 'Merci ! Votre inscription est bien prise en compte.',
     },
     footer: {
-      heading: 'La banque de la diaspora africaine',
-      paragraph:
-        "La banque qui vous accompagne de votre premier jour en Europe jusqu'à votre réussite",
-      cols: [
-        { h: 'Produit', labels: ['Compte européen', 'Transferts', 'Visa étudiant', 'Garantie locative'] },
-        { h: 'Liens', labels: ['Équipe', 'Tarifs', 'Contact'] },
-        { h: 'Légal', labels: ['CGU', 'Confidentialité', 'Cookies', 'Mentions légales'] },
+      tagline: ['Plus loin.', 'Toujours ensemble.'],
+      columns: [
+        { h: 'Produit', links: ['Fonctionnalités', 'Pour qui ?', 'KRISMA Partners', 'Tarifs (en étude)'], href: ['#fonctionnalites', '#parcours', '#partenaires', '#fonctionnalites'] },
+        { h: 'Entreprise', links: ['Notre avancement', 'Carrières', 'Investisseurs', 'Devenir partenaire'], href: ['#avancement', '#', '#', '#partenaires'] },
+        { h: 'Ressources', links: ['FAQ', "Centre d'aide", 'Blog (à venir)', 'Contact'], href: ['#faq', '#', '#', '#contact'] },
       ],
-      copyright: '© 2026 Krisma — Tous droits réservés.',
+      legalTitle: 'Légal',
+      legal: ['Confidentialité', "Conditions d'utilisation", 'Mentions légales'],
+      copyright: '© 2026 KRISMA. Tous droits réservés.',
     },
   },
 
   en: {
+    meta: { title: 'KRISMA — Finance without borders' },
     nav: {
       links: [
-        { label: 'Features', href: '#features' },
-        { label: 'Services', href: '#industries' },
-        { label: 'Pricing', href: '#tarifs' },
+        { label: 'Home', href: '#hero' },
+        { label: 'Features', href: '#fonctionnalites' },
+        { label: "Who it's for", href: '#parcours' },
+        { label: 'Partners', href: '#partenaires' },
+        { label: 'Our progress', href: '#avancement' },
         { label: 'Team', href: '#equipe' },
-        { label: 'Contact', href: '#contact' },
+        { label: 'FAQ', href: '#faq' },
       ],
-      notify: 'Get notified',
-      notifyLaunch: 'Get notified at launch',
+      cta: 'Join the waitlist',
+      open: 'Open menu',
+      close: 'Close menu',
+      language: 'Language',
     },
     hero: {
-      tagline: 'The bank for the African diaspora.',
-      sub: 'A European bank account, transfers between Africa and Europe, blocked accounts — all in one app.',
-      cta: 'Get notified at launch',
-      appAlt: 'Krisma app',
+      eyebrow: 'Finance without borders',
+      title: ['Your money,', 'here and there.'],
+      sub: 'The account and card to live in Europe and stay connected to Africa.',
+      perks: ['Simple every day', 'Connected to Africa', 'Built for your future'],
     },
-    pourquoi: {
-      badge: 'Why Krisma',
-      heading: 'Built by the diaspora, for the diaspora.',
-      aiTag: 'AI',
-      aiText: 'A multilingual assistant at your service',
-      paragraph:
-        'Traditional banks don’t understand your reality. Krisma does. Transparent fees, instant transfers, and an assistant that speaks your language.',
-      checks: [
-        'Conversion rates shown before every transfer',
-        'Mastercard accepted everywhere in Europe',
-        'Build your credit score from the day you arrive in Europe',
-        'Access loans tailored to your situation',
+    presentation: {
+      lead: 'A European account, a card for your spending, transfers between Europe and Africa, and rewards with our partners.',
+      rest: 'KRISMA is building a new way to manage your money, wherever life takes you.',
+    },
+    parcours: {
+      title: ['A solution for every step', 'of your journey'],
+      sub: 'KRISMA starts with students and the African diaspora, and aims to serve travellers in time.',
+      here: 'Here',
+      there: 'There',
+      steps: [
+        { n: '01', title: "You're arriving in Europe", text: 'Prepare your new life with a financial solution designed to support your move.', tag: 'International students', short: 'International students' },
+        { n: '02', title: 'You live between two continents', text: 'Manage your daily life in Europe while staying financially connected to Africa.', tag: 'African diaspora', short: 'African diaspora' },
+        { n: '03', title: "You're travelling in Europe", text: 'In time, KRISMA could offer solutions suited to temporary stays.', tag: 'Travellers and tourists (coming soon)', short: 'Travellers (coming soon)' },
       ],
-      more: 'Learn more',
     },
-    features: {
-      badge: 'Our features',
-      heading: 'A bank built for you.',
-      visaTitle: 'Student visa',
-      visaDesc:
-        'Blocked account in 24h from Africa. Official certificate. Don’t have the full amount? Krisma Visa Flex covers the rest.',
-      compteTitle: 'European bank account',
-      compteDesc:
-        'European IBAN, virtual and physical Mastercard / Visa card. Open your account from Africa before you leave.',
-      transfersTitle: 'Transfers between Africa and Europe',
-      transfersDesc:
-        'Send and receive money both ways, instantly and at the best rates',
-      garantieTitle: 'Rental guarantee',
-      garantieDesc: 'Find housing in France without a local guarantor.',
-      assistantTitle: 'Multilingual AI personal assistant',
-      assistantDesc: 'Available 24/7',
+    bento: {
+      title: ['An account, a card, transfers', 'and rewards'],
+      account: {
+        title: 'A European account',
+        text: 'An IBAN and a card to manage your everyday life.',
+        balance: 'Total balance',
+        deposit: 'Deposit',
+        send: 'Send',
+        spending: 'Spending',
+        income: 'Income',
+        month: 'This month',
+      },
+      partners: { title: 'KRISMA Partners', text: 'Cashback at partner merchants.' },
+      offer: {
+        title: 'Planned offer',
+        badge: 'Under review',
+        price: '€4.99',
+        per: '/ month',
+        free: 'First 3 months free planned',
+        note: 'Indicative price, subject to change before launch. Any transfer fees will be shown separately.',
+      },
+      transfer: {
+        title: 'International transfers',
+        text: 'Send money to Africa, simply.',
+        send: 'You send',
+        receive: 'Recipient gets',
+        fee: 'Fee €1.99',
+        rate: '€1 = 655.00 XOF',
+        cta: 'Continue',
+      },
+      community: { title: 'Community', text: 'Solutions designed to keep you connected to your loved ones.' },
     },
-    industries: {
-      badge: 'Profiles',
-      heading: 'Services designed for every profile',
-      paragraph:
-        'Whether you’re studying abroad, supporting your family or launching your business, Krisma adapts to your reality.',
-      cta: 'Get notified',
-      studentsTitle: 'For students',
-      studentsDesc:
-        'Open your account from Africa, get your student visa with a blocked account, and find housing without a local guarantor.',
-      familiesTitle: 'For families',
-      familiesDesc:
-        'Stay connected to those you love. Send and receive money instantly, both ways.',
-      diasporaTitle: 'For the diaspora',
-      diasporaDesc:
-        'The bank that supports you from your first day in Europe to your success.',
+    partners: {
+      eyebrow: 'KRISMA Partners',
+      title: ['Your card could', 'earn you more.'],
+      text: 'Restaurants, shops, everyday services… KRISMA aims to build a partner network that rewards your eligible purchases.',
+      cta: 'Become a partner',
+    },
+    advantages: {
+      eyebrow: 'KRISMA Partners',
+      title: ['A partner network', 'that rewards your purchases'],
+      items: [
+        { title: 'Cashback', text: 'with our partners' },
+        { title: 'Rewards', text: 'on your everyday purchases' },
+        { title: 'A merchant network', text: 'across Europe' },
+        { title: 'Exclusive offers', text: 'for the KRISMA community' },
+      ],
+    },
+    countries: {
+      title: ['Which country do you want', 'to see first?'],
+      text: "Vote for your country: your answers will help us choose KRISMA's first destinations.",
+      cta: 'Vote for my country',
+      names: { ci: "Côte d'Ivoire", sn: 'Senegal', ml: 'Mali', bf: 'Burkina Faso', bj: 'Benin', tg: 'Togo', cm: 'Cameroon', ga: 'Gabon' },
+    },
+    photoAlt: 'A young African man smiling on a Paris street',
+    status: {
+      title: 'Where is KRISMA now?',
+      text: 'KRISMA is a fintech in development. The company is set up and we are working with regulated partners to offer you a reliable, secure and compliant solution.',
+      done: 'Done',
+      doing: 'In progress',
+      next: 'Coming next',
+      items: {
+        company: { title: 'Company created', text: 'KRISMA exists: the first step is complete.' },
+        model: { title: 'Model defined', text: 'Account, card, transfers and rewards: the offer is scoped.' },
+        partners: { title: 'Partners in discussion', text: 'We are working with regulated partners.' },
+        tests: { title: 'Testing and validation', text: 'We are preparing a reliable, secure and compliant solution.' },
+        launch: { title: 'Launch', text: 'Join the waitlist to be among the first.' },
+      },
+      cta: 'Join the waitlist',
     },
     team: {
-      badge: 'Our team',
-      heading: 'A multicontinental team.',
-      paragraph:
-        'Founded by members of the African diaspora, Krisma is operated from Paris and Abidjan.',
-      roles: ['CEO & CO-FOUNDER', 'CTO & CO-FOUNDER', 'MOBILE LEAD'],
-      seeAll: 'Meet the whole team',
+      title: 'The inner circle',
+      text: 'Founded by members of the African diaspora, KRISMA is being built from Paris and Abidjan.',
+      roles: ['CEO & co-founder', 'CTO & co-founder', 'Mobile lead'],
     },
-    cta: {
-      youSend: 'You send',
-      theyReceive: 'They receive',
-      rate: 'Today’s rate · 1 € = 655.96 F',
-      confirm: 'Confirm transfer',
-      spending: 'Spending this week',
-      remaining: '124 € left to spend',
-      rows: [
-        { n: 'Sent to Mum', d: 'Abidjan · Orange Money', a: '- 120.90 €' },
-        { n: 'Starbucks coffee', d: 'Yuzu Cold Brew', a: '- 4.20 €' },
+    faq: {
+      title: 'Frequently asked questions',
+      all: 'See all questions',
+      items: [
+        { q: 'When will KRISMA be available?', a: 'KRISMA is in preparation and the services shown are not available yet. Join the waitlist to hear about the launch.' },
+        { q: 'How will I open an account?', a: 'Account opening details will be shared before launch. People on the waitlist will be told first.' },
+        { q: 'Which countries will be covered at launch?', a: "The list isn't final yet. Vote for your country: your answers will help us choose the first destinations." },
+        { q: 'Is KRISMA a bank?', a: 'KRISMA is a fintech in development. We are working with regulated partners to offer a reliable, secure and compliant solution.' },
+        { q: 'How much will KRISMA cost?', a: 'The planned offer is €4.99 per month, with the first 3 months free. This price is indicative and may change before launch.' },
       ],
-      heading: 'Get notified at launch.',
-      paragraph:
-        'Leave your email to hear when we launch. Your data will never be shared or sold.',
-      placeholder: 'Enter your email…',
-      send: 'Send',
-      soon: 'Coming soon to',
+    },
+    waitlist: {
+      title: 'Be among the first.',
+      text: 'Join the waitlist and help shape your future financial experience.',
+      placeholder: 'Your email address',
+      cta: 'Join the waitlist',
+      consent: 'I would also like to receive news about KRISMA Partners (merchants).',
+      vote: 'Your vote:',
+      success: 'Thank you! Your sign-up has been received.',
     },
     footer: {
-      heading: 'The bank for the African diaspora',
-      paragraph:
-        'The bank that supports you from your first day in Europe to your success',
-      cols: [
-        { h: 'Product', labels: ['European account', 'Transfers', 'Student visa', 'Rental guarantee'] },
-        { h: 'Links', labels: ['Team', 'Pricing', 'Contact'] },
-        { h: 'Legal', labels: ['Terms', 'Privacy', 'Cookies', 'Legal notice'] },
+      tagline: ['Further.', 'Always together.'],
+      columns: [
+        { h: 'Product', links: ['Features', "Who it's for", 'KRISMA Partners', 'Pricing (under review)'], href: ['#fonctionnalites', '#parcours', '#partenaires', '#fonctionnalites'] },
+        { h: 'Company', links: ['Our progress', 'Careers', 'Investors', 'Become a partner'], href: ['#avancement', '#', '#', '#partenaires'] },
+        { h: 'Resources', links: ['FAQ', 'Help centre', 'Blog (coming soon)', 'Contact'], href: ['#faq', '#', '#', '#contact'] },
       ],
-      copyright: '© 2026 Krisma — All rights reserved.',
+      legalTitle: 'Legal',
+      legal: ['Privacy', 'Terms of use', 'Legal notice'],
+      copyright: '© 2026 KRISMA. All rights reserved.',
     },
   },
 }
@@ -216,19 +298,18 @@ const LangContext = createContext(null)
 
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState(() => {
-    if (typeof window === 'undefined') return 'fr'
-    return localStorage.getItem('krisma-lang') || 'fr'
+    const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('krisma-lang') : null
+    return saved === 'en' ? 'en' : 'fr'
   })
 
   useEffect(() => {
     localStorage.setItem('krisma-lang', lang)
     document.documentElement.lang = lang
+    document.title = translations[lang].meta.title
   }, [lang])
 
-  const toggle = () => setLang((l) => (l === 'fr' ? 'en' : 'fr'))
-
   return (
-    <LangContext.Provider value={{ lang, setLang, toggle, t: translations[lang] }}>
+    <LangContext.Provider value={{ lang, setLang, t: translations[lang] }}>
       {children}
     </LangContext.Provider>
   )
