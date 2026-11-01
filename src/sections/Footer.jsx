@@ -1,81 +1,62 @@
+import { LangSwitch } from '../components/Nav'
 import Reveal from '../components/Reveal'
-import { XIcon, LinkedinIcon, InstagramIcon, FacebookIcon } from '../components/BrandIcons'
+import { Socials } from '../components/Socials'
 import { useLang } from '../i18n'
 
-// Hrefs per column (order matches the translated labels in i18n.jsx footer.cols).
-const HREFS = [
-  ['#features', '#features', '#features', '#features'],
-  ['#equipe', '#tarifs', '#contact'],
-  ['#', '#', '#', '#'],
-]
-
-const SOCIALS = [XIcon, LinkedinIcon, InstagramIcon, FacebookIcon]
+function Column({ title, links, href, delay }) {
+  return (
+    <Reveal delay={delay} y={24} className="flex flex-col gap-2.5 lg:gap-3">
+      <h3 className="font-body text-[16px] font-semibold text-noir">{title}</h3>
+      {links.map((l, i) => (
+        <a key={l} href={href?.[i] ?? '#'} className="w-fit whitespace-nowrap font-body text-[15px] text-gris hover:text-noir">
+          {l}
+        </a>
+      ))}
+    </Reveal>
+  )
+}
 
 export default function Footer() {
   const { t } = useLang()
   const f = t.footer
-  const COLS = f.cols.map((c, i) => ({
-    h: c.h,
-    links: c.labels.map((label, j) => [label, HREFS[i][j]]),
-  }))
   return (
-    <footer className="bg-indigo p-3.5 lg:px-5 lg:py-6">
-      <div className="mx-auto max-w-[1440px]">
-        <Reveal>
-          <div className="flex flex-col gap-8 rounded-[28px] bg-white p-6 py-10 lg:gap-12 lg:p-16">
-            {/* Top divider — mobile only */}
-            <div className="h-px w-full bg-line lg:hidden" />
-            {/* Top */}
-            <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-16">
-              <div className="flex flex-col gap-4 lg:w-[480px]">
-                <h3 className="font-display text-[26px] font-bold leading-[1.1] text-ink lg:text-[34px]">
-                  {f.heading}
-                </h3>
-                <p className="font-body text-[15px] leading-[1.55] text-muted">
-                  {f.paragraph}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-x-4 gap-y-7 lg:flex lg:flex-row lg:gap-12">
-                {COLS.map((c) => (
-                  <div key={c.h} className="flex flex-col gap-3.5 lg:w-[160px]">
-                    <p className="font-display text-[17px] font-bold text-ink">{c.h}</p>
-                    <div className="flex flex-col gap-[13px]">
-                      {c.links.map(([label, href]) => (
-                        <a
-                          key={label}
-                          href={href}
-                          className="font-body text-[15px] text-muted hover:text-indigo"
-                        >
-                          {label}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="h-px w-full bg-line" />
-
-            {/* Bottom */}
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-              <span className="font-display text-[40px] font-extrabold text-ink lg:text-[26px]">Krisma</span>
-              <div className="flex gap-3">
-                {SOCIALS.map((Icon, i) => (
-                  <a
-                    key={i}
-                    href="#"
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-bgalt text-ink hover:bg-line"
-                  >
-                    <Icon size={17} />
-                  </a>
-                ))}
-              </div>
-              <span className="font-body text-[14px] text-muted">{f.copyright}</span>
+    <footer className="bg-white px-5 pb-8 pt-6 lg:px-10 lg:pb-10 lg:pt-0 xl:px-[100px]">
+      <div className="mx-auto max-w-[1240px]">
+        <div className="flex flex-col gap-6 lg:flex-row lg:justify-between">
+          <Reveal className="flex flex-col gap-6 lg:gap-[22px]">
+            <span className="flex items-center gap-2">
+              <img src="/img/landing/k-ink.png" alt="" className="h-[25px] w-5 object-contain" />
+              <span className="font-display text-[20px] font-bold text-noir">KRISMA</span>
+            </span>
+            <p className="font-display text-[30px] font-semibold leading-[1.12] tracking-[-1px] text-noir lg:text-[36px]">
+              {f.tagline[0]}
+              <br />
+              {f.tagline[1]}
+            </p>
+            <Socials className="text-noir" />
+          </Reveal>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-6 lg:flex lg:gap-[72px]">
+            {f.columns.map((c, i) => (
+              <Column key={c.h} title={c.h} links={c.links} href={c.href} delay={i * 0.08} />
+            ))}
+            <div className="lg:hidden">
+              <Column title={f.legalTitle} links={f.legal} delay={0.24} />
             </div>
           </div>
-        </Reveal>
+        </div>
+        <div className="mt-6 flex items-center justify-between border-t border-ligne pt-4 lg:mt-11 lg:pt-5">
+          <p className="font-body text-[13px] text-gris lg:text-[14px]">{f.copyright}</p>
+          <div className="flex items-center gap-5">
+            <div className="hidden gap-5 lg:flex">
+              {f.legal.map((l) => (
+                <a key={l} href="#" className="font-body text-[14px] text-gris hover:text-noir">
+                  {l}
+                </a>
+              ))}
+            </div>
+            <LangSwitch up />
+          </div>
+        </div>
       </div>
     </footer>
   )

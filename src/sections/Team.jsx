@@ -1,98 +1,63 @@
-import { ArrowUpRight } from 'lucide-react'
-import Reveal from '../components/Reveal'
+import { motion } from 'framer-motion'
+import { User } from 'lucide-react'
+import Reveal, { EASE } from '../components/Reveal'
 import { useLang } from '../i18n'
 
-const U = 'https://images.unsplash.com/'
-const P = 'crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080'
-
 const PEOPLE = [
-  { name: 'Christian Ehouman', img: '/img/team_1.jpg' },
-  { name: 'Ivan Ehouman', img: '/img/team_21.png' },
-  { name: 'Élyse Ehouman', placeholder: true },
+  { name: 'Christian Ehouman', img: '/img/landing/equipe-christian.webp' },
+  { name: 'Ivan Ehouman', img: '/img/landing/equipe-ivan.webp' },
+  { name: 'Élyse Ehouman' },
 ]
 
-// WhatsApp-style default avatar (grey person silhouette) when there's no photo.
-function Avatar({ m, className }) {
-  if (m.placeholder) {
-    return (
-      <div className={`flex items-center justify-center bg-[#dfe5e7] ${className}`}>
-        <svg viewBox="0 0 24 24" fill="#aeb9c1" className="h-[64%] w-[64%]" aria-hidden="true">
-          <circle cx="12" cy="8.5" r="4.2" />
-          <path d="M12 14.2c-4.4 0-8 2.7-8 6.1v.7h16v-.7c0-3.4-3.6-6.1-8-6.1z" />
-        </svg>
-      </div>
-    )
-  }
-  return <img src={m.img} alt={m.name} className={className} />
+function Portrait({ p, delay }) {
+  return (
+    <span className="relative flex h-28 w-28 shrink-0 items-center justify-center lg:h-[296px] lg:w-[296px]">
+      <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden>
+        <motion.circle
+          cx="50"
+          cy="50"
+          r="49.6"
+          fill="none"
+          stroke="#e6e6e6"
+          strokeWidth="0.4"
+          initial={{ pathLength: 0 }}
+          whileInView={{ pathLength: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.6, ease: 'easeInOut', delay }}
+        />
+      </svg>
+      <motion.span
+        className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-clair lg:h-[252px] lg:w-[252px]"
+        initial={{ scale: 0.6, opacity: 0 }}
+        whileInView={{ scale: 1, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.1, ease: EASE, delay: delay + 0.15 }}
+      >
+        {p.img ? <img src={p.img} alt={p.name} className="h-full w-full object-cover" /> : <User className="h-9 w-9 text-[#bdbdbd] lg:h-[72px] lg:w-[72px]" />}
+      </motion.span>
+    </span>
+  )
 }
 
 export default function Team() {
   const { t } = useLang()
-  const tm = t.team
-  const MEMBERS = PEOPLE.map((m, i) => ({ ...m, role: tm.roles[i] }))
+  const m = t.team
   return (
-    <section id="equipe" className="bg-white">
-      <div className="mx-auto max-w-[1440px] px-6 py-16 lg:px-16 lg:py-20">
-        {/* Head */}
-        <Reveal className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
-          <div className="flex flex-col gap-[18px]">
-            <span className="w-fit rounded-full bg-bgalt px-4 py-2 font-body text-[12px] font-bold text-indigo">
-              {tm.badge}
-            </span>
-            <h2 className="font-display text-[30px] font-semibold leading-[1.1] text-ink lg:text-[44px]">
-              {tm.heading}
-            </h2>
-          </div>
-          <p className="font-body text-[16px] leading-[1.55] text-ink lg:max-w-[400px]">
-            {tm.paragraph}
-          </p>
-        </Reveal>
-
-        {/* Mobile: rows */}
-        <div className="mt-8 flex flex-col gap-4 lg:hidden">
-          {MEMBERS.map((m) => (
-            <div key={m.name} className="flex items-center gap-4">
-              <Avatar m={m} className="h-[130px] w-[110px] shrink-0 rounded-[14px] object-cover" />
-              <div className="flex flex-col gap-1.5">
-                <p className="font-display text-[20px] font-bold text-ink">{m.name}</p>
-                <p className="font-body text-[12px] font-semibold tracking-[1px] text-indigolt">{m.role}</p>
-              </div>
-            </div>
-          ))}
-          <a
-            href="#contact"
-            className="mt-4 flex w-fit items-center gap-2.5 rounded-full bg-ink px-7 py-4 text-[15px] font-semibold text-white hover:-translate-y-0.5"
-          >
-            {tm.seeAll}
-            <ArrowUpRight size={16} />
-          </a>
-        </div>
-
-        {/* Desktop: centered row */}
-        <div className="mt-12 hidden justify-center gap-9 lg:flex">
-          {MEMBERS.map((m, i) => (
-            <Reveal key={m.name} delay={(i % 3) * 0.05}>
-              <div className="flex flex-col gap-5">
-                <Avatar m={m} className="h-[230px] w-[200px] rounded-[14px] object-cover" />
-                <div className="flex flex-col gap-1.5">
-                  <p className="font-display text-[22px] font-bold text-ink">{m.name}</p>
-                  <p className="font-body text-[12px] font-semibold tracking-[1px] text-indigolt">{m.role}</p>
-                </div>
-              </div>
+    <section id="equipe" className="bg-white px-5 pb-16 lg:px-10 lg:pb-[120px]">
+      <Reveal className="mx-auto flex max-w-[640px] flex-col items-center gap-3 text-center lg:gap-4">
+        <h2 className="font-display text-[32px] font-semibold leading-[1.1] tracking-[-1px] text-noir lg:text-[52px] lg:leading-[1.06] lg:tracking-[-2px]">{m.title}</h2>
+        <p className="font-body text-[16px] leading-[1.5] text-gris lg:text-[18px] lg:leading-[1.55]">{m.text}</p>
+      </Reveal>
+      <div className="mx-auto mt-6 flex max-w-[350px] flex-col gap-3 lg:mt-14 lg:max-w-none lg:flex-row lg:justify-center lg:gap-[72px]">
+        {PEOPLE.map((p, i) => (
+          <div key={p.name} className="flex items-center gap-[18px] py-1.5 lg:flex-col lg:gap-1.5 lg:py-0">
+            <Portrait p={p} delay={i * 0.18} />
+            <Reveal delay={0.2 + i * 0.18} y={18} className="flex flex-col gap-0.5 lg:mt-3.5 lg:items-center">
+              <h3 className="font-display text-[22px] font-semibold leading-[1.2] text-noir lg:text-[24px]">{p.name}</h3>
+              <p className="font-body text-[15px] text-gris">{m.roles[i]}</p>
             </Reveal>
-          ))}
-        </div>
-
-        {/* Desktop CTA — centered below the team row */}
-        <div className="mt-14 hidden justify-center lg:flex">
-          <a
-            href="#contact"
-            className="flex items-center gap-2.5 rounded-full bg-ink px-7 py-4 text-[15px] font-semibold text-white transition-transform hover:-translate-y-0.5"
-          >
-            {tm.seeAll}
-            <ArrowUpRight size={16} />
-          </a>
-        </div>
+          </div>
+        ))}
       </div>
     </section>
   )
