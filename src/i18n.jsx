@@ -19,14 +19,14 @@ export const translations = {
       language: 'Langue',
     },
     hero: {
-      eyebrow: 'La finance sans frontières',
-      title: ['Votre argent,', 'ici et là-bas.'],
+
+      title: ['Plus loin,', 'toujours ensemble.'],
       sub: "Le compte et la carte pour vivre en Europe et rester connecté à l'Afrique.",
       perks: ['Simple au quotidien', "Connecté à l'Afrique", 'Pensé pour votre avenir'],
     },
     presentation: {
       lead: "Un compte européen, une carte pour vos dépenses, des transferts entre l'Europe et l'Afrique et des avantages chez nos partenaires.",
-      rest: 'KRISMA prépare une nouvelle manière de gérer votre argent, où que la vie vous mène.',
+      rest: 'KRISMA propose une nouvelle manière de gérer votre argent, où que la vie vous mène.',
     },
     parcours: {
       title: ['Une solution pour chaque étape', 'de votre parcours'],
@@ -87,31 +87,10 @@ export const translations = {
         { title: 'Des offres exclusives', text: 'pour la communauté KRISMA' },
       ],
     },
-    countries: {
-      title: ['Quel pays voulez-vous', 'voir en premier ?'],
-      text: 'Votez pour votre pays : vos réponses nous aideront à choisir les premières destinations de KRISMA.',
-      cta: 'Voter pour mon pays',
-      names: { ci: "Côte d'Ivoire", sn: 'Sénégal', ml: 'Mali', bf: 'Burkina Faso', bj: 'Bénin', tg: 'Togo', cm: 'Cameroun', ga: 'Gabon' },
-    },
     photoAlt: 'Un jeune homme africain sourit dans une rue parisienne',
-    status: {
-      title: 'Où en est KRISMA ?',
-      text: 'KRISMA est une fintech en phase de développement. La société est créée et nous avançons avec des partenaires réglementés pour vous proposer une solution fiable, sécurisée et conforme.',
-      done: 'Réalisé',
-      doing: 'En cours',
-      next: 'À venir',
-      items: {
-        company: { title: 'Société créée', text: 'La société KRISMA existe : la première étape est franchie.' },
-        model: { title: 'Modèle défini', text: "Compte, carte, transferts et avantages : l'offre est cadrée." },
-        partners: { title: 'Partenaires en discussion', text: 'Nous avançons avec des partenaires réglementés.' },
-        tests: { title: 'Tests et validation', text: 'Nous préparons une solution fiable, sécurisée et conforme.' },
-        launch: { title: 'Lancement', text: "Rejoignez la liste d'attente pour être parmi les premiers." },
-      },
-      cta: "Rejoindre la liste d'attente",
-    },
     team: {
       title: 'Le premier cercle',
-      text: 'Fondée par des membres de la diaspora africaine, KRISMA se construit depuis Paris et Abidjan.',
+      text: 'Fondée par des membres de la diaspora africaine',
       roles: ['CEO & co-fondateur', 'CTO & co-fondateur', 'Lead mobile'],
     },
     faq: {
@@ -165,8 +144,7 @@ export const translations = {
       language: 'Language',
     },
     hero: {
-      eyebrow: 'Finance without borders',
-      title: ['Your money,', 'here and there.'],
+      title: ['Further,', ' together !'],
       sub: 'The account and card to live in Europe and stay connected to Africa.',
       perks: ['Simple every day', 'Connected to Africa', 'Built for your future'],
     },
@@ -233,12 +211,7 @@ export const translations = {
         { title: 'Exclusive offers', text: 'for the KRISMA community' },
       ],
     },
-    countries: {
-      title: ['Which country do you want', 'to see first?'],
-      text: "Vote for your country: your answers will help us choose KRISMA's first destinations.",
-      cta: 'Vote for my country',
-      names: { ci: "Côte d'Ivoire", sn: 'Senegal', ml: 'Mali', bf: 'Burkina Faso', bj: 'Benin', tg: 'Togo', cm: 'Cameroon', ga: 'Gabon' },
-    },
+
     photoAlt: 'A young African man smiling on a Paris street',
     status: {
       title: 'Where is KRISMA now?',
@@ -257,7 +230,7 @@ export const translations = {
     },
     team: {
       title: 'The inner circle',
-      text: 'Founded by members of the African diaspora, KRISMA is being built from Paris and Abidjan.',
+      text: 'Founded by members of the African diaspora',
       roles: ['CEO & co-founder', 'CTO & co-founder', 'Mobile lead'],
     },
     faq: {
