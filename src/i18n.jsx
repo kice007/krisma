@@ -9,7 +9,6 @@ export const translations = {
         { label: 'Fonctionnalités', href: '#fonctionnalites' },
         { label: 'Pour qui ?', href: '#parcours' },
         { label: 'Partenaires', href: '#partenaires' },
-        { label: 'Notre avancement', href: '#avancement' },
         { label: 'Équipe', href: '#equipe' },
         { label: 'FAQ', href: '#faq' },
       ],
@@ -19,7 +18,6 @@ export const translations = {
       language: 'Langue',
     },
     hero: {
-
       title: ['Plus loin,', 'toujours ensemble.'],
       sub: "Le compte et la carte pour vivre en Europe et rester connecté à l'Afrique.",
       perks: ['Simple au quotidien', "Connecté à l'Afrique", 'Pensé pour votre avenir'],
@@ -99,7 +97,7 @@ export const translations = {
       items: [
         { q: 'Quand KRISMA sera-t-il disponible ?', a: "KRISMA est en préparation et les services présentés ne sont pas encore disponibles. Rejoignez la liste d'attente pour être prévenu du lancement." },
         { q: 'Comment pourrai-je ouvrir un compte ?', a: "Les modalités d'ouverture seront précisées avant le lancement. Les inscrits à la liste d'attente seront informés en premier." },
-        { q: 'Quels pays seront couverts au lancement ?', a: "La liste n'est pas encore arrêtée. Votez pour votre pays : vos réponses nous aideront à choisir les premières destinations." },
+        { q: 'Quels pays seront couverts au lancement ?', a: "La liste n'est pas encore arrêtée. Rejoignez la liste d'attente pour être informé en premier." },
         { q: 'KRISMA est-elle une banque ?', a: 'KRISMA est une fintech en phase de développement. Nous avançons avec des partenaires réglementés pour proposer une solution fiable, sécurisée et conforme.' },
         { q: 'Combien coûtera KRISMA ?', a: "L'offre envisagée est de 4,99 € par mois, avec 3 premiers mois gratuits. Ce tarif est indicatif et susceptible d'évoluer avant le lancement." },
       ],
@@ -110,14 +108,13 @@ export const translations = {
       placeholder: 'Votre adresse e-mail',
       cta: "Rejoindre la liste d'attente",
       consent: 'Je souhaite également recevoir des actualités sur KRISMA Partners (commerçants).',
-      vote: 'Votre vote :',
       success: 'Merci ! Votre inscription est bien prise en compte.',
     },
     footer: {
       tagline: ['Plus loin.', 'Toujours ensemble.'],
       columns: [
         { h: 'Produit', links: ['Fonctionnalités', 'Pour qui ?', 'KRISMA Partners', 'Tarifs (en étude)'], href: ['#fonctionnalites', '#parcours', '#partenaires', '#fonctionnalites'] },
-        { h: 'Entreprise', links: ['Notre avancement', 'Carrières', 'Investisseurs', 'Devenir partenaire'], href: ['#avancement', '#', '#', '#partenaires'] },
+        { h: 'Entreprise', links: ['Carrières', 'Investisseurs', 'Devenir partenaire'], href: ['#', '#', '#partenaires'] },
         { h: 'Ressources', links: ['FAQ', "Centre d'aide", 'Blog (à venir)', 'Contact'], href: ['#faq', '#', '#', '#contact'] },
       ],
       legalTitle: 'Légal',
@@ -134,7 +131,6 @@ export const translations = {
         { label: 'Features', href: '#fonctionnalites' },
         { label: "Who it's for", href: '#parcours' },
         { label: 'Partners', href: '#partenaires' },
-        { label: 'Our progress', href: '#avancement' },
         { label: 'Team', href: '#equipe' },
         { label: 'FAQ', href: '#faq' },
       ],
@@ -144,7 +140,7 @@ export const translations = {
       language: 'Language',
     },
     hero: {
-      title: ['Further,', ' together !'],
+      title: ['Further,', 'together!'],
       sub: 'The account and card to live in Europe and stay connected to Africa.',
       perks: ['Simple every day', 'Connected to Africa', 'Built for your future'],
     },
@@ -213,21 +209,6 @@ export const translations = {
     },
 
     photoAlt: 'A young African man smiling on a Paris street',
-    status: {
-      title: 'Where is KRISMA now?',
-      text: 'KRISMA is a fintech in development. The company is set up and we are working with regulated partners to offer you a reliable, secure and compliant solution.',
-      done: 'Done',
-      doing: 'In progress',
-      next: 'Coming next',
-      items: {
-        company: { title: 'Company created', text: 'KRISMA exists: the first step is complete.' },
-        model: { title: 'Model defined', text: 'Account, card, transfers and rewards: the offer is scoped.' },
-        partners: { title: 'Partners in discussion', text: 'We are working with regulated partners.' },
-        tests: { title: 'Testing and validation', text: 'We are preparing a reliable, secure and compliant solution.' },
-        launch: { title: 'Launch', text: 'Join the waitlist to be among the first.' },
-      },
-      cta: 'Join the waitlist',
-    },
     team: {
       title: 'The inner circle',
       text: 'Founded by members of the African diaspora',
@@ -239,7 +220,7 @@ export const translations = {
       items: [
         { q: 'When will KRISMA be available?', a: 'KRISMA is in preparation and the services shown are not available yet. Join the waitlist to hear about the launch.' },
         { q: 'How will I open an account?', a: 'Account opening details will be shared before launch. People on the waitlist will be told first.' },
-        { q: 'Which countries will be covered at launch?', a: "The list isn't final yet. Vote for your country: your answers will help us choose the first destinations." },
+        { q: 'Which countries will be covered at launch?', a: "The list isn't final yet. Join the waitlist to be the first to know." },
         { q: 'Is KRISMA a bank?', a: 'KRISMA is a fintech in development. We are working with regulated partners to offer a reliable, secure and compliant solution.' },
         { q: 'How much will KRISMA cost?', a: 'The planned offer is €4.99 per month, with the first 3 months free. This price is indicative and may change before launch.' },
       ],
@@ -250,14 +231,13 @@ export const translations = {
       placeholder: 'Your email address',
       cta: 'Join the waitlist',
       consent: 'I would also like to receive news about KRISMA Partners (merchants).',
-      vote: 'Your vote:',
       success: 'Thank you! Your sign-up has been received.',
     },
     footer: {
       tagline: ['Further.', 'Always together.'],
       columns: [
         { h: 'Product', links: ['Features', "Who it's for", 'KRISMA Partners', 'Pricing (under review)'], href: ['#fonctionnalites', '#parcours', '#partenaires', '#fonctionnalites'] },
-        { h: 'Company', links: ['Our progress', 'Careers', 'Investors', 'Become a partner'], href: ['#avancement', '#', '#', '#partenaires'] },
+        { h: 'Company', links: ['Careers', 'Investors', 'Become a partner'], href: ['#', '#', '#partenaires'] },
         { h: 'Resources', links: ['FAQ', 'Help centre', 'Blog (coming soon)', 'Contact'], href: ['#faq', '#', '#', '#contact'] },
       ],
       legalTitle: 'Legal',

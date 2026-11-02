@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { MotionConfig } from 'framer-motion'
 import Nav from './components/Nav'
 import Hero from './sections/Hero'
@@ -7,16 +6,13 @@ import Parcours from './sections/Parcours'
 import Bento from './sections/Bento'
 import PartnersCard from './sections/PartnersCard'
 import Advantages from './sections/Advantages'
-
 import PhotoBand from './sections/PhotoBand'
-
 import Team from './sections/Team'
 import Faq from './sections/Faq'
 import Waitlist from './sections/Waitlist'
 import Footer from './sections/Footer'
 
 export default function App() {
-  const [vote, setVote] = useState(null)
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-screen w-full overflow-x-clip bg-white">
@@ -31,7 +27,7 @@ export default function App() {
           <Team />
           <PhotoBand />
           <Faq />
-          <Waitlist vote={vote} />
+          <Waitlist />
         </main>
         <Footer />
       </div>

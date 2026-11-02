@@ -6,7 +6,7 @@ import Rays from '../components/Rays'
 import Reveal from '../components/Reveal'
 import { useLang } from '../i18n'
 
-export default function Waitlist({ vote }) {
+export default function Waitlist() {
   const { t } = useLang()
   const w = t.waitlist
   const [sent, setSent] = useState(false)
@@ -74,11 +74,6 @@ export default function Waitlist({ vote }) {
             </span>
             {w.consent}
           </label>
-          {vote && (
-            <p className="text-center font-body text-[14px] text-[#d4d4d4]">
-              {w.vote} <span className="font-semibold text-white">{t.countries.names[vote]}</span>
-            </p>
-          )}
         </Reveal>
       </motion.div>
     </section>

@@ -110,12 +110,7 @@ function Desktop() {
           </motion.div>
 
           <motion.div className="absolute left-[100px] top-[470px] w-[300px]" style={{ x: m.leftX, opacity: m.fade }}>
-            <Slide from={-1} delay={0.9}>
-              <p className="w-[260px] font-display text-[28px] font-semibold leading-[1.15] tracking-[-0.5px] text-noir">
-                {t.hero.eyebrow}
-              </p>
-            </Slide>
-            <ul className="mt-[66px] flex flex-col gap-3.5">
+            <ul className="flex flex-col gap-3.5">
               {t.hero.perks.map((p, i) => {
                 const I = ICONS[i]
                 return (
@@ -193,9 +188,6 @@ function Mobile() {
 
         <motion.div className="absolute left-5 top-[100px] w-[350px]" style={{ opacity: m.fade }}>
           <Slide from={-1} delay={0.7}>
-            <p className="font-display text-[16px] font-semibold text-noir">{t.hero.eyebrow}</p>
-          </Slide>
-          <Slide from={-1} delay={0.8} className="mt-3.5">
             <h1 className="whitespace-nowrap font-display text-[40px] font-bold leading-[1.04] tracking-[-1.2px] text-noir">
               {t.hero.title[0]}
               <br />
