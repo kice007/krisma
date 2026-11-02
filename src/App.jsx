@@ -7,9 +7,9 @@ import Parcours from './sections/Parcours'
 import Bento from './sections/Bento'
 import PartnersCard from './sections/PartnersCard'
 import Advantages from './sections/Advantages'
-import Countries from './sections/Countries'
+
 import PhotoBand from './sections/PhotoBand'
-import Status from './sections/Status'
+
 import Team from './sections/Team'
 import Faq from './sections/Faq'
 import Waitlist from './sections/Waitlist'
@@ -28,10 +28,8 @@ export default function App() {
           <Bento />
           <PartnersCard />
           <Advantages />
-          <Countries vote={vote} setVote={setVote} />
-          <PhotoBand />
-          <Status />
           <Team />
+          <PhotoBand />
           <Faq />
           <Waitlist vote={vote} />
         </main>

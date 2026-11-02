@@ -132,7 +132,7 @@ function Desktop() {
 
           <motion.div className="absolute left-[1000px] top-[470px] w-[340px]" style={{ x: m.rightX, opacity: m.fade }}>
             <Slide from={1} delay={0.95}>
-              <h1 className="font-display text-[52px] font-bold leading-[1.04] tracking-[-2px] text-noir">
+              <h1 className="whitespace-nowrap font-display text-[44px] font-bold leading-[1.04] tracking-[-1.5px] text-noir">
                 {t.hero.title[0]}
                 <br />
                 {t.hero.title[1]}
@@ -196,7 +196,7 @@ function Mobile() {
             <p className="font-display text-[16px] font-semibold text-noir">{t.hero.eyebrow}</p>
           </Slide>
           <Slide from={-1} delay={0.8} className="mt-3.5">
-            <h1 className="font-display text-[46px] font-bold leading-[1.04] tracking-[-1.5px] text-noir">
+            <h1 className="whitespace-nowrap font-display text-[40px] font-bold leading-[1.04] tracking-[-1.2px] text-noir">
               {t.hero.title[0]}
               <br />
               {t.hero.title[1]}
