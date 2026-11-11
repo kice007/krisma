@@ -22,6 +22,15 @@ const Leaderboard = lazy(() => import('./member/Leaderboard'))
 const Rules = lazy(() => import('./member/Rules'))
 const MapPage = lazy(() => import('./member/map/MapPage'))
 const RequireMember = lazy(() => import('./member/Shell').then((m) => ({ default: m.RequireMember })))
+const AdminLogin = lazy(() => import('./admin/Login'))
+const AdminShell = lazy(() => import('./admin/Shell'))
+const AdminOverview = lazy(() => import('./admin/Overview'))
+const AdminMembers = lazy(() => import('./admin/Members'))
+const AdminMember = lazy(() => import('./admin/Members').then((m) => ({ default: m.MemberDetail })))
+const AdminShops = lazy(() => import('./admin/Shops'))
+const AdminPoints = lazy(() => import('./admin/Points'))
+const AdminStats = lazy(() => import('./admin/Stats'))
+const AdminTeam = lazy(() => import('./admin/Team'))
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -55,6 +64,16 @@ createRoot(document.getElementById('root')).render(
               <Route path="/classement" element={<Leaderboard />} />
               <Route path="/reglement" element={<Rules />} />
               <Route path="/carte" element={<MapPage />} />
+            </Route>
+            <Route path="/admin/connexion" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminShell />}>
+              <Route index element={<AdminOverview />} />
+              <Route path="membres" element={<AdminMembers />} />
+              <Route path="membres/:id" element={<AdminMember />} />
+              <Route path="commerces" element={<AdminShops />} />
+              <Route path="points" element={<AdminPoints />} />
+              <Route path="statistiques" element={<AdminStats />} />
+              <Route path="equipe" element={<AdminTeam />} />
             </Route>
             <Route path="/confidentialite" element={<Navigate to="/reglement#donnees" replace />} />
             <Route path="/conditions" element={<Navigate to="/reglement" replace />} />

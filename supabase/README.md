@@ -11,7 +11,9 @@
 | `migrations/20261111000005_member_area.sql` | Espace membre : préférence e-mails de suivi, tableau de bord enrichi (rang il y a 7 jours), pseudo, réglages, suppression du compte |
 | `migrations/20261111000006_member_area_grants.sql` | Retire aux visiteurs l’appel des fonctions du compte |
 | `migrations/20261111000007_map.sql` | KRISMA Map : auteur et infos sur la carte, `ensure_city`, doublon sans statut interne, export lisible |
-| `tests/run.mjs` | 77 vérifications dans PGlite (Postgres en WebAssembly), sans Docker : `npm run test:db` |
+| `migrations/20261111000008_better_duplicates.sql` → `…09_block_exact_duplicates.sql` | Doublons de commerces élargis, doublon exact non contournable |
+| `migrations/20261111000010_admin.sql` | Administration : rôles resserrés, listes et fiches, équipe et invitations, journal, exports |
+| `tests/run.mjs` | 109 vérifications dans PGlite (Postgres en WebAssembly), sans Docker : `npm run test:db` |
 
 Mise en ligne : `supabase link --project-ref <ref>` puis `supabase db push`.
 
@@ -92,3 +94,16 @@ Sur Supabase, toute fonction créée est appelable par `anon` (droit hérité de
 ## Tuiles de carte
 
 La carte utilise les tuiles publiques d’OpenStreetMap (attribution affichée). Leur politique d’usage interdit un trafic important : avant l’ouverture publique, passer à un fournisseur (MapTiler, Stadia, Protomaps…) en changeant `TILE_URL` dans `src/member/map/leaflet.js`.
+
+## Administration (phase 6)
+
+Routes `/admin/connexion`, `/admin` (vue d’ensemble), `/admin/membres` (+ fiche), `/admin/commerces`, `/admin/points`, `/admin/statistiques`, `/admin/equipe` — code dans `src/admin/` (français uniquement). En développement, `?apercu` affiche des données d’exemple.
+
+Rôles : modérateur (commerces, consultation), admin (+ points, suspensions, partenariats, exports), super-admin (+ équipe). Une invitation à une adresse sans compte s’applique quand la personne confirme son adresse via le lien de `/admin/connexion` (le compte est créé à ce moment-là).
+
+Premier super-admin, à exécuter une fois dans l’éditeur SQL :
+
+```sql
+insert into public.user_roles (user_id, role)
+select id, 'super_admin' from auth.users where email = 'ton.adresse@exemple.com';
+```
