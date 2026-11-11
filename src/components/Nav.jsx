@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUpRight, ChevronDown, Menu, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ChevronDown, Menu, X } from 'lucide-react'
 import { useLang } from '../i18n'
 import { EASE } from './Reveal'
 import { Socials } from './Socials'
@@ -109,12 +110,12 @@ export default function Nav() {
           </nav>
           <div className="flex items-center gap-2.5 lg:gap-3.5">
             <LangSwitch />
-            <a
-              href="#contact"
+            <Link
+              to="/waitlist"
               className="hidden h-12 items-center whitespace-nowrap rounded-full bg-marque px-5 font-body text-[14px] font-semibold text-white hover:bg-[#f06e1b] lg:flex"
             >
               {t.nav.cta}
-            </a>
+            </Link>
             <button
               type="button"
               aria-label={open ? t.nav.close : t.nav.open}
@@ -149,11 +150,7 @@ export default function Nav() {
                   className="flex h-16 shrink-0 items-center justify-between border-b border-white/12 font-display text-[32px] font-semibold leading-none tracking-[-1px] text-white"
                 >
                   {l.label}
-                  {active === l.href ? (
-                    <span className="h-2.5 w-2.5 rounded-full bg-marque" />
-                  ) : (
-                    <ArrowUpRight size={22} className="text-[#bdbdbd]" />
-                  )}
+                  {active === l.href && <span className="h-2.5 w-2.5 rounded-full bg-marque" />}
                 </motion.a>
               ))}
             </nav>
@@ -163,13 +160,13 @@ export default function Nav() {
               transition={{ duration: 0.6, ease: EASE, delay: 0.4 }}
               className="mt-10 flex flex-col items-center gap-[18px]"
             >
-              <a
-                href="#contact"
+              <Link
+                to="/waitlist"
                 onClick={() => setOpen(false)}
                 className="flex h-14 w-full items-center justify-center rounded-full bg-marque font-body text-[15px] font-semibold text-white"
               >
                 {t.nav.cta}
-              </a>
+              </Link>
               <Socials className="text-white" size={22} gap="gap-[22px]" />
             </motion.div>
           </motion.div>

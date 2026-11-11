@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { Check } from 'lucide-react'
 import Button from '../components/Button'
 import Rays from '../components/Rays'
@@ -9,15 +10,19 @@ import { useLang } from '../i18n'
 export default function Waitlist() {
   const { t } = useLang()
   const w = t.waitlist
-  const [sent, setSent] = useState(false)
+  const navigate = useNavigate()
+  const [email, setEmail] = useState('')
   const [consent, setConsent] = useState(false)
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'start 0.5'] })
   const scale = useTransform(scrollYProgress, [0, 1], [0.92, 1])
 
+  // Ouvre la page de la liste d'attente (W01) ; l'adresse saisie pré-remplira l'inscription.
   const submit = (e) => {
     e.preventDefault()
-    setSent(true)
+    const q = new URLSearchParams({ email: email.trim() })
+    if (consent) q.set('news', '1')
+    navigate(`/waitlist?${q}`)
   }
 
   return (
@@ -38,22 +43,12 @@ export default function Waitlist() {
         </Reveal>
 
         <Reveal delay={0.24} className="relative mt-1.5 w-full lg:mt-3 lg:max-w-[640px]">
-          <AnimatePresence mode="wait">
-            {sent ? (
-              <motion.p
-                key="ok"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex min-h-16 items-center justify-center gap-2.5 rounded-[32px] bg-white px-6 py-3 text-center font-body text-[16px] font-semibold text-noir"
-              >
-                <Check size={20} className="shrink-0 text-vert" />
-                {w.success}
-              </motion.p>
-            ) : (
-              <motion.form key="form" exit={{ opacity: 0, y: -12 }} onSubmit={submit} className="flex flex-col gap-3.5 lg:h-16 lg:flex-row lg:items-center lg:gap-0 lg:rounded-full lg:bg-white lg:pl-[26px] lg:pr-1.5">
+          <form onSubmit={submit} className="flex flex-col gap-3.5 lg:h-16 lg:flex-row lg:items-center lg:gap-0 lg:rounded-full lg:bg-white lg:pl-[26px] lg:pr-1.5">
                 <input
                   type="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   aria-label={w.placeholder}
                   placeholder={w.placeholder}
                   className="h-[54px] min-w-0 rounded-full bg-white px-[22px] font-body text-[16px] text-noir outline-none placeholder:text-gris lg:h-full lg:flex-1 lg:bg-transparent lg:px-0"
@@ -61,9 +56,7 @@ export default function Waitlist() {
                 <Button type="submit" className="h-[54px] shrink-0 whitespace-nowrap lg:h-[52px]">
                   {w.cta}
                 </Button>
-              </motion.form>
-            )}
-          </AnimatePresence>
+          </form>
         </Reveal>
 
         <Reveal delay={0.3} className="relative flex flex-col gap-2">

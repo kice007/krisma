@@ -1,4 +1,4 @@
-import { ArrowRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const TONES = {
   orange: 'bg-marque text-white hover:bg-[#f06e1b]',
@@ -6,19 +6,22 @@ const TONES = {
   blanc: 'bg-white text-noir hover:bg-clair',
 }
 
-export default function Button({ href = '#contact', tone = 'orange', children, className = '', onClick, type }) {
+export default function Button({ href = '/waitlist', tone = 'orange', children, className = '', onClick, type }) {
   const cls = `group inline-flex items-center justify-center gap-2.5 rounded-full px-[26px] font-body text-[15px] font-semibold hover:-translate-y-0.5 ${TONES[tone]} ${className}`
-  const inner = (
-    <>
-      {children}
-      <ArrowRight size={16} className="transition-transform duration-500 group-hover:translate-x-1" />
-    </>
-  )
+  const inner = children
   if (type) {
     return (
       <button type={type} onClick={onClick} className={`cursor-pointer ${cls}`}>
         {inner}
       </button>
+    )
+  }
+  // Liens internes (« /waitlist ») : navigation sans rechargement
+  if (href.startsWith('/')) {
+    return (
+      <Link to={href} onClick={onClick} className={cls}>
+        {inner}
+      </Link>
     )
   }
   return (

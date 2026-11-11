@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowRight, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import Reveal, { EASE } from '../components/Reveal'
 import { useLang } from '../i18n'
 
@@ -37,9 +37,8 @@ function Row({ item, open, onToggle, delay }) {
 
 function All({ label, className }) {
   return (
-    <a href="#faq" className={`group items-center gap-2 font-body text-[15px] font-semibold text-noir ${className}`}>
+    <a href="#faq" className={`items-center gap-2 font-body text-[15px] font-semibold text-noir ${className}`}>
       {label}
-      <ArrowRight size={16} className="transition-transform duration-500 group-hover:translate-x-1" />
     </a>
   )
 }
