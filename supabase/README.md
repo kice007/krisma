@@ -13,7 +13,9 @@
 | `migrations/20261111000007_map.sql` | KRISMA Map : auteur et infos sur la carte, `ensure_city`, doublon sans statut interne, export lisible |
 | `migrations/20261111000008_better_duplicates.sql` → `…09_block_exact_duplicates.sql` | Doublons de commerces élargis, doublon exact non contournable |
 | `migrations/20261111000010_admin.sql` | Administration : rôles resserrés, listes et fiches, équipe et invitations, journal, exports |
-| `tests/run.mjs` | 109 vérifications dans PGlite (Postgres en WebAssembly), sans Docker : `npm run test:db` |
+| `migrations/20261111000011_email_outbox.sql` | File d’e-mails : réservation par lots, résultat d’envoi, e-mail au parrain quand l’équipe débloque un parrainage |
+| `functions/send-emails/` | Fonction Edge qui envoie la file via Resend (modèles E2–E4, FR/EN) |
+| `tests/run.mjs` | 116 vérifications dans PGlite (Postgres en WebAssembly), sans Docker : `npm run test:db` |
 
 Mise en ligne : `supabase link --project-ref <ref>` puis `supabase db push`.
 
@@ -107,3 +109,13 @@ Premier super-admin, à exécuter une fois dans l’éditeur SQL :
 insert into public.user_roles (user_id, role)
 select id, 'super_admin' from auth.users where email = 'ton.adresse@exemple.com';
 ```
+
+## E-mails de campagne (phase 7)
+
+La base met en file `email_outbox` : bienvenue (+170), parrainage validé (+50), commerce validé (+20). La fonction Edge `send-emails` les envoie par lots via l’API Resend ; les e-mails de suivi (parrainage, commerce) respectent l’interrupteur « Points et parrainages » du profil ; un échec est retenté 5 fois.
+
+Mise en place :
+1. `npx supabase db push --remote` (migration 11).
+2. Secret Resend : Supabase → Edge Functions → Secrets → `RESEND_API_KEY` (une clé « Sending access » sur krisma.io). Facultatifs : `EMAIL_FROM` (défaut `KRISMA <waitlist@krisma.io>`), `SITE_URL` (défaut `https://www.krisma.io`).
+3. Déploiement : `npx supabase functions deploy send-emails --project-ref kysiaecnbbnobnxzjexs --use-api`.
+4. Planification : Supabase → Integrations → Cron → nouvelle tâche « Supabase Edge Function » `send-emails`, toutes les minutes (`* * * * *`).
