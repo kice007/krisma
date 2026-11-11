@@ -221,5 +221,26 @@ ok(dashC.referral_code === null, "pas de lien de parrainage avant validation");
 const stats = await rpc(D, "admin_questionnaire_stats");
 ok(stats.situation.employee === 4 && stats.services.cashback === 4, "statistiques du questionnaire");
 
+console.log("\n12. Espace membre (migration 5)");
+const dash2 = await rpc(A, "get_my_dashboard");
+ok(dash2.email === "amina@gmail.com" && dash2.notify_points === true && dash2.city.country_name === "France", "tableau de bord : e-mail, préférences, ville complète");
+ok(dash2.rank_week_ago === null, "pas de rang d'il y a 7 jours pour un membre validé aujourd'hui");
+await db.query("update public.profiles set verified_at = now() - interval '10 days' where id = $1", [G]);
+await db.query("update public.point_events set created_at = now() - interval '10 days' where user_id = $1", [G]);
+ok(Number((await rpc(G, "get_my_dashboard")).rank_week_ago) === 1, "rang d'il y a 7 jours (seul membre validé à cette date)");
+ok((await rpc(null, "get_leaderboard_meta", {})).members === 4, "nombre de membres classés");
+await expectError(rpc(B, "update_my_pseudo", { p_pseudo: "AMINA_K" }), "pseudo_taken", "changement vers un pseudo pris");
+await expectError(rpc(B, "update_my_pseudo", { p_pseudo: "a b" }), "pseudo_invalid", "pseudo invalide");
+ok((await rpc(B, "update_my_pseudo", { p_pseudo: "awa.kone" })) === "awa.kone", "pseudo modifié");
+await rpc(B, "update_my_settings", { p_locale: "en", p_notify_points: false });
+const prefsB = (await db.query("select locale, notify_points, consent_marketing from public.profiles where id = $1", [B])).rows[0];
+ok(prefsB.locale === "en" && prefsB.notify_points === false && prefsB.consent_marketing === false, "réglages enregistrés, le reste inchangé");
+const before = await total(A);
+await rpc(B, "delete_my_account");
+ok((await db.query("select count(*)::int n from auth.users where id = $1", [B])).rows[0].n === 0, "compte supprimé");
+ok((await total(A)) === before - 50, "le parrain perd les 50 points du filleul supprimé");
+ok((await db.query("select proposed_by from public.shops where id = $1", [s1.shop_id])).rows[0].proposed_by === null, "les commerces proposés restent, sans auteur");
+await expectError(as(B, "select public.rank_at($1, now())", [B]), "permission denied", "fonction interne de rang non appelable");
+
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);

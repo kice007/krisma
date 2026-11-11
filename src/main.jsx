@@ -6,16 +6,22 @@ import App from './App.jsx'
 import { LanguageProvider } from './i18n'
 import { Loading } from './waitlist/Layout'
 
-// Parcours waitlist chargé à la demande : la page d'accueil reste légère.
+// Parcours waitlist et espace membre chargés à la demande : la page d'accueil reste légère.
 const Home = lazy(() => import('./waitlist/Home'))
 const SignUp = lazy(() => import('./waitlist/SignUp'))
 const Questionnaire = lazy(() => import('./waitlist/Questionnaire'))
 const Verify = lazy(() => import('./waitlist/Verify'))
 const Welcome = lazy(() => import('./waitlist/Welcome'))
 const Login = lazy(() => import('./waitlist/Login'))
-const Resume = lazy(() => import('./waitlist/Resume').then((m) => ({ default: m.Resume })))
-const Member = lazy(() => import('./waitlist/Resume').then((m) => ({ default: m.MemberPlaceholder })))
-const MapSoon = lazy(() => import('./waitlist/Resume').then((m) => ({ default: m.MapSoon })))
+const Resume = lazy(() => import('./waitlist/Resume'))
+const Shell = lazy(() => import('./member/Shell'))
+const Dashboard = lazy(() => import('./member/Dashboard'))
+const Points = lazy(() => import('./member/Points'))
+const Profile = lazy(() => import('./member/Profile'))
+const Leaderboard = lazy(() => import('./member/Leaderboard'))
+const Rules = lazy(() => import('./member/Rules'))
+const MapSoon = lazy(() => import('./member/Rules').then((m) => ({ default: m.MapSoon })))
+const RequireMember = lazy(() => import('./member/Shell').then((m) => ({ default: m.RequireMember })))
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -24,6 +30,8 @@ function ScrollToTop() {
   }, [pathname])
   return null
 }
+
+const member = (el) => <RequireMember>{el}</RequireMember>
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -40,8 +48,16 @@ createRoot(document.getElementById('root')).render(
             <Route path="/waitlist/bienvenue" element={<Welcome />} />
             <Route path="/waitlist/reprise" element={<Resume />} />
             <Route path="/connexion" element={<Login />} />
-            <Route path="/espace" element={<Member />} />
-            <Route path="/carte" element={<MapSoon />} />
+            <Route element={<Shell />}>
+              <Route path="/espace" element={member(<Dashboard />)} />
+              <Route path="/espace/points" element={member(<Points />)} />
+              <Route path="/espace/profil" element={member(<Profile />)} />
+              <Route path="/classement" element={<Leaderboard />} />
+              <Route path="/reglement" element={<Rules />} />
+              <Route path="/carte" element={<MapSoon />} />
+            </Route>
+            <Route path="/confidentialite" element={<Navigate to="/reglement#donnees" replace />} />
+            <Route path="/conditions" element={<Navigate to="/reglement" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
