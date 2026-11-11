@@ -1,16 +1,15 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-ink: #0f1424;
-  --color-muted: #5a6072;
-  --color-bgalt: #f4f5fb;
-  --color-line: #e7e8f0;
+  --color-noir: #111111;
+  --color-gris: #6b6b6b;
+  --color-clair: #f5f5f5;
+  --color-ligne: #e6e6e6;
+  --color-anthracite: #292929;
+  --color-marque: #fd8030;
+  --color-bleu: #0676f8;
   --color-indigo: #4f46e5;
-  --color-indigolt: #818cf8;
-  --color-indigodeep: #2a20c0;
-  --color-base: #0a0a0f;
-  --color-deepindigo: #171248;
-  --color-success: #22c55e;
+  --color-vert: #15803d;
 
   --font-display: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
   --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -18,38 +17,160 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 96px;
 }
 
 body {
   font-family: var(--font-body);
-  color: var(--color-ink);
+  color: var(--color-noir);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #ffffff;
 }
 
-/* Reveal-on-scroll transition used across sections */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
-}
-.reveal.is-visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* Smooth, consistent hover feel on every interactive element (buttons, links, and their icons) */
 button,
 a,
 button svg,
 a svg {
-  transition-property:
-    color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow,
-    transform, filter;
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  transition-duration: 0.28s;
+  /* Tailwind 4 moves elements with `translate` / `scale`, not `transform` */
+  transition-property: color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, translate, scale, rotate;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  transition-duration: 0.5s;
+}
+
+/* Soft blink of the dots on the map: opacity only, on their own GPU layer */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.twinkle {
+  position: absolute;
+  border-radius: 9999px;
+  opacity: 0;
+  animation: twinkle 5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  will-change: opacity;
+}
+
+/* Halo around the Here / There pins: fades in, then grows and dissolves */
+@keyframes halo {
+  0% {
+    opacity: 0;
+    transform: scale3d(1, 1, 1);
+  }
+  25% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    transform: scale3d(3, 3, 1);
+  }
+}
+.halo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0;
+  animation: halo 3.6s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  will-change: transform, opacity;
+}
+
+/* Same breathing on the mobile avatars */
+@keyframes ring {
+  0% {
+    opacity: 0;
+    transform: scale3d(1, 1, 1);
+  }
+  25% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0;
+    transform: scale3d(1.4, 1.4, 1);
+  }
+}
+.ring-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  opacity: 0;
+  animation: ring 4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-33.3333%);
+  }
+}
+.marquee {
+  animation: marquee 18s linear infinite;
+  will-change: transform;
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 3px, 0);
+  }
+  50% {
+    transform: translate3d(0, -3px, 0);
+  }
+}
+.drift {
+  animation: drift 8s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+.breathe {
+  animation: breathe 8s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  will-change: opacity;
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .twinkle,
+  .halo::before,
+  .ring-pulse::before,
+  .marquee,
+  .drift,
+  .breathe,
+  .spin-slow {
+    animation: none;
+  }
+  .twinkle {
+    opacity: 0.6;
+  }
 }

@@ -1,125 +1,205 @@
 import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { ArrowUpRight, ChevronDown } from 'lucide-react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { Globe, ShieldCheck, Users } from 'lucide-react'
+import Button from '../components/Button'
+import { CardMarks } from '../components/CardMark'
+import { EASE } from '../components/Reveal'
+import { useViewport } from '../components/useStage'
 import { useLang } from '../i18n'
 
-function MobileHero() {
-  const { t } = useLang()
-  const TAGLINE = t.hero.tagline
-  const SUB = t.hero.sub
+const ICONS = [ShieldCheck, Globe, Users]
+
+// Letters of the giant word rise one after the other.
+function Wordmark({ style, className }) {
   return (
-    <div
-      className="bg-cover bg-center lg:hidden"
-      style={{ backgroundImage: 'linear-gradient(rgba(66,64,64,0.15),rgba(66,64,64,0.15)), url(/img/hero-bg.png)' }}
+    <motion.div
+      aria-hidden
+      style={style}
+      className={`pointer-events-none flex select-none justify-center font-display font-extrabold leading-none text-[#e2e2e2] ${className}`}
     >
-      <div className="flex flex-col gap-[22px] px-6 pt-[104px] pb-11">
-        <span className="font-display text-[40px] font-extrabold leading-none text-white">Krisma</span>
-        <h1 className="font-display text-[30px] font-medium leading-[1.1] text-white">{TAGLINE}</h1>
-        <p className="font-body text-[16px] font-medium leading-[1.55] text-white">{SUB}</p>
-        <a
-          href="#contact"
-          className="flex w-fit items-center gap-2 rounded-full bg-base px-[26px] py-[15px] text-[15px] font-semibold text-white hover:-translate-y-0.5"
+      {'KRISMA'.split('').map((l, i) => (
+        <span key={i} className="inline-block overflow-hidden pb-[0.04em]">
+          <motion.span
+            className="inline-block"
+            initial={{ y: '105%' }}
+            animate={{ y: 0 }}
+            transition={{ duration: 1.1, ease: EASE, delay: 0.1 + i * 0.06 }}
+          >
+            {l}
+          </motion.span>
+        </span>
+      ))}
+    </motion.div>
+  )
+}
+
+// Enters from the left (-1) or the right (1).
+function Slide({ from, delay, children, className }) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, x: from * 180 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 1.1, ease: EASE, delay }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+function useHeroMotion(ref, offset) {
+  const reduce = useReducedMotion()
+  const { scrollYProgress: p } = useScroll({ target: ref, offset })
+  const r = (to) => (reduce ? 0 : to)
+  return {
+    wordY: useTransform(p, [0, 1], [0, r(-150)]),
+    wordScale: useTransform(p, [0, 1], [1, reduce ? 1 : 1.14]),
+    cardY: useTransform(p, [0, 1], [0, r(-120)]),
+    cardRotate: useTransform(p, [0, 1], [0, r(-9)]),
+    rockY: useTransform(p, [0, 1], [0, r(190)]),
+    leftX: useTransform(p, [0, 0.8], [0, r(-160)]),
+    rightX: useTransform(p, [0, 0.8], [0, r(160)]),
+    fade: useTransform(p, [0.1, 0.8], [1, reduce ? 1 : 0]),
+  }
+}
+
+function Desktop() {
+  const { t } = useLang()
+  const ref = useRef(null)
+  const { w, h } = useViewport()
+  const m = useHeroMotion(ref, ['start start', 'end end'])
+  const s = Math.min(w / 1440, h / 900)
+
+  return (
+    <div ref={ref} className="relative hidden lg:block" style={{ height: h + 520 }}>
+      <div className="sticky top-0 h-svh overflow-hidden bg-[#f1f1f1]">
+        <div
+          className="absolute bottom-0 left-1/2 h-[900px] w-[1440px] origin-bottom"
+          style={{ transform: `translateX(-50%) scale(${s})` }}
         >
-          {t.hero.cta}
-          <ArrowUpRight size={16} />
-        </a>
-      </div>
-      <div className="px-6 pb-10">
-        <img src="/img/iphone-mockup.png" alt={t.hero.appAlt} className="h-[402px] w-full rounded-2xl object-cover" />
+          <Wordmark
+            className="absolute inset-x-0 top-[99px] text-[380px] tracking-[-14px]"
+            style={{ y: m.wordY, scale: m.wordScale }}
+          />
+
+          <motion.div className="absolute inset-0" style={{ y: m.rockY }}>
+            <motion.img
+              src="/img/landing/hero-rocher.webp"
+              alt=""
+              className="absolute left-[385px] top-[-104px] h-[1166px] w-[651px] max-w-none"
+              initial={{ y: 720 }}
+              animate={{ y: 0 }}
+              transition={{ duration: 1.5, ease: EASE, delay: 0.25 }}
+            />
+          </motion.div>
+
+          <motion.div className="absolute inset-0 origin-[720px_700px]" style={{ y: m.cardY, rotate: m.cardRotate }}>
+            <motion.div
+              className="absolute inset-0"
+              initial={{ y: 900, rotate: 10 }}
+              animate={{ y: 0, rotate: 0 }}
+              transition={{ duration: 1.6, ease: EASE, delay: 0.4 }}
+            >
+              <img
+                src="/img/landing/hero-carte.webp"
+                alt=""
+                className="absolute left-[385px] top-[-104px] h-[1166px] w-[651px] max-w-none"
+              />
+              <CardMarks logo={[780.55, 265]} visa={[671.37, 625]} k={[18, 23]} size={18} gap={7} visaSize={26} />
+            </motion.div>
+          </motion.div>
+
+          <motion.div className="absolute left-[100px] top-[470px] w-[300px]" style={{ x: m.leftX, opacity: m.fade }}>
+            <ul className="flex flex-col gap-3.5">
+              {t.hero.perks.map((p, i) => {
+                const I = ICONS[i]
+                return (
+                  <Slide key={p} from={-1} delay={1.02 + i * 0.1}>
+                    <li className="flex items-center gap-2.5 font-body text-[15px] font-medium text-noir">
+                      <I size={20} />
+                      {p}
+                    </li>
+                  </Slide>
+                )
+              })}
+            </ul>
+          </motion.div>
+
+          <motion.div className="absolute left-[1000px] top-[470px] w-[340px]" style={{ x: m.rightX, opacity: m.fade }}>
+            <Slide from={1} delay={0.95}>
+              <h1 className="whitespace-nowrap font-display text-[44px] font-bold leading-[1.04] tracking-[-1.5px] text-noir">
+                {t.hero.title[0]}
+                <br />
+                {t.hero.title[1]}
+              </h1>
+            </Slide>
+            <Slide from={1} delay={1.07} className="mt-[18px]">
+              <p className="font-body text-[18px] leading-[1.5] text-noir">{t.hero.sub}</p>
+            </Slide>
+            <Slide from={1} delay={1.19} className="mt-[18px]">
+              <Button className="h-[54px]">{t.nav.cta}</Button>
+            </Slide>
+          </motion.div>
+        </div>
       </div>
     </div>
   )
 }
 
-function DesktopHero() {
+function Mobile() {
   const { t } = useLang()
-  const TAGLINE = t.hero.tagline
-  const SUB = t.hero.sub
-  const trackRef = useRef(null)
-  const { scrollYProgress } = useScroll({
-    target: trackRef,
-    offset: ['start start', 'end end'],
-  })
-
-  // Phone: starts perfectly centered & solid, falls to the bottom and fades away (clipped by the canvas).
-  // Finishes disappearing right before the pin releases, so the section holds until the parallax is over.
-  const imgY = useTransform(scrollYProgress, [0, 1], [0, 660])
-  const imgScale = useTransform(scrollYProgress, [0, 1], [1, 0.78])
-  const imgOpacity = useTransform(scrollYProgress, [0.5, 0.98], [1, 0])
-
-  // Text rises from the bottom (clip-reveal, no opacity fade), staggered
-  const wmY = useTransform(scrollYProgress, [0.1, 0.55], ['120%', '0%'])
-  const tagY = useTransform(scrollYProgress, [0.22, 0.68], ['120%', '0%'])
-  const rightY = useTransform(scrollYProgress, [0.34, 0.82], ['120%', '0%'])
-
-  // Arrow hint fades out immediately on scroll
-  const hintOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
+  const ref = useRef(null)
+  const { w } = useViewport()
+  const m = useHeroMotion(ref, ['start start', 'end start'])
+  const s = Math.min(w / 390, 1.5)
 
   return (
-    <div ref={trackRef} className="relative hidden h-[260vh] lg:block">
-      <div
-        className="sticky top-0 h-screen overflow-hidden bg-cover bg-center"
-        style={{ backgroundImage: 'linear-gradient(rgba(66,64,64,0.15),rgba(66,64,64,0.15)), url(/img/hero-bg.png)' }}
-      >
-        <div className="mx-auto h-full max-w-[1440px]">
-          <div className="relative h-full w-full">
-            {/* Giant wordmark */}
-            <div className="pointer-events-none absolute left-1/2 top-[14%] -translate-x-1/2 overflow-hidden">
-              <motion.span
-                style={{ y: wmY }}
-                className="block select-none font-display text-[210px] font-bold leading-none tracking-[-4px] text-white"
-              >
-                Krisma
-              </motion.span>
-            </div>
-
-            {/* Phone mockup — centered, falls away */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <motion.img
-                src="/img/iphone-mockup.png"
-                alt={t.hero.appAlt}
-                style={{ y: imgY, scale: imgScale, opacity: imgOpacity }}
-                className="w-[680px] rounded-2xl object-contain drop-shadow-2xl"
-              />
-            </div>
-
-            {/* Tagline (bottom-left) */}
-            <div className="absolute bottom-[200px] left-12 w-[380px] overflow-hidden pb-2">
-              <motion.h1
-                style={{ y: tagY }}
-                className="font-display text-[44px] font-semibold leading-[1.1] text-white"
-              >
-                {TAGLINE}
-              </motion.h1>
-            </div>
-
-            {/* Sub + CTA (right) */}
-            <div className="absolute right-16 top-[620px] w-[380px] overflow-hidden pb-2">
-              <motion.div style={{ y: rightY }} className="flex flex-col gap-8">
-                <p className="font-body text-[20px] font-medium leading-[1.55] text-white">{SUB}</p>
-                <a
-                  href="#contact"
-                  className="flex w-fit items-center gap-2 rounded-full bg-base px-[26px] py-[15px] text-[15px] font-semibold text-white transition-transform duration-300 hover:-translate-y-1"
-                >
-                  {t.hero.cta}
-                  <ArrowUpRight size={16} />
-                </a>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-
-        {/* Arrow scroll hint */}
-        <motion.div
-          style={{ opacity: hintOpacity }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/70"
-        >
+    <div ref={ref} className="relative overflow-hidden bg-[#f1f1f1] lg:hidden" style={{ height: 880 * s }}>
+      <div className="absolute left-1/2 top-0 h-[880px] w-[390px] origin-top" style={{ transform: `translateX(-50%) scale(${s})` }}>
+        <Wordmark
+          className="absolute inset-x-0 top-[408px] text-[98px] tracking-[-3px]"
+          style={{ y: m.wordY, scale: m.wordScale }}
+        />
+        <motion.div className="absolute inset-0" style={{ y: m.rockY }}>
+          <motion.img
+            src="/img/landing/hero-rocher.webp"
+            alt=""
+            className="absolute left-[-15px] top-[232px] h-[752px] w-[420px] max-w-none"
+            initial={{ y: 420 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 1.5, ease: EASE, delay: 0.25 }}
+          />
+        </motion.div>
+        <motion.div className="absolute inset-0 origin-[195px_720px]" style={{ y: m.cardY, rotate: m.cardRotate }}>
           <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute inset-0"
+            initial={{ y: 600, rotate: 10 }}
+            animate={{ y: 0, rotate: 0 }}
+            transition={{ duration: 1.6, ease: EASE, delay: 0.4 }}
           >
-            <ChevronDown size={30} strokeWidth={2.2} />
+            <img
+              src="/img/landing/hero-carte.webp"
+              alt=""
+              className="absolute left-[-15px] top-[232px] h-[752px] w-[420px] max-w-none"
+            />
+            <CardMarks logo={[226, 470]} visa={[163, 703]} k={[12, 15]} size={12} gap={4} visaSize={17} />
           </motion.div>
+        </motion.div>
+
+        <motion.div className="absolute left-5 top-[100px] w-[350px]" style={{ opacity: m.fade }}>
+          <Slide from={-1} delay={0.7}>
+            <h1 className="whitespace-nowrap font-display text-[40px] font-bold leading-[1.04] tracking-[-1.2px] text-noir">
+              {t.hero.title[0]}
+              <br />
+              {t.hero.title[1]}
+            </h1>
+          </Slide>
+          <Slide from={1} delay={0.92} className="mt-3.5">
+            <p className="font-body text-[17px] leading-[1.5] text-noir">{t.hero.sub}</p>
+          </Slide>
+          <Slide from={1} delay={1.04} className="mt-3.5">
+            <Button className="h-[54px] w-full">{t.nav.cta}</Button>
+          </Slide>
         </motion.div>
       </div>
     </div>
@@ -128,9 +208,9 @@ function DesktopHero() {
 
 export default function Hero() {
   return (
-    <div id="hero">
-      <MobileHero />
-      <DesktopHero />
-    </div>
+    <section id="hero">
+      <Desktop />
+      <Mobile />
+    </section>
   )
 }
