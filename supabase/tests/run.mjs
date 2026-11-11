@@ -350,5 +350,14 @@ await rpc(D, "admin_set_point_status", { p_event_id: susp, p_status: "awarded", 
 const after11 = (await db.query("select count(*)::int n from public.email_outbox where template = 'referral_awarded' and user_id = $1", [G])).rows[0].n;
 ok(after11 === before11 + 1, "parrainage débloqué par l'équipe : e-mail « parrainage validé » mis en file");
 
+console.log("\n18. Axe des inscriptions (migration 12)");
+const ov12 = await rpc(D, "admin_overview", { p_days: 30 });
+const today = new Date().toISOString().slice(0, 10);
+ok(ov12.daily.length === 30 && ov12.daily[0].day === today && ov12.daily[0].total > 0, "campagne d'un jour : la première barre (à gauche) est aujourd'hui");
+ok(ov12.daily[1].future === true && ov12.daily[29].total === 0, "les jours suivants sont vides et marqués « à venir »");
+await db.query("update public.profiles set created_at = now() - interval '45 days' where id = $1", [A]);
+const ov12b = await rpc(D, "admin_overview", { p_days: 30 });
+ok(ov12b.daily[29].day === today && ov12b.daily.every((d) => !d.future), "campagne plus longue que la période : les 30 derniers jours, aujourd'hui à droite");
+
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);
