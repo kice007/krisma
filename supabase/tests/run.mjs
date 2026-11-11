@@ -258,5 +258,17 @@ const exp = await rpc(A, "export_my_data");
 ok(exp.profile.city_name === "Paris" && exp.votes.some((v) => v.shop === "Boulangerie Teranga") && exp.points.some((e) => e.label === "Boulangerie Teranga"), "export lisible : ville, commerces soutenus, libellés des points");
 await expectError(as(null, "select public.ensure_city('a','b','fr','c',0,0)"), "permission denied", "ensure_city non appelable par un visiteur");
 
+console.log("\n14. Doublons élargis (migration 8)");
+const bmk = { p_name: "BMK Paris-Bamako", p_category: "restaurant", p_address: "14 Rue de la Fidélité, 75010 Paris, France", p_city_id: shop.p_city_id, p_lat: 48.8537739, p_lng: 2.3460102 };
+ok((await rpc(A, "propose_shop", bmk)).result === "created", "premier BMK créé");
+const bmk2 = await rpc(G, "propose_shop", { ...bmk, p_lat: 48.8536405, p_lng: 2.3486066 });
+ok(bmk2.result === "duplicate_candidate" && bmk2.shop.name === "BMK Paris-Bamako", "même nom et même adresse à ~190 m → doublon (cas réel)");
+const bmk3 = await rpc(G, "propose_shop", { ...bmk, p_address: "Rue inconnue", p_lat: 48.8575, p_lng: 2.3460102 });
+ok(bmk3.result === "duplicate_candidate", "même nom à ~420 m, adresse différente → doublon");
+const far = await rpc(G, "propose_shop", { ...bmk, p_address: "Avenue de Clichy", p_lat: 48.8880, p_lng: 2.3200 });
+ok(far.result === "created", "même nom à plusieurs km, autre adresse → nouvelle fiche (autre établissement)");
+const other = await rpc(G, "propose_shop", { ...bmk, p_name: "Chez Fatou Traiteur", p_lat: 48.8537, p_lng: 2.3461 });
+ok(other.result === "duplicate_candidate" ? false : other.result === "created", "autre nom à la même adresse → nouvelle fiche");
+
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);
