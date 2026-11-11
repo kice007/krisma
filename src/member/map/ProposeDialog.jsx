@@ -306,13 +306,19 @@ export default function ProposeDialog({ t, lang, city, desktop, onClose, onDone 
               <span className="block font-body text-[13px] text-gris">{[dup.address, t.status[dup.public_status], f.supports(dup.votes)].join(' · ')}</span>
             </span>
           </div>
-          <p className="font-body text-[14px] leading-[1.55] text-[#9a3412]">{f.dupText}</p>
+          <p className="font-body text-[14px] leading-[1.55] text-[#9a3412]">{dup.blocked ? f.dupBlocked : f.dupText}</p>
         </div>
         {error && <p className="font-body text-[14px] text-[#b91c1c]">{error}</p>}
         <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
-          <button type="button" onClick={() => send(true)} disabled={busy} className="flex h-12 cursor-pointer items-center justify-center rounded-full border border-ligne px-5 font-body text-[15px] font-semibold">
-            {f.notSame}
-          </button>
+          {dup.blocked ? (
+            <button type="button" onClick={onClose} disabled={busy} className="flex h-12 cursor-pointer items-center justify-center rounded-full border border-ligne px-5 font-body text-[15px] font-semibold">
+              {f.cancel}
+            </button>
+          ) : (
+            <button type="button" onClick={() => send(true)} disabled={busy} className="flex h-12 cursor-pointer items-center justify-center rounded-full border border-ligne px-5 font-body text-[15px] font-semibold">
+              {f.notSame}
+            </button>
+          )}
           <button type="button" onClick={support} disabled={busy} className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-noir px-5 font-body text-[15px] font-semibold text-white">
             {busy ? <LoaderCircle size={16} className="animate-spin" /> : <Heart size={16} />}
             {dup.voted ? f.alreadySupported : f.support}
