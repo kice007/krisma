@@ -9,7 +9,9 @@
 | `migrations/20261111000003_waitlist_security.sql` | RLS et droits d'appel |
 | `migrations/20261111000004_proposed_shops_public.sql` | Commerces « Proposé » visibles par tous et soutenables |
 | `migrations/20261111000005_member_area.sql` | Espace membre : préférence e-mails de suivi, tableau de bord enrichi (rang il y a 7 jours), pseudo, réglages, suppression du compte |
-| `tests/run.mjs` | 69 vérifications dans PGlite (Postgres en WebAssembly), sans Docker : `npm run test:db` |
+| `migrations/20261111000006_member_area_grants.sql` | Retire aux visiteurs l’appel des fonctions du compte |
+| `migrations/20261111000007_map.sql` | KRISMA Map : auteur et infos sur la carte, `ensure_city`, doublon sans statut interne, export lisible |
+| `tests/run.mjs` | 77 vérifications dans PGlite (Postgres en WebAssembly), sans Docker : `npm run test:db` |
 
 Mise en ligne : `supabase link --project-ref <ref>` puis `supabase db push`.
 
@@ -68,7 +70,7 @@ Code dans `src/waitlist/` (React Router, chargé à la demande) et `src/lib/supa
 | `/connexion` → `/waitlist/reprise` | W09 : lien magique, puis reprise à la bonne étape |
 | `/espace`, `/espace/points`, `/espace/profil` | W10 tableau de bord, M12 historique, M19 profil (réservés aux membres validés) — `src/member/` |
 | `/classement`, `/reglement` | W11 classement et W14 règles, publics |
-| `/carte` | KRISMA Map : page d’attente jusqu’à la phase 5 |
+| `/carte` | W12/W13 KRISMA Map (Leaflet + tuiles OpenStreetMap, regroupement des repères) : villes, filtres, fiche et vote, proposition avec doublon — `src/member/map/`. Paramètres : `?ville=`, `?commerce=`, `?proposer=1` |
 
 En développement, `?apercu` affiche les écrans 3 à 8 avec des données d'exemple, sans session ni écriture en base.
 
@@ -82,3 +84,11 @@ Modèles dans `supabase/templates/` (FR/EN selon `user_metadata.locale`, pseudo 
 | Magic link | `magic-link.html` | `{{ if and .Data.locale (eq .Data.locale "en") }}Your KRISMA login link{{ else }}Ton lien de connexion KRISMA{{ end }}` |
 
 SMTP (Authentication → Emails → SMTP Settings) : hôte `smtp.resend.com`, port `465`, utilisateur `resend`, mot de passe = clé API Resend (accès « Sending » limité au domaine), expéditeur `waitlist@krisma.io`, nom `KRISMA`. Les images des e-mails sont servies par le site (`https://www.krisma.io/img/...`) : elles n'apparaissent qu'une fois le site déployé.
+
+## Règle pour les prochaines migrations
+
+Sur Supabase, toute fonction créée est appelable par `anon` (droit hérité de PUBLIC), malgré la révocation par défaut de la migration 3. Chaque nouvelle fonction doit commencer par `revoke execute on function ... from public, anon;` avant ses `grant`. Vérification : `npx supabase db query --remote --read-only "select proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace where nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')"`.
+
+## Tuiles de carte
+
+La carte utilise les tuiles publiques d’OpenStreetMap (attribution affichée). Leur politique d’usage interdit un trafic important : avant l’ouverture publique, passer à un fournisseur (MapTiler, Stadia, Protomaps…) en changeant `TILE_URL` dans `src/member/map/leaflet.js`.

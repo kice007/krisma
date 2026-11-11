@@ -18346,16 +18346,6 @@
                           "fontFamily": "$font-body",
                           "fontSize": 15,
                           "fontWeight": "600"
-                        },
-                        {
-                          "type": "icon",
-                          "id": "UyGLa",
-                          "name": "arrow-right",
-                          "width": 16,
-                          "height": 16,
-                          "icon": "arrow-right",
-                          "library": "lucide",
-                          "fill": "$white"
                         }
                       ]
                     },

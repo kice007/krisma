@@ -242,5 +242,21 @@ ok((await total(A)) === before - 50, "le parrain perd les 50 points du filleul s
 ok((await db.query("select proposed_by from public.shops where id = $1", [s1.shop_id])).rows[0].proposed_by === null, "les commerces proposés restent, sans auteur");
 await expectError(as(B, "select public.rank_at($1, now())", [B]), "permission denied", "fonction interne de rang non appelable");
 
+console.log("\n13. KRISMA Map et export (migration 7)");
+const mapRows = await as(null, "select * from public.get_map_shops($1)", [shop.p_city_id]);
+ok(mapRows.length === 1 && mapRows[0].proposer === null && mapRows[0].address.includes("Myrha"), "fiche publique : adresse, auteur supprimé masqué");
+const lyon = await rpc(A, "ensure_city", { p_source_ref: "relation/120965", p_name: "Lyon", p_country_code: "fr", p_country_name: "France", p_lat: 45.764, p_lng: 4.8357 });
+ok(typeof lyon === "string" && (await rpc(A, "get_my_dashboard")).city.name === "Paris", "ville d'un commerce créée sans changer la ville du membre");
+await expectError(rpc(C, "ensure_city", { p_source_ref: "relation/1", p_name: "X", p_country_code: "fr", p_country_name: "France", p_lat: 0, p_lng: 0 }), "not_verified", "ville réservée aux membres vérifiés");
+const created = await rpc(A, "propose_shop", { p_name: "Boulangerie Teranga", p_category: "bakery", p_address: "3 rue de la République, Lyon", p_city_id: lyon, p_lat: 45.7601, p_lng: 4.8357 });
+ok(created.result === "created", "commerce proposé dans une autre ville");
+await db.query("update public.shops set status = 'partner', partner_public = false where id = $1", [created.shop_id]);
+const dupL = await rpc(F, "propose_shop", { p_name: "Boulangerie Teranga", p_category: "bakery", p_address: "3 rue de la République", p_city_id: lyon, p_lat: 45.76012, p_lng: 4.8357 });
+ok(dupL.result === "duplicate_candidate" && dupL.shop.public_status === "validated" && dupL.shop.category === "bakery" && dupL.shop.voted === false, "doublon : partenariat non public masqué, catégorie et vote");
+ok((await as(A, "select * from public.get_map_shops($1)", [lyon]))[0].proposer === "amina_k", "auteur affiché sur la carte");
+const exp = await rpc(A, "export_my_data");
+ok(exp.profile.city_name === "Paris" && exp.votes.some((v) => v.shop === "Boulangerie Teranga") && exp.points.some((e) => e.label === "Boulangerie Teranga"), "export lisible : ville, commerces soutenus, libellés des points");
+await expectError(as(null, "select public.ensure_city('a','b','fr','c',0,0)"), "permission denied", "ensure_city non appelable par un visiteur");
+
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);

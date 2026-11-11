@@ -113,7 +113,7 @@ function AccountMenu({ d, t }) {
   )
 }
 
-function Header({ m, t }) {
+function Header({ m, t, full }) {
   const links = [
     ['/espace', t.nav.home, true],
     ['/classement', t.nav.board],
@@ -121,7 +121,7 @@ function Header({ m, t }) {
     ['/reglement', t.nav.rules],
   ]
   return (
-    <header className="sticky top-0 z-40 bg-[#f4f4f4]/90 px-4 pb-2 pt-4 backdrop-blur lg:px-10 lg:pt-7">
+    <header className={full ? 'fixed inset-x-0 top-0 z-40 hidden px-10 pt-7 lg:block' : 'sticky top-0 z-40 bg-[#f4f4f4]/90 px-4 pb-2 pt-4 backdrop-blur lg:px-10 lg:pt-7'}>
       <div className="mx-auto flex h-14 max-w-[1360px] items-center justify-between rounded-full border-ligne lg:h-[68px] lg:border lg:bg-white lg:pl-6 lg:pr-2.5">
         <Link to={m.d ? '/espace' : '/'} className="flex items-center gap-2" aria-label="KRISMA">
           <img src="/img/landing/k-ink.png" alt="" className="h-[23px] w-[18px] object-contain lg:h-[25px] lg:w-5" />
@@ -209,12 +209,14 @@ export default function Shell() {
   const m = useMemberData()
   const { t } = useMT()
   const { pathname } = useLocation()
+  // KRISMA Map occupe tout l'écran ; la barre du haut flotte au-dessus (desktop).
+  const full = pathname === '/carte'
   return (
     <MemberContext.Provider value={m}>
       <div className="min-h-screen bg-[#f4f4f4]">
-        <Header m={m} t={t} />
+        <Header m={m} t={t} full={full} />
         <SyncLocale m={m} />
-        <main className={`mx-auto max-w-[1360px] px-4 pt-4 lg:px-10 lg:pb-20 lg:pt-10 ${m.d ? 'pb-28' : 'pb-16'}`}>
+        <main className={full ? '' : `mx-auto max-w-[1360px] px-4 pt-4 lg:px-10 lg:pb-20 lg:pt-10 ${m.d ? 'pb-28' : 'pb-16'}`}>
           <Outlet key={pathname} />
         </main>
         {m.d && <Tabs t={t} />}
