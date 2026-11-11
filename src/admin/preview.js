@@ -2,9 +2,11 @@
 const now = Date.now()
 const ago = (h) => new Date(now - h * 36e5).toISOString()
 
+// Campagne de 9 jours : l'axe commence à gauche, les jours à venir sont vides.
 const daily = Array.from({ length: 30 }, (_, i) => {
-  const total = Math.round(220 + i * 14 + Math.sin(i) * 30)
-  return { day: new Date(now - (29 - i) * 864e5).toISOString().slice(0, 10), total, referred: Math.round(total * (0.25 + i / 120)) }
+  const future = i > 8
+  const total = future ? 0 : Math.round(220 + i * 40 + Math.sin(i) * 30)
+  return { day: new Date(now - (8 - i) * 864e5).toISOString().slice(0, 10), total, referred: Math.round(total * (0.25 + i / 60)), future }
 })
 
 const members = [

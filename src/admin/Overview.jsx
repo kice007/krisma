@@ -16,20 +16,36 @@ function Kpi({ label, value, sub, tone = 'text-vert' }) {
 }
 
 // Inscriptions par jour : barres empilées (direct en noir, via parrainage en orange).
+// L'axe part du premier jour de la campagne ; les jours à venir restent en pointillés.
 function Daily({ days }) {
   const max = Math.max(1, ...days.map((d) => d.total))
-  const label = (d) => new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit' }).format(new Date(d.day))
+  const label = (d) => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(new Date(`${d.day}T12:00:00`))
+  const mid = days[Math.floor((days.length - 1) / 2)]
   return (
-    <div className="flex h-[240px] items-end gap-[3px] lg:h-[460px] lg:gap-1.5" role="img" aria-label="Nouveaux inscrits par jour">
-      {days.map((d) => (
-        <div key={d.day} className="group relative flex h-full flex-1 flex-col justify-end">
-          <span className="pointer-events-none absolute -top-9 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-noir px-2 py-1 font-body text-[11px] text-white group-hover:block">
-            {label(d)} · {d.total} ({d.referred} parr.)
-          </span>
-          <span className="w-full rounded-t-[4px] bg-marque" style={{ height: `${(d.referred / max) * 100}%` }} />
-          <span className={`w-full bg-noir ${d.referred ? '' : 'rounded-t-[4px]'}`} style={{ height: `${((d.total - d.referred) / max) * 100}%` }} />
-        </div>
-      ))}
+    <div>
+      <div className="flex h-[240px] items-end gap-[3px] lg:h-[440px] lg:gap-1.5" role="img" aria-label="Nouveaux inscrits par jour">
+        {days.map((d) =>
+          d.future ? (
+            <div key={d.day} className="flex h-full flex-1 flex-col justify-end" title={`${label(d)} · à venir`}>
+              <span className="h-[3px] w-full rounded-full border-t-2 border-dotted border-ligne" />
+            </div>
+          ) : (
+            <div key={d.day} className="group relative flex h-full flex-1 flex-col justify-end">
+              <span className="pointer-events-none absolute -top-9 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-noir px-2 py-1 font-body text-[11px] text-white group-hover:block">
+                {label(d)} · {d.total} ({d.referred} parr.)
+              </span>
+              <span className="w-full rounded-t-[4px] bg-marque" style={{ height: `${(d.referred / max) * 100}%` }} />
+              <span className={`w-full bg-noir ${d.referred ? '' : 'rounded-t-[4px]'}`} style={{ height: `${((d.total - d.referred) / max) * 100}%`, minHeight: d.total ? 3 : 0 }} />
+              {!d.total && <span className="h-[3px] w-full rounded-full bg-clair" />}
+            </div>
+          ),
+        )}
+      </div>
+      <div className="mt-2.5 flex justify-between border-t border-ligne pt-2 font-body text-[12px] text-gris">
+        <span>{label(days[0])}</span>
+        <span className="hidden sm:inline">{label(mid)}</span>
+        <span>{label(days[days.length - 1])}</span>
+      </div>
     </div>
   )
 }
