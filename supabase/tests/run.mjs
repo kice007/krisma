@@ -270,5 +270,15 @@ ok(far.result === "created", "même nom à plusieurs km, autre adresse → nouve
 const other = await rpc(G, "propose_shop", { ...bmk, p_name: "Chez Fatou Traiteur", p_lat: 48.8537, p_lng: 2.3461 });
 ok(other.result === "duplicate_candidate" ? false : other.result === "created", "autre nom à la même adresse → nouvelle fiche");
 
+console.log("\n15. Doublon exact non contournable (migration 9)");
+const exact = await rpc(G, "propose_shop", { ...bmk, p_lat: 48.8700, p_lng: 2.3700, p_force: true });
+ok(exact.result === "duplicate_candidate" && exact.shop.blocked === true, "même nom + même adresse, repère déplacé à ~2 km et « forcer » → toujours refusé");
+const nBmk = (await db.query("select count(*)::int n from public.shops where name = 'BMK Paris-Bamako' and status not in ('rejected','duplicate')")).rows[0].n;
+ok(nBmk === 2, "aucune fiche BMK supplémentaire enregistrée (la 2e est l'autre établissement, à plusieurs km)");
+const near = await rpc(G, "propose_shop", { ...bmk, p_name: "BMK Paris Bamako Traiteur", p_address: "20 rue du Faubourg Saint-Denis", p_lat: 48.8540, p_lng: 2.3462 });
+ok(near.result === "duplicate_candidate" && near.shop.blocked === false, "nom proche, autre adresse → doublon possible, mais contournable");
+const forced = await rpc(G, "propose_shop", { ...bmk, p_name: "BMK Paris Bamako Traiteur", p_address: "20 rue du Faubourg Saint-Denis", p_lat: 48.8540, p_lng: 2.3462, p_force: true });
+ok(forced.result === "created", "cas ambigu : « ce n'est pas le même commerce » crée la fiche");
+
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);
