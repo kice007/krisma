@@ -23,6 +23,7 @@ await db.exec(`
     email text unique,
     email_confirmed_at timestamptz,
     is_anonymous boolean not null default true,
+    last_sign_in_at timestamptz,
     created_at timestamptz not null default now()
   );
   create function auth.uid() returns uuid language sql stable as $$
@@ -279,6 +280,49 @@ const near = await rpc(G, "propose_shop", { ...bmk, p_name: "BMK Paris Bamako Tr
 ok(near.result === "duplicate_candidate" && near.shop.blocked === false, "nom proche, autre adresse → doublon possible, mais contournable");
 const forced = await rpc(G, "propose_shop", { ...bmk, p_name: "BMK Paris Bamako Traiteur", p_address: "20 rue du Faubourg Saint-Denis", p_lat: 48.8540, p_lng: 2.3462, p_force: true });
 ok(forced.result === "created", "cas ambigu : « ce n'est pas le même commerce » crée la fiche");
+
+console.log("\n16. Administration (migration 10)");
+ok((await rpc(D, "my_staff_role")) === "super_admin", "rôle du membre connecté");
+ok((await rpc(A, "my_staff_role")) === null, "un membre sans rôle n'a pas de rôle d'équipe");
+const ov2 = await rpc(D, "admin_overview", { p_days: 30 });
+ok(ov2.daily.length === 30 && Array.isArray(ov2.cities) && ov2.answers.total >= 1, "vue d'ensemble : 30 jours, villes, réponses");
+const mem = await as(D, "select * from public.admin_list_members(null, null, null, null, true, 50, 0)");
+const e = mem.find((m) => m.pseudo === "promo_2026");
+ok(e && e.flags.includes("disposable_email") && Number(e.total) === mem.length, "membres suspects : e-mail jetable signalé, total renvoyé");
+const det = await rpc(D, "admin_member_detail", { p_user: A });
+ok(det.email === "amina@gmail.com" && det.events.length >= 3 && det.questionnaire.situation === "employee", "fiche membre complète");
+const dups = await as(D, "select * from public.admin_list_shops('duplicates', null, 50, 0)");
+ok(dups.some((x) => x.name === "BMK Paris Bamako Traiteur" && x.dup_name === "BMK Paris-Bamako"), "onglet doublons : doublon probable et fiche d'origine");
+const counts = await rpc(D, "admin_shop_counts");
+ok(counts.review >= 1 && counts.duplicates >= 1, "compteurs des onglets commerces");
+const pts = await as(D, "select * from public.admin_list_points('revoked', null, 50, 0)");
+ok(pts.some((x) => x.actor === "ivan"), "historique des points : auteur de l'annulation");
+ok((await rpc(D, "admin_points_summary")).revoked_month >= 1, "résumé des points");
+const audit = await as(D, "select * from public.admin_list_audit(50)");
+ok(audit.length >= 5 && audit.some((x) => x.action === "user_suspend" && x.target === "promo_2026"), "journal lisible (cible nommée)");
+
+// Équipe : invitation d'une personne sans compte, appliquée à la confirmation de l'adresse
+ok((await rpc(D, "admin_invite_member", { p_email: "Yao@Krisma.io", p_role: "moderator" })) === "invited", "invitation enregistrée");
+const yao = (await db.query("insert into auth.users (email) values ('yao@krisma.io') returning id")).rows[0].id;
+await db.query("update auth.users set email_confirmed_at = now(), is_anonymous = false where id = $1", [yao]);
+ok((await rpc(yao, "my_staff_role")) === "moderator", "rôle appliqué à la première connexion");
+ok((await rpc(D, "admin_invite_member", { p_email: "fatou@gmail.com", p_role: "admin" })) === "granted", "membre existant : rôle donné immédiatement");
+await expectError(rpc(yao, "admin_invite_member", { p_email: "x@krisma.io", p_role: "admin" }), "forbidden", "un modérateur ne gère pas l'équipe");
+await expectError(rpc(D, "admin_set_member_role", { p_user: D, p_role: "moderator" }), "cannot_change_self", "on ne change pas son propre rôle");
+await expectError(rpc(yao, "admin_set_point_status", { p_event_id: evId, p_status: "awarded", p_reason: "test" }), "forbidden", "un modérateur ne corrige pas les points");
+await expectError(rpc(yao, "admin_set_user_suspended", { p_user_id: A, p_suspended: true }), "forbidden", "un modérateur ne suspend pas");
+const team = await rpc(D, "admin_list_team");
+ok(team.members.length === 3 && team.members[0].role === "super_admin" && team.invites.length === 0, "liste de l'équipe");
+await rpc(D, "admin_remove_member", { p_user: yao });
+ok((await rpc(yao, "my_staff_role")) === null, "retrait d'un membre de l'équipe");
+
+// Exports réservés aux admins
+await expectError(as(A, "select * from public.admin_export_members()"), "forbidden", "export des membres refusé hors équipe");
+const exportRows = await as(D, "select * from public.admin_export_members()");
+ok(exportRows.length >= 4 && exportRows.some((x) => x.situation === "employee"), "export des membres avec réponses");
+const rankRows = await as(D, "select * from public.admin_export_ranking(2)");
+ok(rankRows.length >= 2 && rankRows.every((r) => r.points >= rankRows[rankRows.length - 1].points), "classement final avec les ex æquo");
+await expectError(as(null, "select public.admin_list_team()"), "permission denied", "fonctions admin fermées aux visiteurs");
 
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);
