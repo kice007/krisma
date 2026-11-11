@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AtSign, Mail, UserPlus } from 'lucide-react'
 import { currentUser, rpc, supabase } from '../lib/supabase'
 import FlowLayout, { Loading, useT } from './Layout'
-import { Alert, Btn, Checkbox, Field, Sub, Title, Turnstile, captchaEnabled } from './ui'
+import { Alert, Btn, Checkbox, Field, Sub, Title, Turnstile, useCaptcha } from './ui'
 import { EMAIL_RE, PSEUDO_RE, captureReferral, store } from './store'
 import { errorText } from './text'
 import { PATHS, myDashboard } from './flow'
@@ -24,12 +24,11 @@ export default function SignUp() {
   const [marketing, setMarketing] = useState(params.get('news') === '1')
   const [referrer, setReferrer] = useState(null)
   const [pseudoState, setPseudoState] = useState('idle')
-  const [captcha, setCaptcha] = useState('')
+  const captcha = useCaptcha()
   const [hasSession, setHasSession] = useState(false)
   const [tried, setTried] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
-  const onToken = useCallback((tok) => setCaptcha(tok), [])
 
   // Reprise : une session existante renvoie à la bonne étape, ou pré-remplit le pseudo.
   useEffect(() => {
@@ -84,11 +83,12 @@ export default function SignUp() {
     setTried(true)
     setError(null)
     if (!emailOk || !rules || pseudoState === 'invalid' || pseudoState === 'taken' || !pseudo.trim()) return
-    if (captchaEnabled && !hasSession && !captcha) return setError(t.errors.captcha_failed)
+    if (!hasSession && captcha.missing) return setError(t.errors.captcha_required)
     setBusy(true)
     try {
       if (!(await currentUser())) {
-        const { error: authError } = await supabase.auth.signInAnonymously({ options: captcha ? { captchaToken: captcha } : {} })
+        const { error: authError } = await supabase.auth.signInAnonymously({ options: captcha.options })
+        captcha.reset()
         if (authError) throw authError
         setHasSession(true)
       }
@@ -172,7 +172,7 @@ export default function SignUp() {
             {s.marketing}
           </Checkbox>
         </div>
-        {!hasSession && <Turnstile onToken={onToken} lang={lang} />}
+        {!hasSession && <Turnstile key={captcha.key} onToken={captcha.onToken} lang={lang} />}
         <Alert>{error}</Alert>
         <Btn type="submit" busy={busy} className="w-full">
           {s.cta}

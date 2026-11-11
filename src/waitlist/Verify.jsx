@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Inbox, Mail, MousePointerClick, RotateCw, Timer } from 'lucide-react'
 import { currentUser, supabase } from '../lib/supabase'
 import FlowLayout, { Loading, useT } from './Layout'
-import { Alert, Btn, Field, Sub, Title } from './ui'
+import { Alert, Btn, Field, Sub, Title, Turnstile, captchaEnabled, useCaptcha } from './ui'
 import { EMAIL_RE, mailboxUrl, store } from './store'
 import { errorText } from './text'
 import { PATHS, isPreview, myDashboard, sendConfirmation } from './flow'
@@ -21,6 +21,7 @@ export default function Verify() {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
   const [wait, setWait] = useState(COOLDOWN)
+  const captcha = useCaptcha()
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState(null)
   const [error, setError] = useState(location.state?.sendError ? errorText(t, { code: location.state.sendError }) : null)
@@ -71,10 +72,12 @@ export default function Verify() {
   }, [wait])
 
   const resend = async () => {
+    if (captcha.missing) return setError(t.errors.captcha_required)
     setBusy(true)
     setError(null)
-    const { error: err } = await supabase.auth.resend({ type: 'email_change', email })
+    const { error: err } = await supabase.auth.resend({ type: 'email_change', email, options: captcha.options })
     setBusy(false)
+    captcha.reset()
     if (err) return setError(errorText(t, err))
     setNotice(v.resent)
     setWait(COOLDOWN)
@@ -149,6 +152,7 @@ export default function Verify() {
             </ul>
             <Alert>{error}</Alert>
             {notice && <p className="font-body text-[14px] font-medium text-vert">{notice}</p>}
+            {captchaEnabled && wait <= 0 && <Turnstile key={captcha.key} onToken={captcha.onToken} lang={lang} />}
             <div className="flex w-full flex-col justify-center gap-2.5 sm:flex-row">
               {box && (
                 <a href={box} target="_blank" rel="noreferrer" className="inline-flex h-[52px] items-center justify-center gap-2.5 rounded-full bg-noir px-6 font-body text-[15px] font-semibold text-white hover:bg-[#2b2b2b] lg:h-14">
