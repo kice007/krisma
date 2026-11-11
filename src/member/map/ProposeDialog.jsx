@@ -9,6 +9,24 @@ import L, { CATEGORY_ICON, STATUS_COLOR, TILE_ATTRIBUTION, TILE_URL, draftIcon }
 
 const CATS = ['grocery', 'butcher', 'bakery', 'hair_salon', 'restaurant', 'other']
 
+const distKm = (a, b) => {
+  const r = Math.PI / 180
+  const h = Math.sin(((b.lat - a.lat) * r) / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(((b.lng - a.lng) * r) / 2) ** 2
+  return 12742 * Math.asin(Math.sqrt(h))
+}
+
+// Position de l'adresse saisie (premier résultat Photon autour de la ville).
+async function geocode(text, near, lang) {
+  try {
+    const bias = near ? `&lat=${near.lat}&lon=${near.lng}` : ''
+    const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(text)}&lang=${lang === 'fr' ? 'fr' : 'en'}&limit=1${bias}`)
+    const f = (await res.json()).features?.[0]
+    return f ? { lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0] } : null
+  } catch {
+    return null
+  }
+}
+
 // Adresse : suggestions Photon (OpenStreetMap) autour de la ville choisie.
 function AddressInput({ value, onChange, onPick, center, lang, t, invalid }) {
   const [items, setItems] = useState([])
@@ -125,7 +143,10 @@ export default function ProposeDialog({ t, lang, city, desktop, onClose, onDone 
   const [category, setCategory] = useState(null)
   const [address, setAddress] = useState('')
   const [point, setPoint] = useState(city ? { lat: city.lat, lng: city.lng } : { lat: 48.8566, lng: 2.3522 })
-  const [placed, setPlaced] = useState(false)
+  // Origine du repère : aucune, adresse choisie dans la liste, ou déplacé à la main.
+  const [pinSource, setPinSource] = useState('none')
+  const placed = pinSource !== 'none'
+  const [notice, setNotice] = useState(null)
   const [shopCity, setShopCity] = useState(city ? { ...city, existing: true, country: city.country_name, cc: city.country_code } : null)
   const [details, setDetails] = useState('')
   const [tried, setTried] = useState(false)
@@ -140,7 +161,7 @@ export default function ProposeDialog({ t, lang, city, desktop, onClose, onDone 
     return () => window.removeEventListener('keydown', onKey)
   }, [busy, onClose])
 
-  const missing = { name: !name.trim(), category: !category, address: address.trim().length < 3, pin: !placed, city: !shopCity }
+  const missing = { name: !name.trim(), category: !category, address: address.trim().length < 3, city: !shopCity }
   const invalid = Object.values(missing).some(Boolean)
 
   const cityId = async () => {
@@ -166,15 +187,34 @@ export default function ProposeDialog({ t, lang, city, desktop, onClose, onDone 
       return
     }
     setBusy(true)
+    setNotice(null)
     try {
+      // Le repère doit correspondre à l'adresse : sinon on le replace et on fait vérifier.
+      let pt = point
+      if (pinSource !== 'address') {
+        const g = await geocode(`${address.trim()}, ${shopCity.name}`, shopCity, lang)
+        if (g && pinSource === 'none') {
+          pt = g
+          setPoint(g)
+          setPinSource('address')
+        } else if (g && distKm(pt, g) > 0.5) {
+          setPoint(g)
+          setPinSource('address')
+          setNotice(f.pinMoved)
+          return
+        } else if (!g && pinSource === 'none') {
+          setError(f.pinRequired)
+          return
+        }
+      }
       const cid = await cityId()
       const res = await rpc('propose_shop', {
         p_name: name.trim(),
         p_category: category,
         p_address: address.trim(),
         p_city_id: cid,
-        p_lat: point.lat,
-        p_lng: point.lng,
+        p_lat: pt.lat,
+        p_lng: pt.lng,
         p_details: details.trim() || null,
         p_force: force,
       })
@@ -205,7 +245,7 @@ export default function ProposeDialog({ t, lang, city, desktop, onClose, onDone 
       {extra && <span className="font-body text-[13px] text-gris">{extra}</span>}
     </div>
   )
-  const req = (k) => tried && missing[k] && <p className="mt-1.5 font-body text-[13px] text-[#b91c1c]">{k === 'pin' ? f.pinRequired : f.required}</p>
+  const req = (k) => tried && missing[k] && <p className="mt-1.5 font-body text-[13px] text-[#b91c1c]">{f.required}</p>
 
   let body
   if (done) {
@@ -229,7 +269,8 @@ export default function ProposeDialog({ t, lang, city, desktop, onClose, onDone 
               setAddress('')
               setDetails('')
               setCategory(null)
-              setPlaced(false)
+              setPinSource('none')
+              setNotice(null)
               setTried(false)
             }}
             className="flex h-12 cursor-pointer items-center justify-center rounded-full border border-ligne px-6 font-body text-[15px] font-semibold"
@@ -326,7 +367,8 @@ export default function ProposeDialog({ t, lang, city, desktop, onClose, onDone 
             onPick={(it) => {
               setAddress(it.label)
               setPoint({ lat: it.lat, lng: it.lng })
-              setPlaced(true)
+              setPinSource('address')
+              setNotice(null)
             }}
             center={shopCity ? { lat: shopCity.lat, lng: shopCity.lng } : null}
             lang={lang}
@@ -341,11 +383,15 @@ export default function ProposeDialog({ t, lang, city, desktop, onClose, onDone 
               t={f}
               onMove={(ll) => {
                 setPoint({ lat: ll.lat, lng: ll.lng })
-                setPlaced(true)
+                setPinSource('manual')
               }}
             />
           </div>
-          {tried && missing.pin ? req('pin') : !placed && <p className="mt-1.5 font-body text-[13px] text-gris">{f.addressHint}</p>}
+          {notice ? (
+            <p className="mt-2 rounded-xl bg-[#fff7ed] px-3 py-2 font-body text-[13px] text-[#9a3412]">{notice}</p>
+          ) : (
+            !placed && <p className="mt-1.5 font-body text-[13px] text-gris">{f.addressHint}</p>
+          )}
         </div>
         <div>
           {label(f.city)}
