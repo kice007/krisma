@@ -17,7 +17,8 @@ await db.exec(`
   create schema auth;
   create role anon nologin;
   create role authenticated nologin;
-  grant usage on schema public, extensions, auth to anon, authenticated;
+  create role service_role nologin;
+  grant usage on schema public, extensions, auth to anon, authenticated, service_role;
   create table auth.users (
     id uuid primary key default gen_random_uuid(),
     email text unique,
@@ -323,6 +324,31 @@ ok(exportRows.length >= 4 && exportRows.some((x) => x.situation === "employee"),
 const rankRows = await as(D, "select * from public.admin_export_ranking(2)");
 ok(rankRows.length >= 2 && rankRows.every((r) => r.points >= rankRows[rankRows.length - 1].points), "classement final avec les ex æquo");
 await expectError(as(null, "select public.admin_list_team()"), "permission denied", "fonctions admin fermées aux visiteurs");
+
+console.log("\n17. File d'e-mails (migration 11)");
+const svc = async (sql, params = []) => {
+  await db.exec("set role service_role");
+  try { return (await db.query(sql, params)).rows; } finally { await db.exec("reset role"); }
+};
+const queued = (await db.query("select count(*)::int n from public.email_outbox where status = 'queued'")).rows[0].n;
+const batch = await svc("select * from public.claim_email_batch(100)");
+ok(batch.length === queued && batch.length >= 3, `lot réservé : ${batch.length} e-mail(s) en attente`);
+ok(batch.every((b) => b.email && b.locale && b.pseudo), "chaque e-mail a son destinataire, sa langue et son pseudo");
+ok((await svc("select * from public.claim_email_batch(100)")).length === 0, "un e-mail réservé n'est pas repris tout de suite");
+const w = batch.find((b) => b.template === "welcome");
+await svc("select public.finish_email($1, 'sent')", [w.id]);
+const f = batch.find((b) => b.id !== w.id);
+await svc("select public.finish_email($1, 'failed', 'timeout')", [f.id]);
+const st = (await db.query("select id, status, sent_at, last_error from public.email_outbox where id in ($1, $2) order by id", [w.id, f.id])).rows;
+ok(st.find((x) => x.id === w.id).status === "sent" && st.find((x) => x.id === w.id).sent_at, "e-mail envoyé marqué « sent »");
+ok(st.find((x) => x.id === f.id).status === "queued" && st.find((x) => x.id === f.id).last_error === "timeout", "échec : remis en file pour un nouvel essai");
+await expectError(as(D, "select * from public.claim_email_batch(10)"), "permission denied", "la file n'est pas accessible depuis le navigateur");
+// Parrainage suspendu puis attribué par l'équipe → e-mail au parrain
+const susp = (await db.query("insert into public.point_events (user_id, kind, source_id, points, status) values ($1, 'referral', $2, 50, 'suspended') returning id", [G, F])).rows[0].id;
+const before11 = (await db.query("select count(*)::int n from public.email_outbox where template = 'referral_awarded' and user_id = $1", [G])).rows[0].n;
+await rpc(D, "admin_set_point_status", { p_event_id: susp, p_status: "awarded", p_reason: "Vérifié manuellement" });
+const after11 = (await db.query("select count(*)::int n from public.email_outbox where template = 'referral_awarded' and user_id = $1", [G])).rows[0].n;
+ok(after11 === before11 + 1, "parrainage débloqué par l'équipe : e-mail « parrainage validé » mis en file");
 
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);
