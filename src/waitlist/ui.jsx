@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { AlertCircle, Check, CircleCheck, CornerDownLeft, CornerDownRight, LoaderCircle, MapPin, Plus, X } from 'lucide-react'
 import { AFRICA, countryName } from './text'
 
@@ -354,6 +354,19 @@ export function CityInput({ value, onChange, lang, t }) {
 const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY
 export const captchaEnabled = Boolean(SITE_KEY)
 
+// Jeton Turnstile à usage unique : reset() recharge le widget après chaque tentative.
+export function useCaptcha() {
+  const [token, setToken] = useState('')
+  const [key, setKey] = useState(0)
+  const onToken = useCallback((t) => setToken(t), [])
+  const reset = useCallback(() => {
+    setToken('')
+    setKey((k) => k + 1)
+  }, [])
+  const options = token ? { captchaToken: token } : {}
+  return { token, key, onToken, reset, options, missing: captchaEnabled && !token }
+}
+
 export function Turnstile({ onToken, lang }) {
   const el = useRef(null)
   useEffect(() => {
@@ -365,6 +378,7 @@ export function Turnstile({ onToken, lang }) {
       widget = window.turnstile.render(el.current, {
         sitekey: SITE_KEY,
         language: lang,
+        theme: 'light',
         callback: onToken,
         'expired-callback': () => onToken(''),
         'error-callback': () => onToken(''),

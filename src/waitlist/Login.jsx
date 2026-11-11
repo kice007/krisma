@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Mail, MailCheck } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import FlowLayout, { useT } from './Layout'
-import { Alert, Btn, Field, Sub, Title, Turnstile, captchaEnabled } from './ui'
+import { Alert, Btn, Field, Sub, Title, Turnstile, useCaptcha } from './ui'
 import { EMAIL_RE } from './store'
 import { errorText } from './text'
 import { PATHS } from './flow'
@@ -22,9 +22,8 @@ export default function Login() {
   const [sent, setSent] = useState(false)
   const [tried, setTried] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [captcha, setCaptcha] = useState('')
+  const captcha = useCaptcha()
   const [error, setError] = useState(new URLSearchParams(location.search).get('expired') ? t.errors.otp_expired : null)
-  const onToken = useCallback((tok) => setCaptcha(tok), [])
   const ok = EMAIL_RE.test(email.trim())
 
   useEffect(() => {
@@ -38,13 +37,14 @@ export default function Login() {
     setTried(true)
     setError(null)
     if (!ok) return
-    if (captchaEnabled && !captcha) return setError(t.errors.captcha_failed)
+    if (captcha.missing) return setError(t.errors.captcha_required)
     setBusy(true)
     const { error: err } = await supabase.auth.signInWithOtp({
       email: email.trim().toLowerCase(),
-      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}${PATHS.resume}`, ...(captcha ? { captchaToken: captcha } : {}) },
+      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}${PATHS.resume}`, ...captcha.options },
     })
     setBusy(false)
+    captcha.reset()
     if (err && !SILENT.includes(err.code) && !/signups not allowed/i.test(err.message)) return setError(errorText(t, err))
     setSent(true)
   }
@@ -80,7 +80,7 @@ export default function Login() {
             state={tried && !ok ? 'err' : undefined}
             message={tried && !ok ? t.signup.errEmail : undefined}
           />
-          <Turnstile onToken={onToken} lang={lang} />
+          <Turnstile key={captcha.key} onToken={captcha.onToken} lang={lang} />
           <Alert>{error}</Alert>
           <Btn type="submit" busy={busy} className="w-full">
             {l.cta}

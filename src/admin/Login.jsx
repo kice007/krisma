@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { History, LockKeyhole, Mail, MailCheck, MonitorSmartphone, RotateCw, ShieldCheck } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { EMAIL_RE } from '../waitlist/store'
-import { Field } from '../waitlist/ui'
+import { Field, Turnstile, captchaEnabled, useCaptcha } from '../waitlist/ui'
 
 const COOLDOWN = 60
 
@@ -16,6 +16,7 @@ export default function AdminLogin() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   const [wait, setWait] = useState(0)
+  const captcha = useCaptcha()
   const ok = EMAIL_RE.test(email.trim())
 
   useEffect(() => {
@@ -34,9 +35,12 @@ export default function AdminLogin() {
     setTried(true)
     setError(null)
     if (!ok) return
+    if (captcha.missing) return setError('Patiente le temps de la vérification anti-robot, puis réessaie.')
     setBusy(true)
-    const { error: err } = await supabase.auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/admin` } })
+    const { error: err } = await supabase.auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/admin`, ...captcha.options } })
     setBusy(false)
+    captcha.reset()
+    if (err && /captcha/i.test(err.code || err.message)) return setError('La vérification anti-robot a échoué. Réessaie.')
     if (err && /rate|limit/i.test(err.code || err.message)) return setError('Trop de demandes. Patiente une minute avant de réessayer.')
     setSent(true)
     setWait(COOLDOWN)
@@ -92,6 +96,8 @@ export default function AdminLogin() {
                 <MonitorSmartphone size={18} className="mt-px shrink-0" />
                 Ouvre le lien sur cet appareil : la session admin reste liée au navigateur qui l’ouvre.
               </p>
+              {captchaEnabled && wait <= 0 && <Turnstile key={captcha.key} onToken={captcha.onToken} lang="fr" />}
+              {error && <p className="font-body text-[14px] text-[#b91c1c]">{error}</p>}
               <div className="flex flex-col gap-3">
                 <button type="button" onClick={send} disabled={wait > 0 || busy} className="flex h-[52px] cursor-pointer items-center justify-center gap-2 rounded-full border border-ligne font-body text-[15px] font-semibold disabled:cursor-not-allowed disabled:text-gris">
                   <RotateCw size={16} />
@@ -112,6 +118,7 @@ export default function AdminLogin() {
                 <p className="font-body text-[16px] leading-[1.6] text-gris">Saisis ton adresse e-mail d’équipe. Tu recevras un lien de connexion valable 1 heure.</p>
               </div>
               <Field label="Adresse e-mail" icon={Mail} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} state={tried && !ok ? 'err' : undefined} message={tried && !ok ? 'Saisis une adresse e-mail valide.' : undefined} />
+              <Turnstile key={captcha.key} onToken={captcha.onToken} lang="fr" />
               {error && <p className="font-body text-[14px] text-[#b91c1c]">{error}</p>}
               <button type="submit" disabled={busy} className="flex h-14 cursor-pointer items-center justify-center rounded-full bg-noir font-body text-[15px] font-semibold text-white">
                 Recevoir le lien de connexion
