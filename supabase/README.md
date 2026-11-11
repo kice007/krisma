@@ -7,7 +7,9 @@
 | `migrations/20261111000001_waitlist_schema.sql` | Tables, types, contraintes, domaines jetables |
 | `migrations/20261111000002_waitlist_logic.sql` | Règles de points, classement, fonctions RPC (inscription, questionnaire, carte, admin) |
 | `migrations/20261111000003_waitlist_security.sql` | RLS et droits d'appel |
-| `tests/run.mjs` | 55 vérifications dans PGlite (Postgres en WebAssembly), sans Docker : `npm run test:db` |
+| `migrations/20261111000004_proposed_shops_public.sql` | Commerces « Proposé » visibles par tous et soutenables |
+| `migrations/20261111000005_member_area.sql` | Espace membre : préférence e-mails de suivi, tableau de bord enrichi (rang il y a 7 jours), pseudo, réglages, suppression du compte |
+| `tests/run.mjs` | 69 vérifications dans PGlite (Postgres en WebAssembly), sans Docker : `npm run test:db` |
 
 Mise en ligne : `supabase link --project-ref <ref>` puis `supabase db push`.
 
@@ -64,7 +66,9 @@ Code dans `src/waitlist/` (React Router, chargé à la demande) et `src/lib/supa
 | `/waitlist/verification` | W07 : envoi du lien à la fin du questionnaire, renvoi, changement d'adresse ; la page bascule seule quand le lien est cliqué |
 | `/waitlist/bienvenue` | W08 : arrivée du lien de confirmation (+170, rang, lien de parrainage) |
 | `/connexion` → `/waitlist/reprise` | W09 : lien magique, puis reprise à la bonne étape |
-| `/espace` | provisoire, remplacé en phase 4 |
+| `/espace`, `/espace/points`, `/espace/profil` | W10 tableau de bord, M12 historique, M19 profil (réservés aux membres validés) — `src/member/` |
+| `/classement`, `/reglement` | W11 classement et W14 règles, publics |
+| `/carte` | KRISMA Map : page d’attente jusqu’à la phase 5 |
 
 En développement, `?apercu` affiche les écrans 3 à 8 avec des données d'exemple, sans session ni écriture en base.
 

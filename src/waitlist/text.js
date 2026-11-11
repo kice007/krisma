@@ -135,17 +135,6 @@ const fr = {
     sentSub: (e) => `Si ${e} est inscrite à la liste d'attente, un lien de connexion vient d'y être envoyé. Il expire dans 1 heure.`,
     other: 'Utiliser une autre adresse',
   },
-  soonMap: {
-    title: 'KRISMA Map arrive bientôt',
-    sub: 'La carte des commerces proposés par la communauté ouvre très vite. En attendant, inscris-toi pour être prêt·e à proposer les tiens.',
-    cta: "Rejoindre la liste d'attente",
-  },
-  member: {
-    title: 'Ton espace arrive bientôt',
-    sub: 'Le tableau de bord, le classement et KRISMA Map sont en préparation.',
-    logout: 'Se déconnecter',
-    home: "Retour à l'accueil",
-  },
   loading: 'Chargement…',
   errors: {
     pseudo_taken: 'Ce pseudo est déjà pris. Essaie une variante.',
@@ -301,17 +290,6 @@ const en = {
     sentTitle: 'Link sent',
     sentSub: (e) => `If ${e} is on the waitlist, a login link was just sent to it. It expires in 1 hour.`,
     other: 'Use another address',
-  },
-  soonMap: {
-    title: 'KRISMA Map is coming soon',
-    sub: 'The map of shops suggested by the community opens very soon. Meanwhile, sign up to be ready to suggest yours.',
-    cta: 'Join the waitlist',
-  },
-  member: {
-    title: 'Your space is coming soon',
-    sub: 'The dashboard, leaderboard and KRISMA Map are being prepared.',
-    logout: 'Log out',
-    home: 'Back to home',
   },
   loading: 'Loading…',
   errors: {
