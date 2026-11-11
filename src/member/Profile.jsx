@@ -7,7 +7,8 @@ import { rpc, supabase } from '../lib/supabase'
 import { CityInput } from '../waitlist/ui'
 import { TEXT } from '../waitlist/text'
 import { PSEUDO_RE } from '../waitlist/store'
-import { deleteMyAccount, downloadMyData } from './account'
+import { deleteMyAccount } from './account'
+import ExportButtons from './ExportButtons'
 import { initials, useMT, useMember } from './Shell'
 
 function Group({ title, children }) {
@@ -192,7 +193,16 @@ export default function Profile() {
       <Group title={p.data}>
         <Line icon={ScrollText} label={p.rules} to="/reglement" />
         <Line icon={Shield} label={p.privacy} to="/reglement#donnees" />
-        <Line icon={Download} label={p.export} onClick={() => downloadMyData().catch(() => setError(t.errors.generic))} />
+        <div className="flex flex-col gap-3 border-b border-ligne py-4 sm:flex-row sm:items-center">
+          <span className="flex min-w-0 flex-1 items-start gap-3.5">
+            <Download size={19} className="mt-0.5 shrink-0" />
+            <span>
+              <span className="block font-body text-[15px] font-medium">{p.export}</span>
+              <span className="block font-body text-[13px] text-gris">{p.exportSub}</span>
+            </span>
+          </span>
+          <ExportButtons onError={setError} className="pl-[33px] sm:pl-0" />
+        </div>
         <Line icon={Trash2} label={p.delete} onClick={() => setConfirm(true)} danger last />
       </Group>
 

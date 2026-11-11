@@ -187,7 +187,7 @@ function ShopsCard({ d, t }) {
           <h2 className="font-display text-[22px] font-bold tracking-[-0.6px] lg:text-[26px]">{t.dash.shopsTitle}</h2>
           <p className="mt-1 font-body text-[14px] text-gris">{t.dash.shopsSub}</p>
         </div>
-        <Link to="/carte" className="flex h-11 shrink-0 items-center gap-2 rounded-full bg-marque px-5 font-body text-[14px] font-semibold text-white hover:bg-[#f06e1b]">
+        <Link to="/carte?proposer=1" className="flex h-11 shrink-0 items-center gap-2 rounded-full bg-marque px-5 font-body text-[14px] font-semibold text-white hover:bg-[#f06e1b]">
           <Plus size={16} />
           {t.dash.propose}
         </Link>

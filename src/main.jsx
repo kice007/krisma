@@ -20,7 +20,7 @@ const Points = lazy(() => import('./member/Points'))
 const Profile = lazy(() => import('./member/Profile'))
 const Leaderboard = lazy(() => import('./member/Leaderboard'))
 const Rules = lazy(() => import('./member/Rules'))
-const MapSoon = lazy(() => import('./member/Rules').then((m) => ({ default: m.MapSoon })))
+const MapPage = lazy(() => import('./member/map/MapPage'))
 const RequireMember = lazy(() => import('./member/Shell').then((m) => ({ default: m.RequireMember })))
 
 function ScrollToTop() {
@@ -54,7 +54,7 @@ createRoot(document.getElementById('root')).render(
               <Route path="/espace/profil" element={member(<Profile />)} />
               <Route path="/classement" element={<Leaderboard />} />
               <Route path="/reglement" element={<Rules />} />
-              <Route path="/carte" element={<MapSoon />} />
+              <Route path="/carte" element={<MapPage />} />
             </Route>
             <Route path="/confidentialite" element={<Navigate to="/reglement#donnees" replace />} />
             <Route path="/conditions" element={<Navigate to="/reglement" replace />} />

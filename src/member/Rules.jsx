@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Download, Map as MapIcon, Trash2, TriangleAlert } from 'lucide-react'
 import { PATHS } from '../waitlist/flow'
-import { downloadMyData } from './account'
+import ExportButtons from './ExportButtons'
 import { useMT, useMember } from './Shell'
 
 // W14 — Règles de la campagne (page publique, sommaire collant sur desktop).
@@ -97,10 +97,11 @@ export default function Rules() {
               <div className="mt-5 flex flex-wrap gap-2.5">
                 {d ? (
                   <>
-                    <button type="button" onClick={() => downloadMyData().catch(() => {})} className="flex h-11 cursor-pointer items-center gap-2 rounded-full border border-ligne px-4 font-body text-[14px] font-semibold hover:border-noir">
+                    <span className="flex h-11 items-center gap-2 font-body text-[14px] font-semibold">
                       <Download size={16} />
                       {t.profile.export}
-                    </button>
+                    </span>
+                    <ExportButtons />
                     <Link to="/espace/profil" className="flex h-11 items-center gap-2 rounded-full border border-ligne px-4 font-body text-[14px] font-semibold hover:border-noir">
                       <Trash2 size={16} />
                       {t.profile.delete}
@@ -125,20 +126,3 @@ export default function Rules() {
   )
 }
 
-// /carte — KRISMA Map (phase 5).
-export function MapSoon() {
-  const { t } = useMT()
-  const { d } = useMember()
-  return (
-    <section className="mx-auto flex max-w-[640px] flex-col items-center gap-5 rounded-[28px] bg-white px-6 py-16 text-center lg:py-24">
-      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-clair">
-        <MapIcon size={26} />
-      </span>
-      <h1 className="font-display text-[30px] font-bold tracking-[-1px] lg:text-[38px]">{t.soon.title}</h1>
-      <p className="max-w-[460px] font-body text-[16px] leading-[1.6] text-gris">{t.soon.sub}</p>
-      <Link to={d ? '/espace' : PATHS.home} className="flex h-12 items-center rounded-full bg-noir px-6 font-body text-[15px] font-semibold text-white hover:bg-[#2b2b2b]">
-        {d ? t.soon.cta : t.soon.ctaPublic}
-      </Link>
-    </section>
-  )
-}
