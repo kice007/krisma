@@ -132,7 +132,7 @@ function Header({ m, t, full }) {
   return (
     <header className={full ? 'fixed inset-x-0 top-0 z-40 hidden px-10 pt-7 lg:block' : 'sticky top-0 z-40 bg-[#f4f4f4]/90 px-4 pb-2 pt-4 backdrop-blur lg:px-10 lg:pt-7'}>
       <div className="mx-auto flex h-14 max-w-[1360px] items-center justify-between rounded-full border-ligne lg:h-[68px] lg:border lg:bg-white lg:pl-6 lg:pr-2.5">
-        <Link to={m.d ? '/espace' : '/'} className="flex items-center gap-2" aria-label="KRISMA">
+        <Link to="/" className="flex items-center gap-2" aria-label="KRISMA, retour à l'accueil du site">
           <img src="/img/landing/k-ink.png" alt="" className="h-[23px] w-[18px] object-contain lg:h-[25px] lg:w-5" />
           <span className="font-display text-[16px] font-extrabold tracking-[1.5px]">KRISMA</span>
         </Link>
