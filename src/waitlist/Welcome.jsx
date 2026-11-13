@@ -6,7 +6,7 @@ import { EASE } from '../components/Reveal'
 import FlowLayout, { Loading, useT } from './Layout'
 import { Alert, Btn, Sub, Title } from './ui'
 import { errorText } from './text'
-import { PATHS, SAMPLE, cleanUrl, isPreview, linkError, myDashboard, waitForSession } from './flow'
+import { PATHS, SAMPLE, cleanUrl, hasPassword, isPreview, linkError, myDashboard, waitForSession } from './flow'
 import { store } from './store'
 
 // W08 — Inscription validée. C'est aussi la page d'arrivée du lien de confirmation.
@@ -36,6 +36,9 @@ export default function Welcome() {
         const res = await myDashboard()
         if (!alive) return
         if (res.status === 'verified') {
+          // Étape 3 bis : le mot de passe, choisi une seule fois juste après la vérification.
+          if (!(await hasPassword())) return navigate(PATHS.password, { replace: true })
+          if (!alive) return
           store.setEmail('')
           setD(res)
           setState('ok')
@@ -87,7 +90,7 @@ export default function Welcome() {
             </div>
           </motion.div>
           <div className="flex flex-col gap-3">
-            <Title>{w.title(d.pseudo)}</Title>
+            <Title>{w.title((d.pseudo || '').split(' ')[0])}</Title>
             <Sub className="mx-auto max-w-[480px]">{w.sub}</Sub>
           </div>
           <div className="grid w-full grid-cols-3 gap-2.5 lg:gap-3">

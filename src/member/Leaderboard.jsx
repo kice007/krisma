@@ -19,7 +19,7 @@ function Podium({ rows, t, lang }) {
         if (!r) return <div key={i} />
         return (
           <div
-            key={r.pseudo}
+            key={r.rank}
             className={`flex flex-col justify-between rounded-[22px] p-3.5 lg:rounded-[28px] lg:p-7 ${first ? 'h-[128px] bg-noir text-white lg:h-[290px]' : 'h-[108px] bg-white lg:h-[250px]'} ${r.is_me ? 'ring-2 ring-marque' : ''}`}
           >
             <div className="flex items-start justify-between">
@@ -123,7 +123,7 @@ export default function Leaderboard() {
 
   const me = rows?.find((r) => r.is_me) || around.find((r) => r.is_me)
   const rest = rows ? rows.slice(3) : []
-  const neighbours = around.filter((r) => !r.is_me && !rows?.some((x) => x.pseudo === r.pseudo))
+  const neighbours = around.filter((r) => !r.is_me && !rows?.some((x) => Number(x.rank) === Number(r.rank)))
 
   return (
     <div className="flex flex-col gap-4 lg:gap-5">
@@ -185,11 +185,11 @@ export default function Leaderboard() {
               </div>
               <ul>
                 {rest.map((r, i) => (
-                  <Row key={r.pseudo} r={r} t={t} lang={lang} last={i === rest.length - 1 && !neighbours.length} />
+                  <Row key={r.rank} r={r} t={t} lang={lang} last={i === rest.length - 1 && !neighbours.length} />
                 ))}
                 {neighbours.length > 0 && <li className="border-b border-ligne py-3 font-body text-[14px] text-gris">…</li>}
                 {neighbours.map((r, i) => (
-                  <Row key={r.pseudo} r={r} t={t} lang={lang} last={i === neighbours.length - 1} />
+                  <Row key={r.rank} r={r} t={t} lang={lang} last={i === neighbours.length - 1} />
                 ))}
               </ul>
             </section>

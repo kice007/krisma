@@ -10,10 +10,10 @@ const daily = Array.from({ length: 30 }, (_, i) => {
 })
 
 const members = [
-  ['awa_k', 'awa.kone@gmail.com', 'Paris', 'FR', 'verified', 290, 2, []],
-  ['mariam.dk', 'm.diakite@outlook.fr', 'Lyon', 'FR', 'verified', 1610, 26, []],
-  ['kev_ci', 'kevin.c@gmail.com', 'Saint-Denis', 'FR', 'questionnaire_done', 0, 0, []],
-  ['promo_2026', 'x7k2@tempmail.io', 'Paris', 'FR', 'suspended', 0, 14, ['disposable_email', 'shared_ip', 'suspended_points']],
+  ['Awa K.', 'awa.kone@gmail.com', 'Paris', 'FR', 'verified', 290, 2, []],
+  ['Mariam D.', 'm.diakite@outlook.fr', 'Lyon', 'FR', 'verified', 1610, 26, []],
+  ['Kevin C.', 'kevin.c@gmail.com', 'Saint-Denis', 'FR', 'questionnaire_done', 0, 0, []],
+  ['Promo T.', 'x7k2@tempmail.io', 'Paris', 'FR', 'suspended', 0, 14, ['disposable_email', 'shared_ip', 'suspended_points']],
   ['ibra_225', 'ibrahima.t@yahoo.fr', 'Marseille', 'FR', 'verified', 1130, 16, []],
   ['ana.b', 'ana.b@gmail.com', 'Bruxelles', 'BE', 'draft', 0, 0, []],
   ['yann_ko', 'yann.k@proton.me', 'Bruxelles', 'BE', 'verified', 1040, 15, []],
@@ -22,21 +22,21 @@ const members = [
 ].map(([pseudo, email, city, country_code, status, points, referrals, flags], i) => ({ id: `m${i}`, pseudo, email, city, country_code, status, points, referrals, suspended_points: flags.includes('suspended_points') ? 700 : 0, created_at: ago(i * 30), flags, total: 9 }))
 
 const shops = [
-  { id: 's1', name: 'Restaurant Chez Tantie Rose', category: 'restaurant', address: '52 rue de Belleville, 75020 Paris', lat: 48.8722, lng: 2.3829, status: 'proposed', proposer: 'awa_k', proposer_city: 'Paris', created_at: ago(2), details: 'Cuisine ivoirienne, ouvert tous les soirs' },
-  { id: 's2', name: 'Salon Nappy Queen', category: 'hair_salon', address: '8 rue de la République, Saint-Denis', lat: 48.9362, lng: 2.3574, status: 'proposed', proposer: 'awa_k', proposer_city: 'Paris', created_at: ago(5) },
-  { id: 's3', name: 'Épicerie chez awa', category: 'grocery', address: '14 rue Myrha, Paris 18e', lat: 48.8868, lng: 2.3542, status: 'proposed', proposer: 'kev_ci', proposer_city: 'Saint-Denis', created_at: ago(6), dup_id: 's9', dup_name: 'Épicerie Chez Awa', dup_address: '14 rue Myrha, Paris 18e', dup_distance: 12 },
-  { id: 's4', name: 'Boucherie Halal Barbès', category: 'butcher', address: '3 boulevard Barbès, Paris 18e', lat: 48.8846, lng: 2.3497, status: 'proposed', proposer: 'mamadou_d', proposer_city: 'Paris', created_at: ago(26) },
-  { id: 's9', name: 'Épicerie Chez Awa', category: 'grocery', address: '14 rue Myrha, Paris 18e', lat: 48.8867, lng: 2.3541, status: 'cashback_active', partner_public: true, cashback_rate: 5, proposer: 'mamadou_d', proposer_city: 'Paris', created_at: ago(240) },
+  { id: 's1', name: 'Restaurant Chez Tantie Rose', category: 'restaurant', address: '52 rue de Belleville, 75020 Paris', lat: 48.8722, lng: 2.3829, status: 'proposed', proposer: 'Awa K.', proposer_city: 'Paris', created_at: ago(2), details: 'Cuisine ivoirienne, ouvert tous les soirs' },
+  { id: 's2', name: 'Salon Nappy Queen', category: 'hair_salon', address: '8 rue de la République, Saint-Denis', lat: 48.9362, lng: 2.3574, status: 'proposed', proposer: 'Awa K.', proposer_city: 'Paris', created_at: ago(5) },
+  { id: 's3', name: 'Épicerie chez awa', category: 'grocery', address: '14 rue Myrha, Paris 18e', lat: 48.8868, lng: 2.3542, status: 'proposed', proposer: 'Kevin C.', proposer_city: 'Saint-Denis', created_at: ago(6), dup_id: 's9', dup_name: 'Épicerie Chez Awa', dup_address: '14 rue Myrha, Paris 18e', dup_distance: 12 },
+  { id: 's4', name: 'Boucherie Halal Barbès', category: 'butcher', address: '3 boulevard Barbès, Paris 18e', lat: 48.8846, lng: 2.3497, status: 'proposed', proposer: 'Mamadou D.', proposer_city: 'Paris', created_at: ago(26) },
+  { id: 's9', name: 'Épicerie Chez Awa', category: 'grocery', address: '14 rue Myrha, Paris 18e', lat: 48.8867, lng: 2.3541, status: 'cashback_active', partner_public: true, cashback_rate: 5, proposer: 'Mamadou D.', proposer_city: 'Paris', created_at: ago(240) },
 ].map((s) => ({ partner_public: false, cashback_rate: null, review_note: null, city: s.address.includes('Saint-Denis') ? 'Saint-Denis' : 'Paris', city_id: 'paris', country_name: 'France', proposer_id: 'm0', votes: 12, duplicate_of: null, dup_id: null, total: 5, ...s }))
 
 const points = [
-  [ago(1), 'awa_k', 'signup', null, 170, 'awarded', null],
-  [ago(1.2), 'mamadou_d', 'referral', 'awa_k', 50, 'awarded', null],
-  [ago(1.6), 'awa_k', 'shop', 'Épicerie Chez Awa', 20, 'awarded', 'ivan'],
-  [ago(2.5), 'promo_2026', 'referral', 'x91', 50, 'suspended', null],
-  [ago(3), 'promo_2026', 'referral', 'k2', 50, 'suspended', null],
+  [ago(1), 'Awa K.', 'signup', null, 170, 'awarded', null],
+  [ago(1.2), 'Mamadou D.', 'referral', 'Awa K.', 50, 'awarded', null],
+  [ago(1.6), 'Awa K.', 'shop', 'Épicerie Chez Awa', 20, 'awarded', 'ivan'],
+  [ago(2.5), 'Promo T.', 'referral', 'x91', 50, 'suspended', null],
+  [ago(3), 'Promo T.', 'referral', 'k2', 50, 'suspended', null],
   [ago(20), 'test_b', 'signup', null, 170, 'revoked', 'ivan'],
-  [ago(21), 'mariam.dk', 'shop', 'Afro Market Lyon', 20, 'awarded', 'ivan'],
+  [ago(21), 'Mariam D.', 'shop', 'Afro Market Lyon', 20, 'awarded', 'ivan'],
   [ago(22), 'ibra_225', 'referral', 'sekou.d', 50, 'awarded', null],
 ].map(([created_at, member, kind, label, pts, status, actor], i) => ({ id: i + 1, created_at, user_id: 'm0', member, kind, label, points: pts, status, reason: status === 'revoked' ? 'Compte en double' : null, actor, changed_at: created_at, total: 8 }))
 
@@ -52,10 +52,10 @@ export const PREVIEW = {
   admin_city_stats: [['Paris', 'FR', 3912], ['Lyon', 'FR', 1104], ['Bruxelles', 'BE', 986], ['Abidjan', 'CI', 598]].map(([city, cc, m], i) => ({ city_id: `c${i}`, city, country_code: cc, members: m, shops_proposed: Math.round(m / 8), shops_validated: Math.round(m / 20), votes: m * 2, partners: 3 - i > 0 ? 3 - i : 0, cashback_active: i === 0 ? 2 : 0, top_category: 'grocery' })),
   admin_list_members: (a) => (a.p_flagged ? members.filter((m) => m.flags.length || m.status === 'suspended') : members),
   admin_member_detail: () => ({
-    id: 'm3', pseudo: 'promo_2026', status: 'suspended', email: 'x7k2@tempmail.io', created_at: ago(30), verified_at: ago(29), suspension_reason: 'Fraude au parrainage', consent_marketing: false,
+    id: 'm3', pseudo: 'Promo T.', status: 'suspended', email: 'x7k2@tempmail.io', created_at: ago(30), verified_at: ago(29), suspension_reason: 'Fraude au parrainage', consent_marketing: false,
     city: { name: 'Paris', country_name: 'France' }, referrer: null, referral_code: 'PROMO26', flags: ['disposable_email', 'shared_ip', 'suspended_points'], same_ip: 14, points: 0, points_suspended: 700,
     questionnaire: { situation: 'other', receive_frequency: 'never', receive_countries: [], send_frequency: 'never', send_countries: [], interest_transfers: 'very', local_shop_frequency: 'daily', local_shop_spend: 'gte_500', interest_cashback: 'very', services: ['all'], willing_to_pay: 'yes', usage_intent: 'primary' },
-    events: points.filter((p) => p.member === 'promo_2026'),
+    events: points.filter((p) => p.member === 'Promo T.'),
     referees: [['x91', 'verified'], ['k2', 'verified'], ['zz77', 'questionnaire_done']].map(([pseudo, status]) => ({ pseudo, status, email: `${pseudo}@tempmail.io`, flags: ['disposable_email', 'shared_ip'] })),
     shops: [],
   }),
@@ -85,8 +85,8 @@ export const PREVIEW = {
     invites: [{ email: 'fatou@krisma.io', role: 'moderator', invited_by: 'mariam', created_at: ago(2) }],
   },
   admin_list_audit: [
-    { created_at: ago(2), actor: 'mariam', action: 'user_suspend', target: 'promo_2026', details: { reason: 'Fraude au parrainage' } },
-    { created_at: ago(2.1), actor: 'mariam', action: 'points_revoked', target: 'promo_2026', details: { reason: 'Fraude confirmée' } },
+    { created_at: ago(2), actor: 'mariam', action: 'user_suspend', target: 'Promo T.', details: { reason: 'Fraude au parrainage' } },
+    { created_at: ago(2.1), actor: 'mariam', action: 'points_revoked', target: 'Promo T.', details: { reason: 'Fraude confirmée' } },
     { created_at: ago(26), actor: 'ivan', action: 'team_grant', target: 'yao', details: { role: 'moderator', email: 'yao@krisma.io' } },
     { created_at: ago(27), actor: 'yao', action: 'shop_validate', target: 'Épicerie Chez Awa', details: {} },
   ],

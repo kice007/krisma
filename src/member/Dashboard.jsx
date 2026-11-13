@@ -235,7 +235,7 @@ export default function Dashboard() {
     <div className="flex flex-col gap-4 lg:gap-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="font-display text-[30px] font-bold tracking-[-1px] lg:text-[40px] lg:tracking-[-1.4px]">{t.dash.hello(d.pseudo)}</h1>
+          <h1 className="font-display text-[30px] font-bold tracking-[-1px] lg:text-[40px] lg:tracking-[-1.4px]">{t.dash.hello((d.pseudo || '').split(' ')[0])}</h1>
           <p className="mt-1 font-body text-[14px] text-gris lg:text-[15px]">{[d.city?.name, since && t.dash.since(since)].filter(Boolean).join(' · ')}</p>
         </div>
         <span className="hidden h-9 items-center gap-2 rounded-full bg-white px-4 font-body text-[13px] font-medium lg:flex">

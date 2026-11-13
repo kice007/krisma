@@ -97,7 +97,7 @@ export default function Points() {
         </div>
         <label className="flex h-12 w-full items-center gap-2.5 rounded-full bg-white px-4 sm:w-[260px]">
           <Search size={16} className="text-gris" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pseudo du membre" aria-label="Rechercher un membre" className="min-w-0 flex-1 bg-transparent font-body text-[14px] outline-none" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Nom du membre" aria-label="Rechercher un membre" className="min-w-0 flex-1 bg-transparent font-body text-[14px] outline-none" />
         </label>
       </div>
       {error && <p className="mb-3 font-body text-[14px] text-[#b91c1c]">{error}</p>}

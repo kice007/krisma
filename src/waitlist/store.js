@@ -32,7 +32,12 @@ export function captureReferral(search) {
 }
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
-export const PSEUDO_RE = /^[A-Za-z0-9._-]{3,20}$/
+// Prénom ou nom : lettres (accents compris), espaces, tirets, apostrophes.
+export const NAME_RE = /^\p{L}[\p{L} '’.-]{0,59}$/u
+export const cleanName = (v) => v.replace(/\s+/g, ' ').trim()
+export const publicName = (first, last) => [cleanName(first), cleanName(last) ? cleanName(last)[0].toUpperCase() + '.' : ''].filter(Boolean).join(' ')
+// Mot de passe : 8 caractères, une majuscule, une minuscule, un chiffre.
+export const passwordRules = (p) => [p.length >= 8, /[a-z]/.test(p) && /[A-Z]/.test(p), /\d/.test(p)]
 
 // Lien direct vers la messagerie la plus probable, d'après le domaine.
 export function mailboxUrl(email) {

@@ -588,7 +588,7 @@ export default function MapPage() {
 
       {/* Mobile : barre de ville */}
       <div className="absolute inset-x-4 top-4 z-[600] flex gap-2 lg:hidden">
-        <Link to={isMember ? '/espace' : PATHS.home} aria-label="KRISMA" className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-white shadow-[0_8px_24px_rgba(17,17,17,0.12)]">
+        <Link to="/" aria-label="KRISMA, retour à l'accueil du site" className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-white shadow-[0_8px_24px_rgba(17,17,17,0.12)]">
           <img src="/img/landing/k-ink.png" alt="" className="h-[22px] w-[17px] object-contain" />
         </Link>
         <button type="button" onClick={() => setCityOpen(true)} className="flex h-[52px] min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-full bg-white px-4 shadow-[0_8px_24px_rgba(17,17,17,0.12)]">
