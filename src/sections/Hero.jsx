@@ -32,7 +32,7 @@ function LiveCount({ className = '' }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22c55e] opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-[#22c55e]" />
           </span>
-          {t.hero.live.status} · {t.hero.live.today(fmtNumber(s.today, lang))}
+          {t.hero.live.status}
         </p>
       </div>
     </div>

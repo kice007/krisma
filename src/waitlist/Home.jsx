@@ -53,7 +53,6 @@ function Header({ h, member, signupHref }) {
         <div className="flex h-14 items-center justify-between rounded-full border border-ligne bg-white pl-5 pr-2 shadow-[0_8px_30px_rgba(17,17,17,0.06)] lg:h-[68px] lg:pl-6 lg:pr-2.5">
           <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="KRISMA">
             <img src="/img/landing/k-ink.png" alt="" className="h-[23px] w-[18px] object-contain lg:h-[25px] lg:w-5" />
-            <span className="font-display text-[16px] font-extrabold tracking-[1.5px]">KRISMA</span>
           </Link>
           <nav className="hidden items-center gap-[26px] xl:flex">
             {h.nav.links.map((l) => (
@@ -229,7 +228,7 @@ function Live({ h, s, lang, light }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22c55e] opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-[#22c55e]" />
           </span>
-          {[h.live, h.today(fmtNumber(s.today, lang)), s.countries ? h.countries(fmtNumber(s.countries, lang)) : null].filter(Boolean).join(' · ')}
+          {[h.live, s.countries ? h.countries(fmtNumber(s.countries, lang)) : null].filter(Boolean).join(' · ')}
         </p>
       </div>
     </div>
@@ -259,9 +258,9 @@ function Latest({ h, s, lang }) {
 }
 
 const FACT_ICONS = [
-  [Timer, '#0676f8'],
-  [ListChecks, VIOLET],
-  [Sparkles, '#fd8030'],
+  [Timer, '#111111'],
+  [ListChecks, '#111111'],
+  [Sparkles, '#111111'],
 ]
 
 function Facts({ h }) {
