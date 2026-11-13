@@ -1,20 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  ArrowLeftRight, BadgeCheck, Beef, Copy, CreditCard, Croissant, Gift, Heart, ListChecks, Mail, MailCheck, Map as MapIcon, Menu, Minus, Plus,
-  Scissors, ShieldCheck, Store, Timer, Trophy, UserPlus, Utensils, X,
+  Beef, Bell, CircleCheck, Croissant, Heart, ListChecks, Lock, MailCheck, Map as MapIcon, MapPin, Menu, Minus, Plus,
+  Scissors, ShoppingBasket, Sparkles, Store, Timer, TrendingUp, UserPlus, Utensils, X, ChevronDown, BadgeCheck, Info, Circle,
 } from 'lucide-react'
 import Reveal, { EASE } from '../components/Reveal'
+import { CardMarks } from '../components/CardMark'
 import { LangSwitch } from '../components/Nav'
+import { useViewport } from '../components/useStage'
 import { useLang } from '../i18n'
 import { rpc } from '../lib/supabase'
+import { ago, avatarColor, fmtNumber, usePublicStats } from '../lib/publicStats'
 import { HOME } from './homeText'
 import { captureReferral, store } from './store'
 import { PATHS, myDashboard, waitForSession } from './flow'
 
-// Le compteur public n'apparaît qu'à partir d'un volume crédible.
-const MIN_PUBLIC_COUNT = 100
+const VIOLET = '#a351fc'
 
 function Pill({ children, dark, className = '' }) {
   return (
@@ -143,112 +145,6 @@ function Header({ h, member, signupHref }) {
   )
 }
 
-// Carte membre d'exemple (illustration du tableau de bord), à droite du titre.
-function MemberCard({ c }) {
-  return (
-    <div className="relative mx-auto w-full max-w-[480px]" aria-hidden>
-      <div className="relative overflow-hidden rounded-[32px] bg-noir p-9">
-        <img src="/img/waitlist/panneau.webp" alt="" className="absolute inset-0 h-full w-full object-fill opacity-90" />
-        <div className="relative flex items-center justify-between">
-          <span className="flex items-center gap-2">
-            <img src="/img/landing/k-white.png" alt="" className="h-[22px] w-[17px] object-contain" />
-            <span className="font-display text-[16px] font-extrabold tracking-[1.5px] text-white">KRISMA</span>
-          </span>
-          <span className="flex h-8 items-center gap-1.5 rounded-full bg-white/10 px-3 font-body text-[13px] text-white">
-            <BadgeCheck size={14} />
-            {c.verified}
-          </span>
-        </div>
-        <p className="relative mt-16 font-body text-[14px] text-white/70">{c.points}</p>
-        <p className="relative flex items-baseline gap-2 font-display text-[88px] font-bold leading-none tracking-[-4px] text-white">
-          290<span className="font-body text-[22px] font-semibold tracking-normal text-white/70">pts</span>
-        </p>
-        <div className="relative mt-10 grid grid-cols-3 gap-3">
-          {[
-            [c.rank, '#1 248'],
-            [c.referees, c.refereesValue],
-            [c.shops, c.shopsValue],
-          ].map(([k, v]) => (
-            <div key={k} className="rounded-2xl bg-white/[0.08] px-4 py-3">
-              <p className="font-body text-[12px] text-white/60">{k}</p>
-              <p className="font-display text-[17px] font-bold text-white">{v}</p>
-            </div>
-          ))}
-        </div>
-        <div className="relative mt-14 flex items-center justify-between rounded-full bg-white p-1.5 pl-5">
-          <span className="truncate font-body text-[14px] text-noir">krisma.io/waitlist?ref=AMINA7</span>
-          <span className="flex h-10 items-center gap-2 rounded-full bg-marque px-4 font-body text-[14px] font-semibold text-white">
-            <Copy size={15} />
-            {c.copy}
-          </span>
-        </div>
-      </div>
-      <motion.span
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -right-3 -top-7 flex h-[50px] items-center gap-2.5 rounded-full border border-ligne bg-white pl-2 pr-4 font-body text-[14px] font-semibold shadow-[0_12px_30px_rgba(17,17,17,0.1)] xl:-right-6"
-      >
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-bleu text-white">
-          <UserPlus size={16} />
-        </span>
-        {c.chipReferral}
-      </motion.span>
-      <motion.span
-        animate={{ y: [0, 6, 0] }}
-        transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
-        className="absolute -bottom-8 -left-6 flex h-[50px] items-center gap-2.5 rounded-full border border-ligne bg-white pl-2 pr-4 font-body text-[14px] font-semibold shadow-[0_12px_30px_rgba(17,17,17,0.1)] xl:-left-16"
-      >
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-vert text-white">
-          <Store size={16} />
-        </span>
-        {c.chipShop}
-      </motion.span>
-    </div>
-  )
-}
-
-const PIN = 'M22 0c-12.15 0-22 9.85-22 22 0 15.5 22 32 22 32s22-16.5 22-32c0-12.15-9.85-22-22-22z'
-const PINS = [
-  { x: 140, y: 120, c: '#15803d', I: Store },
-  { x: 330, y: 210, c: '#fd8030', I: Scissors },
-  { x: 520, y: 110, c: '#111111', I: Beef },
-  { x: 250, y: 330, c: '#9ca3af', I: Croissant },
-  { x: 560, y: 330, c: '#0676f8', I: Utensils },
-]
-const STATUS_COLORS = ['#9ca3af', '#111111', '#0676f8', '#fd8030', '#15803d']
-
-function MapPreview({ m }) {
-  return (
-    <div className="relative aspect-[696/520] w-full overflow-hidden rounded-[28px] bg-[#eef0ea]" aria-hidden>
-      <img src="/img/waitlist/carte-quartier.webp" alt="" className="absolute max-w-none" style={{ left: '-17.24%', top: '-23.08%', width: '172.4%', height: '153.85%' }} />
-      {PINS.map(({ x, y, c, I }) => (
-        <span key={x} className="absolute h-[54px] w-[44px] -translate-x-0 drop-shadow-[0_6px_10px_rgba(0,0,0,0.18)] max-sm:scale-75" style={{ left: `${(x / 696) * 100}%`, top: `${(y / 520) * 100}%` }}>
-          <svg viewBox="0 0 44 54" className="absolute inset-0 h-full w-full">
-            <path d={PIN} fill={c} />
-          </svg>
-          <I size={20} className="absolute left-3 top-[11px] text-white" />
-        </span>
-      ))}
-      <div className="absolute bottom-[5%] right-[5%] w-[300px] max-w-[88%] rounded-[20px] bg-white p-[18px] shadow-[0_16px_40px_rgba(17,17,17,0.14)] max-sm:p-3.5">
-        <div className="flex items-center justify-between gap-2">
-          <span className="font-display text-[15px] font-bold">{m.shop}</span>
-          <span className="flex h-6 shrink-0 items-center gap-1.5 rounded-full bg-[#dcf5e4] px-2.5 font-body text-[11px] font-semibold text-vert">
-            <span className="h-1.5 w-1.5 rounded-full bg-vert" />
-            {m.shopStatus}
-          </span>
-        </div>
-        <p className="mt-2.5 font-body text-[13px] text-gris">{m.shopMeta}</p>
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <span className="font-body text-[13px]">{m.shopVotes}</span>
-          <span className="flex h-[34px] shrink-0 items-center gap-1.5 rounded-full border border-ligne px-3 font-body text-[13px] font-semibold">
-            <Heart size={14} />
-            {m.vote}
-          </span>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function Faq({ f }) {
   const [open, setOpen] = useState(0)
@@ -293,242 +189,712 @@ function Faq({ f }) {
   )
 }
 
-// W01 — Page de la liste d'attente : présentation, principe, points, récompenses, départ de l'inscription.
+
+// Puce flottante autour de la carte (« +50 · Parrainage vérifié »).
+function Chip({ icon: I, color, children, className = '', style, float = 6, delay = 0 }) {
+  return (
+    <motion.span
+      animate={{ y: [0, -float, 0] }}
+      transition={{ duration: 4 + delay, repeat: Infinity, ease: 'easeInOut', delay }}
+      className={`absolute flex h-[52px] items-center gap-2.5 whitespace-nowrap rounded-full border border-ligne bg-white pl-2 pr-[18px] font-body text-[14px] font-semibold shadow-[0_10px_24px_rgba(17,17,17,0.12)] ${className}`}
+      style={style}
+    >
+      <span className="flex h-9 w-9 items-center justify-center rounded-full text-white" style={{ background: color }}>
+        <I size={18} />
+      </span>
+      {children}
+    </motion.span>
+  )
+}
+
+// Compteur en direct : avatars des derniers inscrits, total, inscrits du jour, pays.
+function Live({ h, s, lang, light }) {
+  if (s.members == null) return <div className="h-[52px]" />
+  const names = s.latest.length ? s.latest.slice(0, 3).map((x) => x.name) : ['A', 'Y', 'K']
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex -space-x-2.5" aria-hidden>
+        {names.map((n, i) => (
+          <span key={i} className={`flex h-9 w-9 items-center justify-center rounded-full border-2 font-body text-[13px] font-bold text-white ${light ? 'border-white' : 'border-[#f1f1f1]'}`} style={{ background: avatarColor(i) }}>
+            {n.trim()[0]?.toUpperCase()}
+          </span>
+        ))}
+      </div>
+      <div>
+        <p className="font-display text-[20px] font-bold tracking-[-0.4px] text-noir">
+          {fmtNumber(s.members, lang)} {h.members(s.members)}
+        </p>
+        <p className="flex items-center gap-1.5 font-body text-[13px] text-gris">
+          <span className="relative flex h-[7px] w-[7px]">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22c55e] opacity-60" />
+            <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-[#22c55e]" />
+          </span>
+          {[h.live, h.today(fmtNumber(s.today, lang)), s.countries ? h.countries(fmtNumber(s.countries, lang)) : null].filter(Boolean).join(' · ')}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// Dernier inscrit (« Aminata D. vient de s'inscrire · il y a 1 min »), sans ville.
+function Latest({ h, s, lang }) {
+  const x = s.latest[0]
+  if (!x) return null
+  return (
+    <AnimatePresence mode="wait">
+      <motion.span
+        key={x.name + x.at}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.4, ease: EASE }}
+        className="inline-flex h-10 max-w-full items-center gap-2 rounded-full border border-ligne bg-white pl-1.5 pr-3.5 font-body text-[13px]"
+      >
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-marque text-[12px] font-bold text-white">{x.name.trim()[0]?.toUpperCase()}</span>
+        <span className="truncate font-semibold">{h.latest(x.name)}</span>
+        <span className="shrink-0 text-gris">· {ago(x.at, lang)}</span>
+      </motion.span>
+    </AnimatePresence>
+  )
+}
+
+const FACT_ICONS = [
+  [Timer, '#0676f8'],
+  [ListChecks, VIOLET],
+  [Sparkles, '#fd8030'],
+]
+
+function Facts({ h }) {
+  return (
+    <ul className="flex flex-col gap-3.5">
+      {h.facts.map((f, i) => {
+        const [I, c] = FACT_ICONS[i]
+        return (
+          <li key={f} className="flex items-center gap-2.5 font-body text-[15px] font-medium text-noir">
+            <I size={20} style={{ color: c }} />
+            {f}
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+// Hero : même composition que la landing (mot géant, carte sur le rocher), carte indigo.
+function Hero({ h, s, lang, signupHref, member, referrer }) {
+  const { w, h: vh } = useViewport()
+  const scale = Math.min(w / 1440, Math.max(vh, 760) / 900)
+  const account = member ? { to: PATHS.member, label: HOME[lang].nav.space } : { to: PATHS.login, label: h.login }
+  const buttons = (
+    <div className="flex flex-wrap gap-2.5">
+      <Link to={signupHref} className="inline-flex h-[54px] items-center justify-center rounded-full bg-marque px-[26px] font-body text-[15px] font-semibold text-white hover:bg-[#f06e1b]">
+        {h.start}
+      </Link>
+      <Link to={account.to} className="inline-flex h-[54px] items-center justify-center rounded-full border border-ligne bg-white px-[22px] font-body text-[15px] font-semibold text-noir hover:border-noir">
+        {account.label}
+      </Link>
+    </div>
+  )
+  return (
+    <section id="accueil" className="relative overflow-hidden bg-[#f1f1f1]">
+      {/* Desktop : scène 1440 × 900 mise à l'échelle */}
+      <div className="relative hidden lg:block" style={{ height: 900 * scale }}>
+        <div className="absolute left-1/2 top-0 h-[900px] w-[1440px] origin-top" style={{ transform: `translateX(-50%) scale(${scale})` }}>
+          <motion.p
+            aria-hidden
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, ease: EASE }}
+            className="pointer-events-none absolute inset-x-0 top-[110px] select-none text-center font-display text-[300px] font-extrabold leading-none tracking-[-12px] text-[#e2e2e2]"
+          >
+            {h.word}
+          </motion.p>
+          <motion.img
+            src="/img/landing/hero-rocher.webp"
+            alt=""
+            className="absolute left-[385px] top-[-104px] h-[1166px] w-[651px] max-w-none"
+            initial={{ y: 720 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 1.5, ease: EASE, delay: 0.2 }}
+          />
+          <motion.div className="absolute inset-0" initial={{ y: 900, rotate: 10 }} animate={{ y: 0, rotate: 0 }} transition={{ duration: 1.6, ease: EASE, delay: 0.35 }}>
+            <img src="/img/landing/hero-carte-indigo.webp" alt="" className="absolute left-[385px] top-[-104px] h-[1166px] w-[651px] max-w-none" />
+            <CardMarks logo={[780.55, 265]} visa={[671.37, 625]} k={[18, 23]} size={18} gap={7} visaSize={26} />
+          </motion.div>
+
+          <Chip icon={Store} color="#15803d" style={{ left: 1010, top: 180 }} delay={0.4}>{h.chips[0]}</Chip>
+          <Chip icon={UserPlus} color="#0676f8" style={{ left: 930, top: 330 }} delay={0.9}>{h.chips[1]}</Chip>
+          <Chip icon={Heart} color={VIOLET} style={{ left: 330, top: 330 }} delay={0.2}>{h.chips[2]}</Chip>
+
+          <Reveal delay={0.9} className="absolute left-[100px] top-[470px] flex w-[330px] flex-col gap-6">
+            {referrer && (
+              <span className="inline-flex h-[30px] items-center gap-2 self-start rounded-full bg-[#ffe6d5] px-3 font-body text-[13px] font-medium text-[#9a3412]">
+                <UserPlus size={14} />
+                {h.invited(referrer)}
+              </span>
+            )}
+            <p className="font-display text-[28px] font-semibold leading-[1.15] tracking-[-0.5px] text-noir">{h.lead}</p>
+            <Live h={h} s={s} lang={lang} />
+            <Facts h={h} />
+            <Latest h={h} s={s} lang={lang} />
+          </Reveal>
+
+          <Reveal delay={1} className="absolute left-[940px] top-[470px] flex w-[440px] flex-col gap-[18px]">
+            <h1 className="font-display text-[52px] font-bold leading-[1.04] tracking-[-2px] text-noir">
+              {h.title[0]}
+              <br />
+              {h.title[1]}
+            </h1>
+            <p className="font-body text-[18px] leading-[1.5] text-noir">{h.sub}</p>
+            {buttons}
+          </Reveal>
+        </div>
+      </div>
+
+      {/* Mobile */}
+      <div className="px-5 pb-10 pt-[100px] lg:hidden">
+        <div className="flex flex-col gap-5">
+          {referrer && (
+            <span className="inline-flex h-[30px] items-center gap-2 self-start rounded-full bg-[#ffe6d5] px-3 font-body text-[13px] font-medium text-[#9a3412]">
+              <UserPlus size={14} />
+              {h.invited(referrer)}
+            </span>
+          )}
+          <h1 className="font-display text-[42px] font-bold leading-[1.03] tracking-[-1.6px] text-noir">
+            {h.title[0]} {h.title[1]}
+          </h1>
+          <p className="font-body text-[17px] leading-[1.5] text-noir">{h.sub}</p>
+          {buttons}
+          <Live h={h} s={s} lang={lang} />
+        </div>
+        <div className="relative -mx-5 mt-2 h-[500px] overflow-hidden" aria-hidden>
+          <p className="absolute inset-x-0 top-[90px] text-center font-display text-[92px] font-extrabold leading-none tracking-[-4px] text-[#e2e2e2]">{h.word}</p>
+          <div className="absolute left-1/2 top-[-150px] h-[752px] w-[420px] -translate-x-1/2">
+            <img src="/img/landing/hero-rocher.webp" alt="" className="absolute inset-0 h-full w-full max-w-none" />
+            <img src="/img/landing/hero-carte-indigo.webp" alt="" className="absolute inset-0 h-full w-full max-w-none" />
+            <CardMarks logo={[241, 238]} visa={[178, 471]} k={[12, 15]} size={12} gap={4} visaSize={17} />
+          </div>
+          <Chip icon={UserPlus} color="#0676f8" className="!h-11 text-[13px]" style={{ right: 12, top: 40 }}>{h.chips[1]}</Chip>
+          <Chip icon={Heart} color={VIOLET} className="!h-11 text-[13px]" style={{ left: 12, top: 300 }} delay={0.6}>{h.chips[2]}</Chip>
+        </div>
+        <div className="mt-2 flex flex-col gap-5">
+          <Facts h={h} />
+          <Latest h={h} s={s} lang={lang} />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Simulateur de cashback : commerce + montant libre, taux d'exemple fixe.
+const RATE = 3
+const CATS = [
+  ['grocery', ShoppingBasket],
+  ['butcher', Beef],
+  ['restaurant', Utensils],
+  ['hair_salon', Scissors],
+]
+const QUICK = [100, 250, 500, 1000]
+
+function Simulator({ t, lang }) {
+  const [cat, setCat] = useState('grocery')
+  const [raw, setRaw] = useState('250')
+  const amount = Math.min(Math.max(Number(String(raw).replace(',', '.')) || 0, 0), 100000)
+  const money = (n) => new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { style: 'currency', currency: 'EUR', maximumFractionDigits: n % 1 ? 2 : 0, minimumFractionDigits: n % 1 ? 2 : 0 }).format(n)
+  const monthly = Math.round(amount * RATE) / 100
+  const yearly = Math.round(monthly * 12 * 100) / 100
+  return (
+    <section className="px-5 py-16 lg:px-10 lg:py-28 xl:px-[120px]">
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] lg:gap-20">
+        <Reveal className="flex flex-col items-start gap-6">
+          <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-clair px-3 font-body text-[12px] font-semibold">
+            <span className="h-1.5 w-1.5 rounded-full bg-marque" />
+            {t.eyebrow}
+          </span>
+          <h2 className="font-display text-[34px] font-bold leading-[1.08] tracking-[-1.2px] lg:text-[48px] lg:tracking-[-1.5px]">{t.title}</h2>
+          <p className="font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{t.text}</p>
+          <p className="flex items-start gap-2.5 rounded-2xl bg-clair px-4 py-3.5 font-body text-[14px] leading-[1.5] text-gris">
+            <Info size={18} className="mt-px shrink-0" />
+            {t.note}
+          </p>
+        </Reveal>
+        <Reveal delay={0.1} y={40} className="flex min-w-0 flex-col gap-7 rounded-[32px] border border-ligne bg-white p-6 shadow-[0_24px_60px_rgba(17,17,17,0.06)] lg:p-9">
+          <fieldset className="flex flex-col gap-3">
+            <legend className="mb-3 font-body text-[14px] font-semibold">{t.q1}</legend>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {CATS.map(([id, I]) => (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={cat === id}
+                  onClick={() => setCat(id)}
+                  className={`flex h-11 cursor-pointer items-center justify-center gap-1.5 rounded-full font-body text-[14px] font-semibold transition-colors ${cat === id ? 'bg-noir text-white' : 'bg-clair text-noir hover:bg-ligne'}`}
+                >
+                  <I size={16} />
+                  {t.categories[id]}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <div className="flex flex-col gap-3.5">
+            <label htmlFor="sim-amount" className="font-body text-[14px] font-semibold">
+              {t.q2}
+            </label>
+            <div className="flex h-16 items-center gap-2 rounded-[18px] border-[1.5px] border-noir px-5">
+              <input
+                id="sim-amount"
+                inputMode="decimal"
+                aria-label={t.amountLabel}
+                value={raw}
+                onChange={(e) => setRaw(e.target.value.replace(/[^\d.,]/g, '').slice(0, 7))}
+                className="min-w-0 flex-1 bg-transparent font-display text-[28px] font-bold tracking-[-0.6px] outline-none"
+              />
+              <span className="shrink-0 font-body text-[16px] font-medium text-gris">{t.perMonth}</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {QUICK.map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setRaw(String(v))}
+                  className={`h-9 cursor-pointer rounded-full px-3.5 font-body text-[14px] font-semibold ${amount === v ? 'bg-[#fff1e7] text-[#c2410c]' : 'bg-clair hover:bg-ligne'}`}
+                >
+                  {money(v)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="relative flex items-end justify-between gap-6 overflow-hidden rounded-[24px] bg-noir p-7" aria-live="polite">
+            <img src="/img/waitlist/panneau.webp" alt="" className="pointer-events-none absolute inset-0 h-full w-full object-fill opacity-80" />
+            <div className="relative flex flex-col gap-1">
+              <span className="font-body text-[14px] text-white/70">{t.monthly}</span>
+              <span className="font-display text-[44px] font-bold leading-none tracking-[-2px] text-white lg:text-[56px]">{money(monthly)}</span>
+            </div>
+            <div className="relative flex flex-col items-end gap-1 pb-1.5">
+              <span className="font-body text-[14px] text-white/70">{t.yearly}</span>
+              <span className="font-display text-[24px] font-bold leading-none text-white lg:text-[28px]">{money(yearly)}</span>
+            </div>
+          </div>
+          <p className="font-body text-[13px] leading-[1.5] text-gris">{t.detail(fmtNumber(RATE, lang), t.catArticle[cat], money(amount), money(monthly))}</p>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+// Quatre étapes : frise pointillée numérotée, une carte par étape (maquette + texte + coches).
+const STEP_TONES = [
+  ['#fd8030', '#ffe3cc'],
+  ['#0676f8', '#dcebff'],
+  [VIOLET, '#eedfff'],
+  ['#15803d', '#d9f2e1'],
+]
+
+function MockCard({ children, className = '' }) {
+  return <div className={`flex w-full max-w-[400px] flex-col gap-3 rounded-[22px] bg-white p-[22px] shadow-[0_18px_40px_rgba(17,17,17,0.1)] ${className}`}>{children}</div>
+}
+
+function StepMock({ i, m }) {
+  if (i === 0)
+    return (
+      <MockCard>
+        <div className="flex items-center gap-3.5 pb-1.5">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-marque font-body text-[17px] font-bold text-white">AK</span>
+          <span>
+            <span className="block font-body text-[18px] font-semibold">Awa Koné</span>
+            <span className="block font-body text-[14px] text-gris">awa.kone@gmail.com</span>
+          </span>
+        </div>
+        {[
+          [UserPlus, m.invited],
+          [Lock, m.password],
+        ].map(([I, l]) => (
+          <span key={l} className="flex h-[52px] items-center gap-3 rounded-[14px] bg-clair px-4 font-body text-[16px] font-medium">
+            <I size={20} />
+            {l}
+          </span>
+        ))}
+      </MockCard>
+    )
+  if (i === 1)
+    return (
+      <MockCard>
+        <span className="font-body text-[12px] font-semibold tracking-[0.6px] text-gris">{m.question}</span>
+        <span className="font-body text-[17px] font-semibold">{m.questionText}</span>
+        {m.options.map((o, k) => (
+          <span key={o} className={`flex items-center gap-3 py-1 font-body text-[16px] ${k ? 'text-gris' : ''}`}>
+            {k ? <Circle size={22} className="text-[#c4c4c4]" /> : <CircleCheck size={22} className="text-bleu" />}
+            {o}
+          </span>
+        ))}
+        <span className="h-1.5 rounded-full bg-ligne">
+          <span className="block h-1.5 w-[36%] rounded-full bg-bleu" />
+        </span>
+      </MockCard>
+    )
+  if (i === 2)
+    return (
+      <div className="relative w-full max-w-[420px] pt-8">
+        <MockCard>
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-noir">
+              <img src="/img/landing/k-white.png" alt="" className="h-[15px] w-3 object-contain" />
+            </span>
+            <span className="flex-1 font-body text-[14px] font-semibold">KRISMA</span>
+            <span className="font-body text-[13px] text-gris">{m.now}</span>
+          </div>
+          <span className="font-display text-[18px] font-bold">{m.subject}</span>
+          <span className="flex h-[46px] items-center justify-center rounded-full bg-marque font-body text-[15px] font-semibold text-white">{m.confirm}</span>
+        </MockCard>
+        <span className="absolute right-0 top-0 flex h-11 items-center gap-2 rounded-full bg-noir px-[18px] font-body text-[15px] font-bold text-white shadow-[0_12px_30px_rgba(17,17,17,0.2)]">
+          <Sparkles size={16} style={{ color: VIOLET }} />
+          {m.points}
+        </span>
+      </div>
+    )
+  return (
+    <MockCard>
+      <div className="flex items-center justify-between pb-1">
+        <span className="font-display text-[30px] font-bold tracking-[-1px]">#1 248</span>
+        <span className="flex h-7 items-center gap-1 rounded-full bg-[#dcfce7] px-2.5 font-body text-[13px] font-semibold text-vert">
+          <TrendingUp size={14} />
+          {m.up}
+        </span>
+      </div>
+      {m.rows.map(([p, l], k) => (
+        <span key={l} className="flex h-12 items-center gap-3 rounded-[14px] bg-clair px-3.5 font-body text-[15px] font-medium">
+          <span className="flex h-7 w-11 items-center justify-center rounded-full font-body text-[13px] font-bold text-white" style={{ background: ['#fd8030', '#15803d', '#0676f8'][k] }}>
+            {p}
+          </span>
+          <span className="truncate">{l}</span>
+        </span>
+      ))}
+    </MockCard>
+  )
+}
+
+function Steps({ t }) {
+  return (
+    <section id="etapes" className="scroll-mt-24 bg-[#f7f7f7] px-5 py-16 lg:px-10 lg:py-28 xl:px-[120px]">
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-16">
+        <Reveal className="flex flex-col gap-5 lg:sticky lg:top-32 lg:self-start">
+          <h2 className="font-display text-[36px] font-bold leading-[1.05] tracking-[-1.4px] lg:text-[56px] lg:tracking-[-2px]">{t.title}</h2>
+          <p className="font-body text-[16px] leading-[1.6] text-gris">{t.sub}</p>
+        </Reveal>
+        <ol className="flex flex-col">
+          {t.items.map((step, i) => {
+            const [c, tint] = STEP_TONES[i]
+            const last = i === t.items.length - 1
+            return (
+              <li key={step.title} className="flex gap-4 lg:gap-8">
+                <div className="flex w-11 shrink-0 flex-col items-center">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full font-body text-[16px] font-semibold text-white" style={{ background: c }}>
+                    {i + 1}
+                  </span>
+                  {!last && <span className="mt-2 w-0 flex-1 border-l-2 border-dashed border-[#bdbdbd]" />}
+                </div>
+                <Reveal delay={0.05} y={30} className={`min-w-0 flex-1 ${last ? '' : 'pb-10'}`}>
+                  <div className="flex flex-col gap-7 rounded-[28px] bg-[#efeff1] p-4 lg:p-6">
+                    <div className="flex h-[260px] items-center justify-center overflow-hidden rounded-[20px] px-4 lg:h-[300px]" style={{ background: `radial-gradient(70% 70% at 50% 35%, ${tint}, #f7f7f7)` }}>
+                      <StepMock i={i} m={t.mock} />
+                    </div>
+                    <div className="flex flex-col gap-2.5 px-2 pb-2 lg:px-3">
+                      <h3 className="font-display text-[24px] font-bold tracking-[-0.8px] lg:text-[26px]">{step.title}</h3>
+                      <p className="font-body text-[16px] leading-[1.5] text-gris">{step.text}</p>
+                      <ul className="mt-1.5 flex flex-col gap-2">
+                        {step.checks.map((ch) => (
+                          <li key={ch} className="flex items-start gap-2.5 font-body text-[15px]">
+                            <CircleCheck size={18} className="mt-0.5 shrink-0" style={{ color: c }} />
+                            {ch}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </Reveal>
+              </li>
+            )
+          })}
+        </ol>
+      </div>
+    </section>
+  )
+}
+
+// Quatre actions : bento (sombre, photo, maquette carte, avatars).
+function Pts({ value, color }) {
+  return (
+    <span className="inline-flex h-8 items-center rounded-full px-3.5 font-display text-[15px] font-bold text-white" style={{ background: color }}>
+      {value}
+    </span>
+  )
+}
+
+function CardHead({ item, color, dark }) {
+  const [value, title, text] = item
+  return (
+    <div className="relative flex flex-col items-center gap-2 text-center">
+      <Pts value={value} color={color} />
+      <h3 className={`font-display text-[24px] font-bold tracking-[-0.8px] lg:text-[28px] ${dark ? 'text-white' : 'text-noir'}`}>{title}</h3>
+      <p className={`max-w-[420px] font-body text-[15px] leading-[1.5] lg:text-[16px] ${dark ? 'text-white/80' : 'text-gris'}`}>{text}</p>
+    </div>
+  )
+}
+
+const PIN = 'M22 0c-12.15 0-22 9.85-22 22 0 15.5 22 32 22 32s22-16.5 22-32c0-12.15-9.85-22-22-22z'
+
+function Pin({ x, y, c, I }) {
+  return (
+    <span className="absolute h-[54px] w-[44px] drop-shadow-[0_6px_10px_rgba(0,0,0,0.18)] max-sm:scale-75" style={{ left: `${x}%`, top: `${y}%` }}>
+      <svg viewBox="0 0 44 54" className="absolute inset-0 h-full w-full">
+        <path d={PIN} fill={c} />
+      </svg>
+      <I size={20} className="absolute left-3 top-[11px] text-white" />
+    </span>
+  )
+}
+
+function Bento({ t }) {
+  return (
+    <section id="points" className="scroll-mt-24 px-5 py-16 lg:px-10 lg:py-28 xl:px-[120px]">
+      <Reveal className="mx-auto flex max-w-[720px] flex-col items-center gap-4 text-center">
+        <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-clair px-3 font-body text-[12px] font-semibold">
+          <span className="h-1.5 w-1.5 rounded-full bg-marque" />
+          {t.eyebrow}
+        </span>
+        <h2 className="font-display text-[34px] font-bold leading-[1.05] tracking-[-1.2px] lg:text-[52px] lg:tracking-[-1.8px]">{t.title}</h2>
+        <p className="font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{t.sub}</p>
+      </Reveal>
+      <div className="mx-auto mt-12 grid max-w-[1200px] gap-5 lg:grid-cols-2">
+        <div className="flex flex-col gap-5">
+          <Reveal className="relative flex h-[410px] flex-col justify-end overflow-hidden rounded-[28px] bg-noir p-8 lg:p-9">
+            <img src="/img/waitlist/panneau.webp" alt="" className="pointer-events-none absolute inset-0 h-full w-full object-fill opacity-90" />
+            <div className="absolute left-1/2 top-5 h-[190px] w-[380px] -translate-x-1/2 max-sm:scale-[0.85]" aria-hidden>
+              {[
+                [ListChecks, '#fff', '#111', 4, 20, 6],
+                [MailCheck, '#fd8030', '#fff', -3, 70, 62],
+                [BadgeCheck, '#fff', '#111', 0, 40, 118],
+              ].map(([I, bg, fg, r, x, y], k) => (
+                <span key={k} className="absolute flex h-16 w-[300px] items-center gap-3 rounded-[18px] px-[18px] font-body text-[17px] font-semibold shadow-[0_16px_36px_rgba(0,0,0,0.3)]" style={{ left: x, top: y, rotate: `${r}deg`, background: bg, color: fg }}>
+                  <I size={22} />
+                  {t.stack[k]}
+                </span>
+              ))}
+            </div>
+            <CardHead item={t.signup} color="#fd8030" dark />
+          </Reveal>
+          <Reveal delay={0.08} className="relative flex h-[330px] flex-col justify-end overflow-hidden rounded-[28px] p-8 lg:p-9">
+            <img src="/img/waitlist/parrainage.webp" alt="" className="absolute inset-0 h-full w-full object-cover object-[50%_20%]" />
+            <span className="absolute inset-0 bg-gradient-to-b from-transparent from-35% to-[#111111e6]" />
+            <CardHead item={t.referral} color="#0676f8" dark />
+          </Reveal>
+        </div>
+        <div className="flex flex-col gap-5">
+          <Reveal delay={0.04} className="flex h-[500px] flex-col items-center gap-6 overflow-hidden rounded-[28px] border border-ligne bg-white px-8 pb-9">
+            <div className="relative h-[300px] w-[300px] shrink-0 overflow-hidden rounded-b-[40px] bg-noir px-2.5 pb-2.5" aria-hidden>
+              <div className="relative h-full w-full overflow-hidden rounded-b-[32px] bg-[#eef0ea]">
+                <img src="/img/waitlist/carte-quartier.webp" alt="" className="absolute left-[-60%] top-[-30%] w-[240%] max-w-none" />
+                <Pin x={20} y={20} c="#15803d" I={Store} />
+                <Pin x={57} y={40} c="#111111" I={Beef} />
+                <Pin x={37} y={57} c="#fd8030" I={Scissors} />
+                <span className="absolute bottom-3 left-3.5 right-3.5 flex h-[60px] items-center gap-2.5 rounded-2xl bg-white px-3 shadow-[0_6px_16px_rgba(17,17,17,0.12)]">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#dcfce7] text-vert">
+                    <Store size={18} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate font-body text-[14px] font-semibold">{t.shopName}</span>
+                    <span className="block font-body text-[12px] font-semibold text-vert">{t.shopStatus}</span>
+                  </span>
+                </span>
+              </div>
+            </div>
+            <CardHead item={t.shop} color="#15803d" />
+          </Reveal>
+          <Reveal delay={0.12} className="flex h-[240px] flex-col items-center justify-center gap-4 rounded-[28px] border border-ligne bg-white p-8">
+            <div className="flex items-center" aria-hidden>
+              {['A', 'Y', 'K', 'F'].map((l, k) => (
+                <span key={l} className="-ml-3 flex h-[52px] w-[52px] items-center justify-center rounded-full border-[3px] border-white font-body text-[17px] font-bold text-white first:ml-0" style={{ background: ['#fd8030', '#0676f8', VIOLET, '#15803d'][k] }}>
+                  {l}
+                </span>
+              ))}
+              <span className="-ml-3 flex h-[52px] items-center gap-1 rounded-full border-[3px] border-white bg-noir px-4 font-body text-[15px] font-bold text-white">
+                <Heart size={14} className="fill-marque text-marque" />
+                124
+              </span>
+            </div>
+            <CardHead item={t.vote} color={VIOLET} />
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Récompenses : bloc clair aux taches orange floues, contenu centré.
+function Rewards({ t, start, signupHref }) {
+  return (
+    <section className="px-5 pb-16 lg:px-10 lg:pb-24 xl:px-[120px]">
+      <Reveal className="relative mx-auto flex max-w-[1200px] flex-col items-center gap-[18px] overflow-hidden rounded-[28px] border border-ligne bg-white px-6 py-16 text-center lg:py-24">
+        <div className="pointer-events-none absolute inset-0" aria-hidden>
+          <span className="absolute left-[5%] top-[-10%] h-[120%] w-[15%] -rotate-[18deg] rounded-full bg-[#fdba74] blur-[70px]" />
+          <span className="absolute left-[32%] top-[-30%] h-[160%] w-[35%] -rotate-[30deg] rounded-full bg-marque opacity-90 blur-[80px]" />
+          <span className="absolute right-[-5%] top-[-15%] h-[140%] w-[50%] rounded-full bg-[#ff9a4d] opacity-90 blur-[90px]" />
+          <span className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/30 to-transparent" />
+        </div>
+        <span className="relative flex items-center gap-2 font-mono text-[13px] tracking-[1px]">
+          <span className="relative flex h-3 w-5" aria-hidden>
+            <span className="absolute left-0 h-3 w-3 rounded-full bg-noir" />
+            <span className="absolute left-2 h-3 w-3 rounded-full bg-marque" />
+          </span>
+          {t.eyebrow}
+        </span>
+        <h2 className="relative font-display text-[34px] font-bold leading-[1.05] tracking-[-1.2px] lg:text-[52px] lg:tracking-[-1.8px]">{t.title}</h2>
+        <p className="relative max-w-[640px] font-body text-[16px] leading-[1.6] text-[#3f3f3f] lg:text-[17px]">{t.text}</p>
+        <div className="relative mt-2 flex flex-wrap justify-center gap-3">
+          <Link to={signupHref} className="inline-flex h-[52px] items-center rounded-full bg-noir px-7 font-body text-[15px] font-semibold text-white hover:bg-[#2b2b2b]">
+            {start}
+          </Link>
+          <Link to="/reglement" className="inline-flex h-[52px] items-center rounded-full bg-white px-6 font-body text-[15px] font-semibold text-noir">
+            {t.rules}
+          </Link>
+        </div>
+      </Reveal>
+    </section>
+  )
+}
+
+// KRISMA Map, version verticale : en-tête, grande carte, trois actions.
+const STATUS_COLORS = ['#9ca3af', '#111111', '#0676f8', '#fd8030', '#15803d']
+const MAP_PINS = [
+  [12, 20, '#15803d', Store],
+  [35, 32, '#fd8030', Scissors],
+  [53, 17, '#111111', Beef],
+  [63, 44, '#0676f8', Utensils],
+  [82, 23, '#9ca3af', Croissant],
+  [25, 63, '#15803d', ShoppingBasket],
+  [90, 12, '#0676f8', Store],
+  [47, 58, '#fd8030', Croissant],
+]
+const ACTION_TONES = [
+  [Plus, '#fd8030', '#fff1e7'],
+  [Heart, VIOLET, '#f5ecff'],
+  [Bell, '#0676f8', '#e8f2ff'],
+]
+
+function MapSection({ t }) {
+  return (
+    <section id="carte" className="scroll-mt-24 bg-[#f7f7f7] px-5 py-16 lg:px-10 lg:py-28 xl:px-[120px]">
+      <Reveal className="mx-auto flex max-w-[760px] flex-col items-center gap-4 text-center">
+        <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-white px-3 font-body text-[12px] font-semibold">
+          <MapPin size={14} className="text-vert" />
+          {t.eyebrow}
+        </span>
+        <h2 className="font-display text-[34px] font-bold leading-[1.05] tracking-[-1.2px] lg:text-[52px] lg:tracking-[-1.8px]">{t.title}</h2>
+        <p className="font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{t.text}</p>
+      </Reveal>
+      <Reveal delay={0.08} y={40} className="relative mx-auto mt-12 aspect-[4/5] max-w-[1200px] overflow-hidden rounded-[28px] bg-[#eef0ea] sm:aspect-[1200/520]">
+        <img src="/img/waitlist/carte-quartier.webp" alt="" className="absolute left-0 top-[-20%] h-[140%] w-full max-w-none object-cover" aria-hidden />
+        {MAP_PINS.map(([x, y, c, I]) => (
+          <Pin key={`${x}-${y}`} x={x} y={y} c={c} I={I} />
+        ))}
+        <span className="absolute left-4 top-4 flex h-12 items-center gap-2 rounded-full bg-white px-[18px] font-body text-[15px] font-semibold shadow-[0_12px_28px_rgba(17,17,17,0.12)] lg:left-6 lg:top-6">
+          <MapPin size={16} className="text-marque" />
+          {t.city}
+          <ChevronDown size={16} className="text-gris" />
+        </span>
+        <div className="absolute bottom-4 left-4 hidden h-12 items-center gap-4 rounded-full bg-white px-5 shadow-[0_12px_28px_rgba(17,17,17,0.12)] lg:bottom-6 lg:left-6 lg:flex">
+          {t.statuses.map((s, i) => (
+            <span key={s} className="flex items-center gap-2 font-body text-[13px]">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: STATUS_COLORS[i] }} />
+              {s}
+            </span>
+          ))}
+        </div>
+        <div className="absolute bottom-4 right-4 w-[300px] max-w-[calc(100%-32px)] rounded-[20px] bg-white p-[18px] shadow-[0_16px_40px_rgba(17,17,17,0.14)] lg:bottom-auto lg:right-[5%] lg:top-[46%]">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-display text-[15px] font-bold">{t.shop}</span>
+            <span className="flex h-6 shrink-0 items-center gap-1.5 rounded-full bg-[#dcf5e4] px-2.5 font-body text-[11px] font-semibold text-vert">
+              <span className="h-1.5 w-1.5 rounded-full bg-vert" />
+              {t.shopStatus}
+            </span>
+          </div>
+          <p className="mt-2.5 font-body text-[13px] text-gris">{t.shopMeta}</p>
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <span className="font-body text-[13px]">{t.shopVotes}</span>
+            <span className="flex h-[34px] shrink-0 items-center gap-1.5 rounded-full border border-ligne px-3 font-body text-[13px] font-semibold">
+              <Heart size={14} />
+              {t.vote}
+            </span>
+          </div>
+        </div>
+      </Reveal>
+      <div className="mx-auto mt-5 grid max-w-[1200px] gap-5 md:grid-cols-3">
+        {t.actions.map(([p, title, text], i) => {
+          const [I, c, bg] = ACTION_TONES[i]
+          return (
+            <Reveal key={title} delay={i * 0.06} className="flex flex-col gap-3.5 rounded-[24px] bg-white p-7">
+              <div className="flex items-center justify-between">
+                <span className="flex h-11 w-11 items-center justify-center rounded-[14px]" style={{ background: bg, color: c }}>
+                  <I size={20} />
+                </span>
+                <span className="flex h-7 items-center rounded-full px-3 font-body text-[13px] font-bold" style={{ background: bg, color: c }}>
+                  {p}
+                </span>
+              </div>
+              <h3 className="font-display text-[20px] font-bold tracking-[-0.4px]">{title}</h3>
+              <p className="font-body text-[15px] leading-[1.5] text-gris">{text}</p>
+            </Reveal>
+          )
+        })}
+      </div>
+      <div className="mt-10 flex justify-center">
+        <Link to="/carte" className="inline-flex h-[54px] items-center gap-2.5 rounded-full bg-noir px-7 font-body text-[15px] font-semibold text-white hover:bg-[#2b2b2b]">
+          <MapIcon size={16} />
+          {t.cta}
+        </Link>
+      </div>
+    </section>
+  )
+}
+
+// W01 v2 — Page de la liste d'attente.
 export default function Home() {
   const { lang } = useLang()
   const h = HOME[lang]
   const location = useLocation()
-  const [members, setMembers] = useState(null)
+  const stats = usePublicStats()
   const [referrer, setReferrer] = useState(null)
   const [member, setMember] = useState(false)
 
   // E-mail saisi sur la page d'accueil et code de parrainage : transmis à l'inscription.
-  const params = new URLSearchParams(location.search)
-  const forward = new URLSearchParams()
-  if (params.get('email')) forward.set('email', params.get('email'))
-  if (params.get('news')) forward.set('news', '1')
-  const signupHref = `${PATHS.signup}${forward.size ? `?${forward}` : ''}`
+  const signupHref = useMemo(() => {
+    const params = new URLSearchParams(location.search)
+    const forward = new URLSearchParams()
+    if (params.get('email')) forward.set('email', params.get('email'))
+    if (params.get('news')) forward.set('news', '1')
+    return `${PATHS.signup}${forward.size ? `?${forward}` : ''}`
+  }, [location.search])
 
   useEffect(() => {
     captureReferral(location.search)
     const ref = store.ref()
     if (ref) rpc('get_referrer', { p_code: ref }).then((r) => setReferrer(r?.pseudo || null), () => {})
-    rpc('get_top_threshold', { p_size: 2000 }).then((r) => setMembers(r?.members ?? null), () => {})
     waitForSession(400).then(async (s) => {
       if (s && !s.user.is_anonymous) setMember((await myDashboard()).status === 'verified')
     })
   }, [location.search])
 
-  const fmt = (n) => new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB').format(n)
-  const countLabel = members >= MIN_PUBLIC_COUNT ? `${h.hero.open} · ${h.hero.members(fmt(members))}` : h.hero.open
-  const facts = [Timer, ListChecks, Gift]
-
   return (
     <div className="min-h-screen w-full overflow-x-clip bg-white">
       <Header h={h} member={member} signupHref={signupHref} />
       <main>
-        {/* Hero */}
-        <section id="accueil" className="bg-[#f0f0f0] px-5 pb-14 pt-[104px] lg:px-10 lg:pb-28 lg:pt-[180px] xl:px-[120px]">
-          <div className="mx-auto grid max-w-[1200px] items-center gap-12 lg:grid-cols-[1fr_minmax(0,480px)] lg:gap-16">
-            <div className="flex flex-col items-start gap-6 lg:gap-7">
-              <Reveal className="flex flex-wrap gap-2">
-                <Pill>{countLabel}</Pill>
-                {referrer && (
-                  <span className="inline-flex h-[30px] items-center gap-2 rounded-full bg-[#ffe6d5] px-3 font-body text-[13px] font-medium text-[#9a3412]">
-                    <UserPlus size={14} />
-                    {h.hero.invited(referrer)}
-                  </span>
-                )}
-              </Reveal>
-              <Reveal delay={0.06} as="h1" className="font-display text-[44px] font-bold leading-[1.02] tracking-[-1.8px] text-noir sm:text-[56px] lg:text-[72px] lg:tracking-[-3px]">
-                {h.hero.title}
-              </Reveal>
-              <Reveal delay={0.12} as="p" className="max-w-[540px] font-body text-[16px] leading-[1.6] text-gris lg:text-[18px]">
-                <span className="lg:hidden">{h.hero.subShort}</span>
-                <span className="hidden lg:inline">{h.hero.sub}</span>
-              </Reveal>
-              <Reveal delay={0.18} className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-                <Link to={signupHref} className={`${CTA_CLS} bg-marque text-white hover:bg-[#f06e1b]`}>
-                  {h.hero.start}
-                </Link>
-                <Link to={member ? PATHS.member : PATHS.login} className={`${CTA_CLS} border border-ligne bg-white text-noir hover:border-noir`}>
-                  {member ? h.nav.space : h.hero.account}
-                </Link>
-              </Reveal>
-              <Reveal delay={0.24} className="hidden flex-wrap gap-x-6 gap-y-2 font-body text-[14px] text-gris sm:flex">
-                {h.hero.facts.map((f, i) => {
-                  const I = facts[i]
-                  return (
-                    <span key={f} className="flex items-center gap-2">
-                      <I size={16} />
-                      {f}
-                    </span>
-                  )
-                })}
-              </Reveal>
-            </div>
-            <Reveal delay={0.2} y={40} className="hidden lg:block">
-              <MemberCard c={h.hero.card} />
-            </Reveal>
-            {/* Mobile : version courte de la carte + les trois gains */}
-            <Reveal delay={0.2} className="flex flex-col gap-3 lg:hidden" aria-hidden>
-              <div className="relative h-[230px] overflow-hidden rounded-[28px] bg-noir p-6">
-                <img src="/img/waitlist/panneau.webp" alt="" className="absolute inset-0 h-full w-full object-fill" />
-                <span className="relative flex items-center gap-2">
-                  <img src="/img/landing/k-white.png" alt="" className="h-[22px] w-[17px] object-contain" />
-                  <span className="font-display text-[16px] font-extrabold tracking-[1.5px] text-white">KRISMA</span>
-                </span>
-                <p className="absolute bottom-6 left-6 flex items-baseline gap-2 font-display text-[64px] font-bold leading-none tracking-[-3px] text-white">
-                  170<span className="font-body text-[14px] font-normal tracking-normal text-white/70">{h.hero.card.mobileUnit}</span>
-                </p>
-              </div>
-              <div className="grid grid-cols-3 gap-2.5">
-                {h.hero.tiles.map(([v, l], i) => (
-                  <div key={l} className={`rounded-[20px] px-3.5 py-3 ${i === 1 ? 'bg-marque text-white' : 'bg-white'}`}>
-                    <p className="font-display text-[22px] font-bold">{v}</p>
-                    <p className={`font-body text-[13px] ${i === 1 ? 'text-white/90' : 'text-gris'}`}>{l}</p>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* Services */}
-        <section className="px-5 py-16 lg:px-10 lg:py-24 xl:px-[120px]">
-          <div className="mx-auto max-w-[1200px]">
-            <Reveal className="flex flex-col items-start gap-4">
-              <Pill className="!bg-clair">{h.services.eyebrow}</Pill>
-              <H2 className="max-w-[760px]">{h.services.title}</H2>
-            </Reveal>
-            <div className="mt-10 grid gap-4 md:grid-cols-3 lg:gap-5">
-              {h.services.items.map(([title, text], i) => {
-                const [I, tone] = [
-                  [CreditCard, 'bg-[#dbeafe] text-bleu'],
-                  [ArrowLeftRight, 'bg-[#ffe6d5] text-marque'],
-                  [Store, 'bg-[#dcf5e4] text-vert'],
-                ][i]
-                return (
-                  <Reveal key={title} delay={i * 0.08} className="flex flex-col gap-3 rounded-[24px] bg-clair p-7">
-                    <span className={`mb-6 flex h-[52px] w-[52px] lg:mb-10 items-center justify-center rounded-[14px] ${tone}`}>
-                      <I size={22} />
-                    </span>
-                    <h3 className="font-display text-[21px] font-bold tracking-[-0.5px]">{title}</h3>
-                    <p className="font-body text-[15px] leading-[1.55] text-gris">{text}</p>
-                  </Reveal>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* Comment ça marche */}
-        <section id="etapes" className="scroll-mt-24 bg-clair px-5 py-16 lg:px-10 lg:py-24 xl:px-[120px]">
-          <div className="mx-auto max-w-[1200px]">
-            <Reveal className="flex flex-col items-start gap-4">
-              <Pill className="!bg-transparent !px-0">{h.steps.eyebrow}</Pill>
-              <H2>{h.steps.title}</H2>
-              <p className="max-w-[620px] font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{h.steps.sub}</p>
-            </Reveal>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-              {h.steps.items.map(([title, text], i) => {
-                const I = [Mail, ListChecks, MailCheck, Trophy][i]
-                return (
-                  <Reveal key={title} delay={i * 0.07} className="flex flex-col gap-3 rounded-[24px] border border-ligne bg-white p-7">
-                    <div className="mb-6 flex items-center justify-between lg:mb-10">
-                      <span className={`flex h-12 w-12 items-center justify-center rounded-full text-white ${i === 3 ? 'bg-marque' : 'bg-noir'}`}>
-                        <I size={20} />
-                      </span>
-                      <span className="font-display text-[28px] font-bold text-ligne">0{i + 1}</span>
-                    </div>
-                    <h3 className="font-display text-[19px] font-bold tracking-[-0.4px]">{title}</h3>
-                    <p className="font-body text-[15px] leading-[1.55] text-gris">{text}</p>
-                  </Reveal>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* Points */}
-        <section id="points" className="scroll-mt-24 px-5 pb-10 pt-16 lg:px-10 lg:pt-24 xl:px-[120px]">
-          <div className="mx-auto grid max-w-[1200px] gap-10 lg:grid-cols-[minmax(0,460px)_1fr] lg:gap-[72px]">
-            <Reveal className="flex flex-col items-start gap-4">
-              <Pill className="!bg-clair">{h.points.eyebrow}</Pill>
-              <H2>{h.points.title}</H2>
-              <p className="font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{h.points.sub}</p>
-              <p className="mt-3 flex items-start gap-3 rounded-[20px] bg-clair p-5 font-body text-[14px] leading-[1.5] text-gris">
-                <ShieldCheck size={18} className="mt-px shrink-0 text-vert" />
-                {h.points.note}
-              </p>
-            </Reveal>
-            <div className="flex flex-col gap-4">
-              {h.points.items.map(([value, title, text], i) => {
-                const I = [BadgeCheck, UserPlus, Store][i]
-                const tone = ['bg-noir text-white', 'bg-marque text-white', 'bg-clair text-noir'][i]
-                return (
-                  <Reveal key={title} delay={i * 0.08} className={`flex items-center gap-5 rounded-[24px] px-6 py-6 lg:gap-8 lg:px-8 ${tone}`}>
-                    <span className="w-[96px] shrink-0 font-display text-[40px] font-bold tracking-[-1.5px] lg:w-[150px] lg:text-[56px]">{value}</span>
-                    <div className="flex-1">
-                      <h3 className="font-display text-[19px] font-bold tracking-[-0.4px] lg:text-[21px]">{title}</h3>
-                      <p className={`mt-1 font-body text-[14px] leading-[1.55] lg:text-[15px] ${i === 2 ? 'text-gris' : 'text-white/80'}`}>{text}</p>
-                    </div>
-                    <I size={22} className="hidden shrink-0 sm:block" />
-                  </Reveal>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* Récompenses */}
-        <section className="px-5 py-10 lg:px-10 lg:pb-24 xl:px-[120px]">
-          <Reveal className="relative mx-auto grid max-w-[1200px] items-center gap-10 overflow-hidden rounded-[32px] bg-noir p-8 lg:grid-cols-[1fr_360px] lg:gap-16 lg:rounded-[40px] lg:p-20">
-            <img src="/img/waitlist/panneau.webp" alt="" className="pointer-events-none absolute inset-0 h-full w-full object-fill" />
-            <div className="relative flex flex-col items-start gap-5">
-              <Pill dark>{h.rewards.eyebrow}</Pill>
-              <H2 dark className="lg:text-[52px]">{h.rewards.title}</H2>
-              <p className="max-w-[540px] font-body text-[16px] leading-[1.65] text-white/75 lg:text-[17px]">{h.rewards.text}</p>
-            </div>
-            <div className="relative flex flex-col items-center gap-4 rounded-[28px] border border-white/10 bg-white/[0.06] px-6 py-12 text-center">
-              <span className="flex h-[88px] w-[88px] items-center justify-center rounded-full bg-marque text-white">
-                <Gift size={34} />
-              </span>
-              <p className="font-display text-[36px] font-bold tracking-[-1.2px] text-white">{h.rewards.badge}</p>
-              <p className="font-body text-[15px] text-white/70">{h.rewards.badgeSub}</p>
-            </div>
-          </Reveal>
-        </section>
-
-        {/* KRISMA Map */}
-        <section id="carte" className="scroll-mt-24 px-5 py-16 lg:px-10 lg:py-24 xl:px-[120px]">
-          <div className="mx-auto grid max-w-[1200px] items-center gap-10 lg:grid-cols-[minmax(0,440px)_1fr] lg:gap-16">
-            <Reveal className="flex flex-col items-start gap-5">
-              <Pill className="!bg-clair">{h.map.eyebrow}</Pill>
-              <H2>{h.map.title}</H2>
-              <p className="font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{h.map.text}</p>
-              <ul className="flex flex-col gap-2.5">
-                {h.map.statuses.map((s, i) => (
-                  <li key={s} className="flex items-center gap-3 font-body text-[14px]">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: STATUS_COLORS[i] }} />
-                    {s}
-                  </li>
-                ))}
-              </ul>
-              <Link to="/carte" className="mt-2 inline-flex h-[52px] items-center gap-2.5 rounded-full bg-noir px-6 font-body text-[15px] font-semibold text-white hover:bg-[#2b2b2b]">
-                {h.map.cta}
-                <MapIcon size={16} />
-              </Link>
-            </Reveal>
-            <Reveal delay={0.1} y={40}>
-              <MapPreview m={h.map} />
-            </Reveal>
-          </div>
-        </section>
-
+        <Hero h={h.hero} s={stats} lang={lang} signupHref={signupHref} member={member} referrer={referrer} />
+        <Simulator t={h.simulator} lang={lang} />
+        <Steps t={h.steps} />
+        <Bento t={h.points} />
+        <Rewards t={h.rewards} start={h.hero.start} signupHref={signupHref} />
+        <MapSection t={h.map} />
         <Faq f={h.faq} />
-
-        {/* Appel final */}
         <section className="px-5 py-20 text-center lg:py-28">
           <Reveal className="mx-auto flex max-w-[720px] flex-col items-center gap-5">
             <H2 className="lg:text-[56px]">{h.final.title}</H2>

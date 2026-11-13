@@ -21,6 +21,11 @@ export const translations = {
       title: ['Plus loin,', 'toujours ensemble.'],
       sub: "Le compte et la carte pour vivre en Europe et rester connecté à l'Afrique.",
       perks: ['Simple au quotidien', "Connecté à l'Afrique", 'Pensé pour votre avenir'],
+      live: {
+        people: (n) => (n > 1 ? 'personnes déjà inscrites' : 'personne déjà inscrite'),
+        status: 'En direct',
+        today: (n) => `+${n} aujourd'hui`,
+      },
     },
     presentation: {
       lead: "Un compte européen, une carte pour vos dépenses, des transferts entre l'Europe et l'Afrique et des avantages chez nos partenaires.",
@@ -143,6 +148,11 @@ export const translations = {
       title: ['Further,', 'together!'],
       sub: 'The account and card to live in Europe and stay connected to Africa.',
       perks: ['Simple every day', 'Connected to Africa', 'Built for your future'],
+      live: {
+        people: (n) => (n === 1 ? 'person already signed up' : 'people already signed up'),
+        status: 'Live',
+        today: (n) => `+${n} today`,
+      },
     },
     presentation: {
       lead: 'A European account, a card for your spending, transfers between Europe and Africa, and rewards with our partners.',
