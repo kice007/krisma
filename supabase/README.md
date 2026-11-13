@@ -86,6 +86,9 @@ Modèles dans `supabase/templates/` (FR/EN selon `user_metadata.locale`, pseudo 
 |---|---|---|
 | Change email address | `confirm-email.html` | `{{ if and .Data.locale (eq .Data.locale "en") }}Confirm your email · KRISMA{{ else }}Confirme ton adresse e-mail · KRISMA{{ end }}` |
 | Magic link | `magic-link.html` | `{{ if and .Data.locale (eq .Data.locale "en") }}Your KRISMA login link{{ else }}Ton lien de connexion KRISMA{{ end }}` |
+| Reset password | `reset-password.html` | `{{ if and .Data.locale (eq .Data.locale "en") }}Reset your KRISMA password{{ else }}Réinitialise ton mot de passe KRISMA{{ end }}` |
+
+Depuis la migration 15, `user_metadata.pseudo` contient le **prénom** (la clé garde son nom pour ne pas modifier les modèles) : « Bonjour Awa ». Le lien magique ne sert plus qu'à la connexion de l'équipe (admin) ; les membres se connectent par mot de passe.
 
 SMTP (Authentication → Emails → SMTP Settings) : hôte `smtp.resend.com`, port `465`, utilisateur `resend`, mot de passe = clé API Resend (accès « Sending » limité au domaine), expéditeur `waitlist@krisma.io`, nom `KRISMA`. Les images des e-mails sont servies par le site (`https://www.krisma.io/img/...`) : elles n'apparaissent qu'une fois le site déployé.
 
