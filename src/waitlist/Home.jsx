@@ -65,7 +65,7 @@ function Header({ h, member, signupHref }) {
           <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="KRISMA">
             <img src="/img/landing/k-ink.png" alt="" className="h-[23px] w-[18px] object-contain lg:h-[25px] lg:w-5" />
           </Link>
-          <nav className="hidden items-center gap-[26px] xl:flex">
+          <nav className="hidden items-center gap-[22px] lg:flex xl:gap-[26px]">
             {h.nav.links.map((l) => (
               <a key={l.href} href={l.href} aria-current={active === l.href ? 'true' : undefined} className={`whitespace-nowrap font-body text-[14px] font-medium hover:text-marque ${active === l.href ? 'text-marque' : 'text-noir'}`}>
                 {l.label}
@@ -294,6 +294,7 @@ function Facts({ h }) {
 function Hero({ h, s, lang, signupHref, member, referrer }) {
   const { w, h: vh } = useViewport()
   const scale = Math.min(w / 1440, Math.max(vh, 760) / 900)
+  const ms = Math.min(w / 390, 1.5)
   const account = member ? { to: PATHS.member, label: HOME[lang].nav.space } : { to: PATHS.login, label: h.login }
   const buttons = (
     <div className="flex flex-wrap gap-2.5">
@@ -377,7 +378,8 @@ function Hero({ h, s, lang, signupHref, member, referrer }) {
           {buttons}
           <Live h={h} s={s} lang={lang} />
         </div>
-        <div className="relative -mx-5 mt-2 h-[500px] overflow-hidden" aria-hidden>
+        <div className="relative -mx-5 mt-2 overflow-hidden" style={{ height: 500 * ms }} aria-hidden>
+          <div className="absolute left-1/2 top-0 h-[500px] w-[390px] origin-top" style={{ transform: `translateX(-50%) scale(${ms})` }}>
           <p className="absolute inset-x-0 top-[90px] text-center font-display text-[92px] font-extrabold leading-none tracking-[-4px] text-[#e2e2e2]">{h.word}</p>
           <div className="absolute left-1/2 top-[-150px] h-[752px] w-[420px] -translate-x-1/2">
             <img src="/img/landing/hero-rocher.webp" alt="" className="absolute inset-0 h-full w-full max-w-none" />
@@ -386,6 +388,7 @@ function Hero({ h, s, lang, signupHref, member, referrer }) {
           </div>
           <Chip icon={UserPlus} color="#0676f8" className="!h-11 text-[13px]" style={{ right: 12, top: 40 }}>{h.chips[1]}</Chip>
           <Chip icon={Heart} color={VIOLET} className="!h-11 text-[13px]" style={{ left: 12, top: 300 }} delay={0.6}>{h.chips[2]}</Chip>
+          </div>
         </div>
         <div className="mt-2 flex flex-col gap-5">
           <Facts h={h} />
@@ -415,7 +418,7 @@ function Simulator({ t, lang }) {
   const yearly = Math.round(monthly * 12 * 100) / 100
   return (
     <section className="px-5 py-16 lg:px-10 lg:py-28 xl:px-[120px]">
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] lg:gap-20">
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-12 xl:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:gap-20">
         <Reveal className="flex flex-col items-start gap-6">
           <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-clair px-3 font-body text-[12px] font-semibold">
             <span className="h-1.5 w-1.5 rounded-full bg-marque" />
@@ -431,7 +434,7 @@ function Simulator({ t, lang }) {
         <Reveal delay={0.1} y={40} className="flex min-w-0 flex-col gap-7 rounded-[32px] border border-ligne bg-white p-6 shadow-[0_24px_60px_rgba(17,17,17,0.06)] lg:p-9">
           <fieldset className="flex flex-col gap-3">
             <legend className="mb-3 font-body text-[14px] font-semibold">{t.q1}</legend>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
               {CATS.map(([id, I]) => (
                 <button
                   key={id}
@@ -604,12 +607,14 @@ function Steps({ t }) {
                   {!last && <span className="mt-2 w-0 flex-1 border-l-2 border-dashed border-[#bdbdbd]" />}
                 </div>
                 <Reveal delay={0.05} y={30} className={`min-w-0 flex-1 ${last ? '' : 'pb-10'}`}>
-                  <div className="flex flex-col gap-7 rounded-[28px] bg-[#efeff1] p-4 lg:p-6">
-                    <div className="flex h-[260px] items-center justify-center overflow-hidden rounded-[20px] px-4 lg:h-[300px]" style={{ background: `radial-gradient(70% 70% at 50% 35%, ${tint}, #f7f7f7)` }}>
-                      <StepMock i={i} m={t.mock} />
+                  <div className="flex flex-col gap-7 rounded-[28px] border border-ligne bg-white p-4 lg:p-6">
+                    <div className="flex min-h-[260px] items-center justify-center overflow-hidden rounded-[20px] px-4 py-8 lg:h-[300px] lg:py-0" style={{ background: `radial-gradient(70% 70% at 50% 35%, ${tint}, #f7f7f7)` }}>
+                      <div className="flex w-[360px] shrink-0 justify-center max-sm:-my-14 max-sm:scale-[0.64]">
+                        <StepMock i={i} m={t.mock} />
+                      </div>
                     </div>
                     <div className="flex flex-col gap-2.5 px-2 pb-2 lg:px-3">
-                      <h3 className="font-display text-[24px] font-bold tracking-[-0.8px] lg:text-[26px]">{step.title}</h3>
+                      <h3 className="font-display text-[24px] font-bold leading-[1.15] tracking-[-0.8px] lg:text-[26px]">{step.title}</h3>
                       <p className="font-body text-[16px] leading-[1.5] text-gris">{step.text}</p>
                       <ul className="mt-1.5 flex flex-col gap-2">
                         {step.checks.map((ch) => (
@@ -645,7 +650,7 @@ function CardHead({ item, color, dark }) {
   return (
     <div className="relative flex flex-col items-center gap-2 text-center">
       <Pts value={value} color={color} />
-      <h3 className={`font-display text-[24px] font-bold tracking-[-0.8px] lg:text-[28px] ${dark ? 'text-white' : 'text-noir'}`}>{title}</h3>
+      <h3 className={`font-display text-[24px] font-bold leading-[1.15] tracking-[-0.8px] lg:text-[28px] ${dark ? 'text-white' : 'text-noir'}`}>{title}</h3>
       <p className={`max-w-[420px] font-body text-[15px] leading-[1.5] lg:text-[16px] ${dark ? 'text-white/80' : 'text-gris'}`}>{text}</p>
     </div>
   )
@@ -675,7 +680,7 @@ function Bento({ t }) {
         <h2 className="font-display text-[34px] font-bold leading-[1.05] tracking-[-1.2px] lg:text-[52px] lg:tracking-[-1.8px]">{t.title}</h2>
         <p className="font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{t.sub}</p>
       </Reveal>
-      <div className="mx-auto mt-12 grid max-w-[1200px] gap-5 lg:grid-cols-2">
+      <div className="mx-auto mt-12 grid max-w-[1200px] grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="flex flex-col gap-5">
           <Reveal className="relative flex h-[410px] flex-col justify-end overflow-hidden rounded-[28px] bg-noir p-8 lg:p-9">
             <img src="/img/waitlist/panneau.webp" alt="" className="pointer-events-none absolute inset-0 h-full w-full object-fill opacity-90" />
@@ -701,7 +706,7 @@ function Bento({ t }) {
         </div>
         <div className="flex flex-col gap-5">
           <Reveal delay={0.04} className="flex h-[500px] flex-col items-center gap-6 overflow-hidden rounded-[28px] border border-ligne bg-white px-8 pb-9">
-            <div className="relative h-[300px] w-[300px] shrink-0 overflow-hidden rounded-b-[40px] bg-noir px-2.5 pb-2.5" aria-hidden>
+            <div className="relative h-[300px] w-full max-w-[300px] shrink-0 overflow-hidden rounded-b-[40px] bg-noir px-2.5 pb-2.5" aria-hidden>
               <div className="relative h-full w-full overflow-hidden rounded-b-[32px] bg-[#eef0ea]">
                 <img src="/img/waitlist/carte-quartier.webp" alt="" className="absolute left-[-60%] top-[-30%] w-[240%] max-w-none" />
                 <Pin x={20} y={20} c="#15803d" I={Store} />
@@ -720,7 +725,7 @@ function Bento({ t }) {
             </div>
             <CardHead item={t.shop} color="#15803d" />
           </Reveal>
-          <Reveal delay={0.12} className="flex h-[240px] flex-col items-center justify-center gap-4 rounded-[28px] border border-ligne bg-white p-8">
+          <Reveal delay={0.12} className="flex min-h-[240px] flex-col items-center justify-center gap-4 rounded-[28px] border border-ligne bg-white p-8">
             <div className="flex items-center" aria-hidden>
               {['A', 'Y', 'K', 'F'].map((l, k) => (
                 <span key={l} className="-ml-3 flex h-[52px] w-[52px] items-center justify-center rounded-full border-[3px] border-white font-body text-[17px] font-bold text-white first:ml-0" style={{ background: ['#fd8030', '#0676f8', VIOLET, '#15803d'][k] }}>
@@ -740,28 +745,16 @@ function Bento({ t }) {
   )
 }
 
-// Récompenses : bloc clair aux taches orange floues, contenu centré.
+// Récompenses : bloc noir aux rayons orange, contenu centré.
 function Rewards({ t, start, signupHref }) {
   return (
     <section className="px-5 pb-16 lg:px-10 lg:pb-24 xl:px-[120px]">
-      <Reveal className="relative mx-auto flex max-w-[1200px] flex-col items-center gap-[18px] overflow-hidden rounded-[28px] border border-ligne bg-white px-6 py-16 text-center lg:py-24">
-        <div className="pointer-events-none absolute inset-0" aria-hidden>
-          <span className="absolute left-[5%] top-[-10%] h-[120%] w-[15%] -rotate-[18deg] rounded-full bg-[#fdba74] blur-[70px]" />
-          <span className="absolute left-[32%] top-[-30%] h-[160%] w-[35%] -rotate-[30deg] rounded-full bg-marque opacity-90 blur-[80px]" />
-          <span className="absolute right-[-5%] top-[-15%] h-[140%] w-[50%] rounded-full bg-[#ff9a4d] opacity-90 blur-[90px]" />
-          <span className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/30 to-transparent" />
-        </div>
-        <span className="relative flex items-center gap-2 font-mono text-[13px] tracking-[1px]">
-          <span className="relative flex h-3 w-5" aria-hidden>
-            <span className="absolute left-0 h-3 w-3 rounded-full bg-noir" />
-            <span className="absolute left-2 h-3 w-3 rounded-full bg-marque" />
-          </span>
-          {t.eyebrow}
-        </span>
-        <h2 className="relative font-display text-[34px] font-bold leading-[1.05] tracking-[-1.2px] lg:text-[52px] lg:tracking-[-1.8px]">{t.title}</h2>
-        <p className="relative max-w-[640px] font-body text-[16px] leading-[1.6] text-[#3f3f3f] lg:text-[17px]">{t.text}</p>
+      <Reveal className="relative mx-auto flex max-w-[1200px] flex-col items-center gap-[18px] overflow-hidden rounded-[28px] bg-noir px-6 py-16 text-center lg:min-h-[420px] lg:justify-center lg:py-24">
+        <img src="/img/landing/rayons-liste.webp" alt="" aria-hidden className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
+        <h2 className="relative font-display text-[34px] font-bold leading-[1.05] tracking-[-1.2px] text-white lg:text-[52px] lg:tracking-[-1.8px]">{t.title}</h2>
+        <p className="relative max-w-[640px] font-body text-[16px] leading-[1.6] text-[#d4d4d4] lg:text-[17px]">{t.text}</p>
         <div className="relative mt-2 flex flex-wrap justify-center gap-3">
-          <Link to={signupHref} className="inline-flex h-[52px] items-center rounded-full bg-noir px-7 font-body text-[15px] font-semibold text-white hover:bg-[#2b2b2b]">
+          <Link to={signupHref} className="inline-flex h-[52px] items-center rounded-full bg-marque px-7 font-body text-[15px] font-semibold text-white hover:bg-[#f06e1b]">
             {start}
           </Link>
           <Link to="/reglement" className="inline-flex h-[52px] items-center rounded-full bg-white px-6 font-body text-[15px] font-semibold text-noir">
