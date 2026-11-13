@@ -54,7 +54,7 @@ export async function exportOverview(o) {
           ['Commerces à vérifier', o.shops_to_review],
           ['Points suspendus', o.points_suspended],
           ['Seuil du top 2 000 (pts)', o.top?.threshold ?? 0],
-          ['Membres éligibles (ex æquo compris)', o.top?.eligible ?? 0],
+          ['Membres éligibles', o.top?.eligible ?? 0],
           ['Réponses au questionnaire', a.total],
         ],
       },

@@ -173,7 +173,7 @@ ok(map[0].public_status === "cashback_active" && Number(map[0].cashback_rate) ==
 const v1 = await rpc(E, "toggle_shop_vote", { p_shop_id: s1.shop_id });
 const v2 = await rpc(E, "toggle_shop_vote", { p_shop_id: s1.shop_id });
 ok(v1.voted === true && v2.voted === false, "un vote, puis retrait du vote");
-ok((await total(E)) === 170, "les votes ne rapportent aucun point");
+ok((await total(E)) === 170, "vote retiré → les 5 points du vote sont retirés");
 const cities = await as(null, "select * from public.get_map_cities(null)");
 ok(cities[0].name === "Paris" && cities[0].partners === 1, "liste des villes avec compteurs");
 
@@ -183,9 +183,10 @@ const G = await newAnonUser(); await register(G, "zaneb_", { email: "zaneb@gmail
 const board = await as(null, "select * from public.get_leaderboard(null, 50, 0)");
 ok(board[0].pseudo === "amina_k" && board[0].rank === 1n || board[0].rank === 1, "1er : amina_k");
 const tied = board.filter((r) => r.points === 170);
-ok(tied.length === 3 && tied.every((r) => Number(r.rank) === Number(tied[0].rank)), "ex æquo au même rang");
+ok(tied.length === 3 && new Set(tied.map((r) => Number(r.rank))).size === 3, "ex æquo : chacun a son propre rang");
+ok(tied.map((r) => r.pseudo).join(",") === "promo_2026,fatou.s,zaneb_", "à points égaux, le premier validé passe devant");
 const top = await rpc(null, "get_top_threshold", { p_size: 3 });
-ok(top.eligible === 5 && top.threshold === 170, `top 3 avec égalités → ${top.eligible} membres retenus`);
+ok(top.eligible === 3, `top 3 strict → ${top.eligible} membres retenus`);
 ok(!("email" in board[0]), "le classement public n'expose pas d'e-mail");
 
 console.log("\n9. Sécurité (RLS et droits)");
@@ -216,7 +217,7 @@ const dash = await rpc(A, "get_my_dashboard");
 ok(dash.points === 220 && Number(dash.rank) === 1, "points et rang");
 ok(dash.referral_code === codeA, "lien de parrainage disponible une fois vérifié");
 ok(dash.referees.length === 2, "liste des filleuls");
-ok(dash.history.length === 4, "historique des points (inscription, 2 parrainages, commerce annulé)");
+ok(dash.history.length === 5, "historique des points (inscription, 2 parrainages, commerce annulé, vote retiré)");
 const dashC = await rpc(C, "get_my_dashboard");
 ok(dashC.referral_code === null, "pas de lien de parrainage avant validation");
 
@@ -250,12 +251,16 @@ ok(mapRows.length === 1 && mapRows[0].proposer === null && mapRows[0].address.in
 const lyon = await rpc(A, "ensure_city", { p_source_ref: "relation/120965", p_name: "Lyon", p_country_code: "fr", p_country_name: "France", p_lat: 45.764, p_lng: 4.8357 });
 ok(typeof lyon === "string" && (await rpc(A, "get_my_dashboard")).city.name === "Paris", "ville d'un commerce créée sans changer la ville du membre");
 await expectError(rpc(C, "ensure_city", { p_source_ref: "relation/1", p_name: "X", p_country_code: "fr", p_country_name: "France", p_lat: 0, p_lng: 0 }), "not_verified", "ville réservée aux membres vérifiés");
+await expectError(rpc(A, "propose_shop", { p_name: "Boulangerie Teranga", p_category: "bakery", p_address: "3 rue de la République, Lyon", p_city_id: lyon, p_lat: 45.7601, p_lng: 4.8357 }), "not_my_city", "proposition hors de sa ville refusée");
+const paris = shop.p_city_id;
+await db.query("update public.profiles set city_id = $1 where id in ($2, $3)", [lyon, A, F]);
 const created = await rpc(A, "propose_shop", { p_name: "Boulangerie Teranga", p_category: "bakery", p_address: "3 rue de la République, Lyon", p_city_id: lyon, p_lat: 45.7601, p_lng: 4.8357 });
 ok(created.result === "created", "commerce proposé dans une autre ville");
 await db.query("update public.shops set status = 'partner', partner_public = false where id = $1", [created.shop_id]);
 const dupL = await rpc(F, "propose_shop", { p_name: "Boulangerie Teranga", p_category: "bakery", p_address: "3 rue de la République", p_city_id: lyon, p_lat: 45.76012, p_lng: 4.8357 });
 ok(dupL.result === "duplicate_candidate" && dupL.shop.public_status === "validated" && dupL.shop.category === "bakery" && dupL.shop.voted === false, "doublon : partenariat non public masqué, catégorie et vote");
 ok((await as(A, "select * from public.get_map_shops($1)", [lyon]))[0].proposer === "amina_k", "auteur affiché sur la carte");
+await db.query("update public.profiles set city_id = $1 where id in ($2, $3)", [paris, A, F]);
 const exp = await rpc(A, "export_my_data");
 ok(exp.profile.city_name === "Paris" && exp.votes.some((v) => v.shop === "Boulangerie Teranga") && exp.points.some((e) => e.label === "Boulangerie Teranga"), "export lisible : ville, commerces soutenus, libellés des points");
 await expectError(as(null, "select public.ensure_city('a','b','fr','c',0,0)"), "permission denied", "ensure_city non appelable par un visiteur");
@@ -358,6 +363,32 @@ ok(ov12.daily[1].future === true && ov12.daily[29].total === 0, "les jours suiva
 await db.query("update public.profiles set created_at = now() - interval '45 days' where id = $1", [A]);
 const ov12b = await rpc(D, "admin_overview", { p_days: 30 });
 ok(ov12b.daily[29].day === today && ov12b.daily.every((d) => !d.future), "campagne plus longue que la période : les 30 derniers jours, aujourd'hui à droite");
+
+console.log("\n19. Votes à 5 points, ville du membre, classement strict (migration 14)");
+const H = await newAnonUser(); await register(H, "hawa_d", { email: "hawa@gmail.com" });
+const shopP = (await rpc(G, "propose_shop", { p_name: "Salon Nappy Queen", p_category: "hair_salon", p_address: "8 rue Polonceau, Paris", p_city_id: paris, p_lat: 48.8862, p_lng: 2.3532 })).shop_id;
+ok((await db.query("select count(*)::int n from public.point_events where kind='vote' and user_id=$1", [G])).rows[0].n === 0, "le soutien automatique de l'auteur ne rapporte pas de points de vote");
+await rpc(H, "toggle_shop_vote", { p_shop_id: shopP });
+ok((await total(H)) === 175, "vote → +5 points immédiatement");
+await rpc(H, "toggle_shop_vote", { p_shop_id: shopP });
+ok((await total(H)) === 170, "vote retiré → −5");
+await rpc(H, "toggle_shop_vote", { p_shop_id: shopP });
+ok((await total(H)) === 175 && (await db.query("select count(*)::int n from public.point_events where kind='vote' and user_id=$1", [H])).rows[0].n === 1, "revote → points rendus, sans doublon dans le registre");
+await expectError(rpc(H, "toggle_shop_vote", { p_shop_id: created.shop_id }), "not_my_city", "vote hors de sa ville refusé");
+await rpc(D, "admin_review_shop", { p_shop_id: shopP, p_decision: "reject" });
+ok((await total(H)) === 170, "commerce refusé → points des votes retirés");
+await db.query("update public.shops set status = 'validated' where id = $1", [shopP]);
+ok((await total(H)) === 175, "refus annulé par l'équipe → points rendus");
+const hist = (await rpc(H, "get_my_dashboard")).history.find((x) => x.kind === "vote");
+ok(hist && hist.label === "Salon Nappy Queen" && hist.points === 5, "historique : vote · Salon Nappy Queen · +5");
+await expectError(as(H, "select public.vote_source_id($1, $1)", [H]), "permission denied", "fonction interne non appelable");
+await db.query("update public.profiles set verified_at = now() - interval '1 hour' where id = $1", [H]);
+const I = await newAnonUser(); await register(I, "issa_t", { email: "issa@gmail.com" });
+await rpc(I, "toggle_shop_vote", { p_shop_id: shopP });
+const lb = await as(null, "select * from public.get_leaderboard(null, 50, 0)");
+const rH = Number(lb.find((r) => r.pseudo === "hawa_d").rank), rI = Number(lb.find((r) => r.pseudo === "issa_t").rank);
+ok(rH === rI - 1, "175 points chacun : hawa_d (validée plus tôt) juste devant issa_t");
+ok(new Set(lb.map((r) => Number(r.rank))).size === lb.length, "aucun rang partagé dans tout le classement");
 
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);

@@ -118,7 +118,7 @@ function CityPicker({ t, lang, cities, current, onPick, onClose, sheet }) {
 }
 
 // Fiche d'un commerce (carte flottante sur desktop, feuille sur mobile).
-function ShopCard({ shop, t, lang, canVote, onVote, voting, onClose, onPropose, compact }) {
+function ShopCard({ shop, t, lang, canVote, member, homeCity, onHome, onVote, voting, onClose, onPropose, compact }) {
   const rate = shop.cashback_rate ? Number(shop.cashback_rate) : null
   return (
     <div className="flex flex-col gap-3">
@@ -177,6 +177,15 @@ function ShopCard({ shop, t, lang, canVote, onVote, voting, onClose, onPropose, 
               <Navigation size={16} />
               {t.route}
             </a>
+          )}
+        </div>
+      ) : member ? (
+        <div className="mt-1 flex flex-col gap-2.5 rounded-2xl bg-clair p-3.5">
+          <p className="font-body text-[13px] text-gris">{t.otherCity(homeCity?.name)}</p>
+          {homeCity && (
+            <button type="button" onClick={onHome} className="flex h-11 cursor-pointer items-center justify-center rounded-full border border-noir bg-white font-body text-[14px] font-semibold text-noir">
+              {t.goHome(homeCity.name)}
+            </button>
           )}
         </div>
       ) : (
@@ -279,6 +288,7 @@ export default function MapPage() {
   const t = MAPTEXT[lang]
   const m = useMember()
   const isMember = m.d?.status === 'verified'
+  const myCityId = m.d?.city?.id
   const desktop = useDesktop()
   const [params, setParams] = useSearchParams()
 
@@ -455,6 +465,10 @@ export default function MapPage() {
     }
   }
 
+  // On ne vote et ne propose que dans sa ville (règle de la migration 14).
+  const homeCity = cities?.find((c) => c.id === myCityId) || null
+  const inMyCity = isMember && !!city && city.id === myCityId
+  const goHome = () => homeCity && pickCity(homeCity)
   const openPropose = () => (isMember ? setPropose(true) : setListOpen(false))
   const afterProposal = async ({ shopId, cityId }) => {
     setPropose(false)
@@ -568,7 +582,7 @@ export default function MapPage() {
           className="absolute z-[650] w-[340px] rounded-[24px] bg-white p-6 shadow-[0_20px_60px_rgba(17,17,17,0.18)]"
           style={{ left: Math.min(Math.max(pos.x + 36, 470), window.innerWidth - 380), top: Math.min(Math.max(pos.y - 90, 120), window.innerHeight - 380) }}
         >
-          <ShopCard shop={selected} t={t} lang={lang} canVote={isMember} onVote={vote} voting={voting} onClose={() => setSelectedId(null)} />
+          <ShopCard shop={selected} t={t} lang={lang} canVote={inMyCity} member={isMember} homeCity={homeCity} onHome={goHome} onVote={vote} voting={voting} onClose={() => setSelectedId(null)} />
         </div>
       )}
 
@@ -592,7 +606,7 @@ export default function MapPage() {
         <div className="rounded-t-[28px] bg-white px-5 pb-5 pt-3 shadow-[0_-12px_40px_rgba(17,17,17,0.12)]">
           <span className="mx-auto mb-3 block h-1 w-10 rounded-full bg-ligne" />
           {selected ? (
-            <ShopCard shop={selected} t={t} lang={lang} canVote={isMember} onVote={vote} voting={voting} onClose={() => setSelectedId(null)} onPropose={isMember ? openPropose : null} compact />
+            <ShopCard shop={selected} t={t} lang={lang} canVote={inMyCity} member={isMember} homeCity={homeCity} onHome={goHome} onVote={vote} voting={voting} onClose={() => setSelectedId(null)} onPropose={isMember ? openPropose : null} compact />
           ) : (
             <div className="flex gap-2.5">
               <button type="button" onClick={() => setListOpen(true)} className="flex h-12 flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-ligne font-body text-[15px] font-semibold">
@@ -628,7 +642,7 @@ export default function MapPage() {
         </div>
       </Sheet>
 
-      {propose && isMember && createPortal(<ProposeDialog t={t} lang={lang} city={city} desktop={desktop} onClose={() => setPropose(false)} onDone={afterProposal} />, document.body)}
+      {propose && isMember && createPortal(<ProposeDialog t={t} lang={lang} city={homeCity || city} desktop={desktop} onClose={() => setPropose(false)} onDone={afterProposal} />, document.body)}
     </div>
   )
 }
