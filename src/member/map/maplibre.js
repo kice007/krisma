@@ -11,6 +11,15 @@ import { Beef, Croissant, Scissors, ShoppingBasket, Store, Utensils } from '../.
 // Une fois empaqueté, MapLibre ne retrouve pas seul son worker : on lui donne l'URL.
 maplibregl.setWorkerUrl(workerUrl)
 
+// Messages de MapLibre en français (gestes coopératifs, boutons).
+const FR_LOCALE = {
+  'CooperativeGesturesHandler.WindowsHelpText': 'Utilise Ctrl + molette pour zoomer sur la carte',
+  'CooperativeGesturesHandler.MacHelpText': 'Utilise ⌘ + molette pour zoomer sur la carte',
+  'CooperativeGesturesHandler.MobileHelpText': 'Utilise deux doigts pour déplacer la carte',
+  'NavigationControl.ZoomIn': 'Zoomer',
+  'NavigationControl.ZoomOut': 'Dézoomer',
+}
+
 export const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty'
 
 export const STATUS_COLOR = {
@@ -69,7 +78,7 @@ function clusterElement(n) {
 
 // Nouvelle carte. center = [lat, lng]. Projection globe : la Terre apparaît en
 // boule quand on dézoome assez loin.
-export function createMap(el, { center, zoom = 12, scrollZoom = true, interactive = true, lang = document.documentElement.lang || 'fr' } = {}) {
+export function createMap(el, { center, zoom = 12, scrollZoom = true, interactive = true, cooperative = false, lang = document.documentElement.lang || 'fr' } = {}) {
   const map = new maplibregl.Map({
     container: el,
     style: STYLE_URL,
@@ -82,6 +91,9 @@ export function createMap(el, { center, zoom = 12, scrollZoom = true, interactiv
     minZoom: 1.6,
     dragRotate: false,
     pitchWithRotate: false,
+    // Carte dans une page : Ctrl + molette pour zoomer, deux doigts sur mobile.
+    cooperativeGestures: cooperative,
+    locale: lang === 'en' ? {} : FR_LOCALE,
   })
   map.touchZoomRotate.disableRotation()
   // Mention des sources repliée (bouton ⓘ) pour ne pas masquer la carte.

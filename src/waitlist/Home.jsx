@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  Beef, Bell, CircleCheck, Croissant, Heart, ListChecks, Lock, MailCheck, Map as MapIcon, MapPin, Menu, Minus, Plus,
-  Scissors, ShoppingBasket, Sparkles, Store, Timer, TrendingUp, UserPlus, Utensils, X, ChevronDown, BadgeCheck, Info, Circle,
+  Beef, Bell, CircleCheck, Heart, ListChecks, Lock, MailCheck, Map as MapIcon, MapPin, Menu, Minus, Plus,
+  Scissors, ShoppingBasket, Sparkles, Store, Timer, TrendingUp, UserPlus, Utensils, X, BadgeCheck, Info, Circle,
 } from '../components/icons'
 import Reveal, { EASE } from '../components/Reveal'
 import { CardMarks } from '../components/CardMark'
@@ -13,6 +13,7 @@ import { useLang } from '../i18n'
 import { rpc } from '../lib/supabase'
 import { ago, avatarColor, fmtNumber, usePublicStats } from '../lib/publicStats'
 import { HOME } from './homeText'
+import LiveMap from './LiveMap'
 import { captureReferral, store } from './store'
 import { PATHS, myDashboard, waitForSession } from './flow'
 
@@ -47,16 +48,26 @@ function Header({ h, member, signupHref }) {
     }
   }, [open])
   const account = member ? { to: PATHS.member, label: h.nav.space } : { to: PATHS.login, label: h.nav.login }
+  // Lien de la section en cours de lecture en orange, comme sur la landing.
+  const [active, setActive] = useState('#accueil')
+  useEffect(() => {
+    const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && setActive(`#${e.target.id}`)), { rootMargin: '-45% 0px -50% 0px' })
+    h.nav.links.forEach((l) => {
+      const el = document.querySelector(l.href)
+      if (el) io.observe(el)
+    })
+    return () => io.disconnect()
+  }, [h])
   return (
     <>
-      <header className="fixed inset-x-4 top-4 z-50 mx-auto max-w-[1360px] lg:inset-x-10 lg:top-7">
-        <div className="flex h-14 items-center justify-between rounded-full border border-ligne bg-white pl-5 pr-2 shadow-[0_8px_30px_rgba(17,17,17,0.06)] lg:h-[68px] lg:pl-6 lg:pr-2.5">
+      <header className="fixed inset-x-5 top-4 z-50 mx-auto max-w-[1122px] lg:top-7">
+        <div className="flex h-14 items-center justify-between rounded-full bg-white pl-5 pr-2.5 shadow-[0_12px_36px_rgba(17,17,17,0.08)] lg:h-[68px] lg:pl-6 lg:pr-[10px]">
           <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="KRISMA">
             <img src="/img/landing/k-ink.png" alt="" className="h-[23px] w-[18px] object-contain lg:h-[25px] lg:w-5" />
           </Link>
           <nav className="hidden items-center gap-[26px] xl:flex">
             {h.nav.links.map((l) => (
-              <a key={l.href} href={l.href} className="whitespace-nowrap font-body text-[14px] font-medium text-noir/70 hover:text-noir">
+              <a key={l.href} href={l.href} aria-current={active === l.href ? 'true' : undefined} className={`whitespace-nowrap font-body text-[14px] font-medium hover:text-marque ${active === l.href ? 'text-marque' : 'text-noir'}`}>
                 {l.label}
               </a>
             ))}
@@ -762,25 +773,14 @@ function Rewards({ t, start, signupHref }) {
   )
 }
 
-// KRISMA Map, version verticale : en-tête, grande carte, trois actions.
-const STATUS_COLORS = ['#9ca3af', '#111111', '#0676f8', '#fd8030', '#15803d']
-const MAP_PINS = [
-  [12, 20, '#15803d', Store],
-  [35, 32, '#fd8030', Scissors],
-  [53, 17, '#111111', Beef],
-  [63, 44, '#0676f8', Utensils],
-  [82, 23, '#9ca3af', Croissant],
-  [25, 63, '#15803d', ShoppingBasket],
-  [90, 12, '#0676f8', Store],
-  [47, 58, '#fd8030', Croissant],
-]
+// KRISMA Map, version verticale : en-tête, la vraie carte en direct, trois actions.
 const ACTION_TONES = [
   [Plus, '#fd8030', '#fff1e7'],
   [Heart, VIOLET, '#f5ecff'],
   [Bell, '#0676f8', '#e8f2ff'],
 ]
 
-function MapSection({ t }) {
+function MapSection({ t, lang }) {
   return (
     <section id="carte" className="scroll-mt-24 bg-[#f7f7f7] px-5 py-16 lg:px-10 lg:py-28 xl:px-[120px]">
       <Reveal className="mx-auto flex max-w-[760px] flex-col items-center gap-4 text-center">
@@ -791,42 +791,7 @@ function MapSection({ t }) {
         <h2 className="font-display text-[34px] font-bold leading-[1.05] tracking-[-1.2px] lg:text-[52px] lg:tracking-[-1.8px]">{t.title}</h2>
         <p className="font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{t.text}</p>
       </Reveal>
-      <Reveal delay={0.08} y={40} className="relative mx-auto mt-12 aspect-[4/5] max-w-[1200px] overflow-hidden rounded-[28px] bg-[#eef0ea] sm:aspect-[1200/520]">
-        <img src="/img/waitlist/carte-quartier.webp" alt="" className="absolute left-0 top-[-20%] h-[140%] w-full max-w-none object-cover" aria-hidden />
-        {MAP_PINS.map(([x, y, c, I]) => (
-          <Pin key={`${x}-${y}`} x={x} y={y} c={c} I={I} />
-        ))}
-        <span className="absolute left-4 top-4 flex h-12 items-center gap-2 rounded-full bg-white px-[18px] font-body text-[15px] font-semibold shadow-[0_12px_28px_rgba(17,17,17,0.12)] lg:left-6 lg:top-6">
-          <MapPin size={16} className="text-marque" />
-          {t.city}
-          <ChevronDown size={16} className="text-gris" />
-        </span>
-        <div className="absolute bottom-4 left-4 hidden h-12 items-center gap-4 rounded-full bg-white px-5 shadow-[0_12px_28px_rgba(17,17,17,0.12)] lg:bottom-6 lg:left-6 lg:flex">
-          {t.statuses.map((s, i) => (
-            <span key={s} className="flex items-center gap-2 font-body text-[13px]">
-              <span className="h-2.5 w-2.5 rounded-full" style={{ background: STATUS_COLORS[i] }} />
-              {s}
-            </span>
-          ))}
-        </div>
-        <div className="absolute bottom-4 right-4 w-[300px] max-w-[calc(100%-32px)] rounded-[20px] bg-white p-[18px] shadow-[0_16px_40px_rgba(17,17,17,0.14)] lg:bottom-auto lg:right-[5%] lg:top-[46%]">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-display text-[15px] font-bold">{t.shop}</span>
-            <span className="flex h-6 shrink-0 items-center gap-1.5 rounded-full bg-[#dcf5e4] px-2.5 font-body text-[11px] font-semibold text-vert">
-              <span className="h-1.5 w-1.5 rounded-full bg-vert" />
-              {t.shopStatus}
-            </span>
-          </div>
-          <p className="mt-2.5 font-body text-[13px] text-gris">{t.shopMeta}</p>
-          <div className="mt-3 flex items-center justify-between gap-2">
-            <span className="font-body text-[13px]">{t.shopVotes}</span>
-            <span className="flex h-[34px] shrink-0 items-center gap-1.5 rounded-full border border-ligne px-3 font-body text-[13px] font-semibold">
-              <Heart size={14} />
-              {t.vote}
-            </span>
-          </div>
-        </div>
-      </Reveal>
+      <LiveMap lang={lang} t={t} />
       <div className="mx-auto mt-5 grid max-w-[1200px] gap-5 md:grid-cols-3">
         {t.actions.map(([p, title, text], i) => {
           const [I, c, bg] = ACTION_TONES[i]
@@ -892,7 +857,7 @@ export default function Home() {
         <Steps t={h.steps} />
         <Bento t={h.points} />
         <Rewards t={h.rewards} start={h.hero.start} signupHref={signupHref} />
-        <MapSection t={h.map} />
+        <MapSection t={h.map} lang={lang} />
         <Faq f={h.faq} />
         <section className="px-5 py-20 text-center lg:py-28">
           <Reveal className="mx-auto flex max-w-[720px] flex-col items-center gap-5">
