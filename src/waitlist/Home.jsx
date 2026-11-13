@@ -49,14 +49,14 @@ function Header({ h, member, signupHref }) {
   const account = member ? { to: PATHS.member, label: h.nav.space } : { to: PATHS.login, label: h.nav.login }
   return (
     <>
-      <header className="fixed inset-x-4 top-4 z-50 mx-auto max-w-[1360px] lg:inset-x-10 lg:top-7">
-        <div className="flex h-14 items-center justify-between rounded-full border border-ligne bg-white pl-5 pr-2 shadow-[0_8px_30px_rgba(17,17,17,0.06)] lg:h-[68px] lg:pl-6 lg:pr-2.5">
+      <header className="fixed inset-x-5 top-4 z-50 mx-auto max-w-[1122px] lg:top-7">
+        <div className="flex h-14 items-center justify-between rounded-full bg-white pl-5 pr-2.5 shadow-[0_12px_36px_rgba(17,17,17,0.08)] lg:h-[68px] lg:pl-6 lg:pr-[10px]">
           <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="KRISMA">
             <img src="/img/landing/k-ink.png" alt="" className="h-[23px] w-[18px] object-contain lg:h-[25px] lg:w-5" />
           </Link>
           <nav className="hidden items-center gap-[26px] xl:flex">
             {h.nav.links.map((l) => (
-              <a key={l.href} href={l.href} className="whitespace-nowrap font-body text-[14px] font-medium text-noir/70 hover:text-noir">
+              <a key={l.href} href={l.href} className="whitespace-nowrap font-body text-[14px] font-medium text-noir hover:text-marque">
                 {l.label}
               </a>
             ))}
