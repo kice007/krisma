@@ -39,9 +39,9 @@ export const PREVIEW_MEMBER = {
 }
 
 const NAMES = [
-  ['Mariam D.', 1610, 'Lyon', 24, 12], ['kofi_paris', 1420, 'Montreuil', 21, 10], ['zaneb_', 1380, 'Bruxelles', 20, 11],
-  ['amadou_bk', 1290, 'Paris', 18, 9], ['celine.n', 1220, 'Bordeaux', 17, 10], ['ibra_225', 1130, 'Marseille', 16, 8],
-  ['nafi.sow', 1100, 'Saint-Denis', 15, 9], ['yann_ko', 1040, 'Bruxelles', 15, 6],
+  ['Mariam D.', 1610, 'Lyon', 24, 12], ['Kofi A.', 1420, 'Montreuil', 21, 10], ['Zaneb E.', 1380, 'Bruxelles', 20, 11],
+  ['Amadou B.', 1290, 'Paris', 18, 9], ['Céline N.', 1220, 'Bordeaux', 17, 10], ['Ibrahim K.', 1130, 'Marseille', 16, 8],
+  ['Nafissatou S.', 1100, 'Saint-Denis', 15, 9], ['Yann K.', 1040, 'Bruxelles', 15, 6],
 ]
 export const PREVIEW_BOARD = NAMES.map(([pseudo, points, city, referrals, shops], i) => ({ rank: i + 1, pseudo, points, city, referrals, shops, is_me: false }))
 export const PREVIEW_AROUND = [

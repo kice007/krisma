@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Award, Crown, Info, LoaderCircle } from 'lucide-react'
+import { Info, LoaderCircle } from 'lucide-react'
 import { rpc } from '../lib/supabase'
 import { PATHS, isPreview } from '../waitlist/flow'
 import { PREVIEW_AROUND, PREVIEW_BOARD } from './preview'
@@ -8,48 +8,85 @@ import { fmt, initials, useMT, useMember } from './Shell'
 
 const PAGE = 50
 
-function Podium({ rows, t, lang }) {
-  // Ex æquo possibles : on prend simplement les trois premières lignes.
-  const [a, b, c] = [rows[0], rows[1], rows[2]]
-  const order = [b, a, c]
+const MEDALS = ['#fd8030', '#6b6b6b', '#a16207']
+const TOP = 2000
+
+// Bandeau sombre (style des e-mails) : ma position et le top 3.
+function Banner({ rows, me, d, t, lang }) {
+  const b = t.board
+  const top3 = rows.slice(0, 3)
+  const rank = me ? Number(me.rank) : null
+  const threshold = Number(d?.top?.threshold || 0)
+  const members = Number(d?.top?.members || 0)
+  const inside = rank != null && rank <= TOP
+  const ratio = rank == null ? 0 : inside ? Math.max(0.12, members > TOP ? 1 - rank / TOP : 1 - rank / Math.max(members, 1) * 0.5) : Math.min(1, Number(me.points) / Math.max(threshold, 1))
   return (
-    <div className="grid grid-cols-3 items-end gap-2.5 lg:gap-5">
-      {order.map((r, i) => {
-        const first = i === 1
-        if (!r) return <div key={i} />
-        return (
-          <div
-            key={r.rank}
-            className={`flex flex-col justify-between rounded-[22px] p-3.5 lg:rounded-[28px] lg:p-7 ${first ? 'h-[128px] bg-noir text-white lg:h-[290px]' : 'h-[108px] bg-white lg:h-[250px]'} ${r.is_me ? 'ring-2 ring-marque' : ''}`}
-          >
-            <div className="flex items-start justify-between">
-              <span className={`font-display text-[24px] font-bold lg:text-[44px] ${first ? 'text-marque' : ''}`}>#{fmt(r.rank, lang)}</span>
-              {first ? <Crown size={24} className="hidden text-marque lg:block" /> : <Award size={24} className="hidden text-gris lg:block" />}
+    <section className="relative grid gap-6 overflow-hidden rounded-[28px] bg-noir p-6 text-white lg:grid-cols-[1fr_440px] lg:items-center lg:gap-12 lg:px-10 lg:py-9">
+      <img src="/img/waitlist/panneau.webp" alt="" className="pointer-events-none absolute inset-0 h-full w-full object-fill opacity-90" />
+      <div className="relative flex flex-col gap-5">
+        {me ? (
+          <>
+            <p className="font-body text-[14px] text-white/70">{b.position}</p>
+            <div className="flex flex-wrap items-end gap-x-5 gap-y-2">
+              <span className="font-display text-[56px] font-bold leading-none tracking-[-2px] lg:text-[88px] lg:tracking-[-3.5px]">#{fmt(me.rank, lang)}</span>
+              <span className="pb-1 lg:pb-2.5">
+                <span className="block font-display text-[20px] font-bold">
+                  {fmt(me.points, lang)} {b.points}
+                </span>
+                <span className="block font-body text-[14px] text-white/70">{[me.pseudo, me.city].filter(Boolean).join(' · ')}</span>
+              </span>
             </div>
-            <div className="min-w-0">
-              <p className="truncate font-display text-[14px] font-bold lg:text-[24px] lg:tracking-[-0.6px]">{r.pseudo}</p>
-              <p className={`truncate font-body text-[11px] lg:text-[14px] ${first ? 'text-white/70' : 'text-gris'}`}>
-                {fmt(r.points, lang)} {t.pts}
-                <span className="hidden lg:inline">{r.city ? ` · ${r.city}` : ''}</span>
-              </p>
+            <div className="flex flex-col gap-2.5">
+              <span className="relative h-2 overflow-hidden rounded-full bg-white/15">
+                <span className="absolute inset-y-0 left-0 rounded-full bg-marque" style={{ width: `${Math.round(ratio * 100)}%` }} />
+              </span>
+              <span className="flex flex-wrap justify-between gap-x-4 gap-y-1 font-body text-[14px]">
+                <span className="font-medium">{inside ? b.inside(fmt(TOP - rank, lang)) : b.missing(fmt(Math.max(threshold - Number(me.points) + 1, 1), lang))}</span>
+                {threshold > 0 && <span className="text-white/70">{b.threshold(fmt(threshold, lang))}</span>}
+              </span>
             </div>
-          </div>
-        )
-      })}
-    </div>
+          </>
+        ) : (
+          <>
+            <p className="font-body text-[14px] text-white/70">{b.topLabel}</p>
+            <p className="font-display text-[34px] font-bold leading-[1.05] tracking-[-1.2px] lg:text-[44px]">{b.topTitle}</p>
+            <p className="max-w-[460px] font-body text-[15px] leading-[1.55] text-white/75">{b.topText}</p>
+          </>
+        )}
+      </div>
+      <ol className="relative rounded-[20px] bg-white px-5 py-2 text-noir">
+        {top3.map((r, i) => (
+          <li key={r.rank} className={`flex items-center gap-3.5 py-3.5 ${i ? 'border-t border-ligne' : ''}`}>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-[15px] font-bold text-white" style={{ background: MEDALS[i] }}>
+              {fmt(r.rank, lang)}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate font-body text-[15px] font-semibold">
+                {r.pseudo}
+                {r.is_me && <span className="ml-2 rounded-full bg-marque px-2 py-0.5 font-body text-[11px] font-bold text-white">{b.youPill}</span>}
+              </span>
+              <span className="block truncate font-body text-[13px] text-gris">{r.city || '—'}</span>
+            </span>
+            <span className="shrink-0 font-display text-[15px] font-bold tabular-nums">
+              {fmt(r.points, lang)} {t.pts}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
   )
 }
 
 function Row({ r, t, lang, last }) {
   return (
-    <li className={`grid grid-cols-[64px_1fr_auto] items-center gap-3 py-3.5 lg:grid-cols-[130px_1fr_180px_130px_130px_120px] lg:gap-0 lg:py-4 ${last ? '' : 'border-b border-ligne'} ${r.is_me ? 'text-marque' : ''}`}>
-      <span className="font-body text-[15px] font-bold tabular-nums">#{fmt(r.rank, lang)}</span>
+    <li className={`-mx-5 grid grid-cols-[64px_1fr_auto] items-center gap-3 px-5 py-3.5 lg:-mx-6 lg:grid-cols-[130px_1fr_180px_130px_130px_120px] lg:gap-0 lg:px-6 lg:py-4 ${last ? '' : 'border-b border-ligne'} ${r.is_me ? 'bg-[#fff3ea]' : ''}`}>
+      <span className={`font-body text-[15px] font-bold tabular-nums ${r.is_me ? 'text-[#c2410c]' : ''}`}>#{fmt(r.rank, lang)}</span>
       <span className="flex min-w-0 items-center gap-3">
-        <span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-clair font-body text-[12px] font-bold text-noir lg:flex">{initials(r.pseudo).slice(0, 1)}</span>
+        <span className={`hidden h-8 w-8 shrink-0 items-center justify-center rounded-full font-body text-[12px] font-bold lg:flex ${r.is_me ? 'bg-marque text-white' : 'bg-clair text-noir'}`}>{initials(r.pseudo).slice(0, 1)}</span>
         <span className="min-w-0">
-          <span className="block truncate font-body text-[15px] font-medium">
-            {r.pseudo}
-            {r.is_me ? ` (${t.board.you})` : ''}
+          <span className={`flex items-center gap-2 truncate font-body text-[15px] ${r.is_me ? 'font-bold' : 'font-medium'}`}>
+            <span className="truncate">{r.pseudo}</span>
+            {r.is_me && <span className="shrink-0 rounded-full bg-marque px-2 py-0.5 font-body text-[11px] font-bold text-white">{t.board.youPill}</span>}
           </span>
           <span className="block truncate font-body text-[12px] text-gris lg:hidden">{r.city}</span>
         </span>
@@ -123,14 +160,15 @@ export default function Leaderboard() {
 
   const me = rows?.find((r) => r.is_me) || around.find((r) => r.is_me)
   const rest = rows ? rows.slice(3) : []
-  const neighbours = around.filter((r) => !r.is_me && !rows?.some((x) => Number(x.rank) === Number(r.rank)))
+  // Le membre hors de la page chargée : ses voisins directs, lui compris, sous les points de suspension.
+  const neighbours = around.filter((r) => !rows?.some((x) => Number(x.rank) === Number(r.rank)))
 
   return (
     <div className="flex flex-col gap-4 lg:gap-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className="font-display text-[30px] font-bold tracking-[-1px] lg:text-[40px] lg:tracking-[-1.4px]">{b.title}</h1>
-          <p className="mt-1 hidden font-body text-[15px] text-gris sm:block">{b.sub(fmt(members, lang))}</p>
+          <p className="mt-1 hidden font-body text-[15px] text-gris sm:block">{b.sub(fmt(members, lang), Number(members))}</p>
         </div>
         {d?.city && (
           <div className="flex rounded-full bg-white p-1">
@@ -159,21 +197,7 @@ export default function Leaderboard() {
         <p className="rounded-[24px] bg-white p-8 text-center font-body text-[15px] text-gris">{b.empty}</p>
       ) : (
         <>
-          <Podium rows={rows} t={t} lang={lang} />
-          {me && (
-            <div className="flex h-14 items-center gap-4 rounded-[18px] bg-marque px-5 text-white lg:h-[72px] lg:rounded-[22px] lg:px-6">
-              <span className="font-display text-[18px] font-bold tabular-nums lg:w-[130px] lg:text-[22px]">#{fmt(me.rank, lang)}</span>
-              <span className="hidden h-9 w-9 items-center justify-center rounded-full bg-white font-body text-[12px] font-bold text-marque lg:flex">{initials(me.pseudo)}</span>
-              <span className="min-w-0 flex-1 truncate font-body text-[15px] font-semibold">
-                {me.pseudo} ({b.you})
-              </span>
-              <span className="hidden font-body text-[15px] lg:block lg:w-[200px]">{me.city}</span>
-              <span className="font-display text-[18px] font-bold tabular-nums lg:text-[22px]">
-                {fmt(me.points, lang)}
-                <span className="hidden lg:inline"> {t.pts}</span>
-              </span>
-            </div>
-          )}
+          <Banner rows={rows} me={me} d={d} t={t} lang={lang} />
           {(rest.length > 0 || neighbours.length > 0) && (
             <section className="rounded-[24px] bg-white px-5 lg:px-6">
               <div className="hidden grid-cols-[130px_1fr_180px_130px_130px_120px] border-b border-ligne py-4 font-body text-[13px] font-medium text-gris lg:grid">
