@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Download } from 'lucide-react'
+import { Download } from '../components/icons'
 import { arpc as rpc } from './api'
 import { useAdmin } from './Shell'
 import { Button, Card, PageHead, Select, Spinner, errText, fmt, pct } from './ui'

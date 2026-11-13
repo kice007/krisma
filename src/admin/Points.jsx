@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Info, Search, Trophy } from 'lucide-react'
+import { Info, Search, Trophy } from '../components/icons'
 import { arpc as rpc } from './api'
 import { useAdmin } from './Shell'
 import { Badge, Button, Card, Confirm, Empty, POINT_KIND, POINT_STATUS, PageHead, Spinner, date, errText, fmt } from './ui'

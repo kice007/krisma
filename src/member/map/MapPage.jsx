@@ -2,13 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, ChevronDown, Crosshair, Heart, List, LoaderCircle, LocateFixed, MapPin, Minus, Navigation, Plus, Search, X } from 'lucide-react'
+import { Check, ChevronDown, Crosshair, Heart, List, LoaderCircle, LocateFixed, MapPin, Minus, Navigation, Plus, Search, X } from '../../components/icons'
 import { useLang } from '../../i18n'
 import { rpc, supabase } from '../../lib/supabase'
 import { PATHS, isPreview } from '../../waitlist/flow'
 import { PREVIEW_CITIES, PREVIEW_SHOPS } from '../preview'
 import { useMember } from '../Shell'
-import L, { CATEGORY_ICON, STATUS_COLOR, TILE_ATTRIBUTION, TILE_URL, clusterIcon, shopIcon } from './leaflet'
+import { CATEGORY_ICON, STATUS_COLOR, ShopLayer, createMap, fitPoints } from './maplibre'
 import ProposeDialog from './ProposeDialog'
 import { MAPTEXT } from './text'
 
@@ -164,7 +164,7 @@ function ShopCard({ shop, t, lang, canVote, member, homeCity, onHome, onVote, vo
             aria-pressed={shop.voted}
             className={`flex h-12 flex-1 cursor-pointer items-center justify-center gap-2 rounded-full font-body text-[15px] font-semibold ${shop.voted ? 'bg-noir text-white' : 'border border-noir bg-white text-noir'}`}
           >
-            {voting ? <LoaderCircle size={16} className="animate-spin" /> : <Heart size={16} className={shop.voted ? 'fill-white' : ''} />}
+            {voting ? <LoaderCircle size={16} className="animate-spin" /> : <Heart size={16} variant={shop.voted ? 'Bold' : 'Linear'} />}
             {shop.voted ? t.voted : t.vote}
           </button>
           {onPropose ? (
@@ -219,7 +219,7 @@ function ShopList({ shops, t, lang, selectedId, onSelect, emptyText }) {
               </span>
             </span>
             <span className={`flex shrink-0 items-center gap-1 font-body text-[14px] font-semibold tabular-nums ${s.voted ? 'text-marque' : ''}`}>
-              <Heart size={15} className={s.voted ? 'fill-marque' : ''} />
+              <Heart size={15} variant={s.voted ? 'Bold' : 'Linear'} className={s.voted ? 'text-marque' : ''} />
               {fmt(s.votes, lang)}
             </span>
           </button>
@@ -307,20 +307,19 @@ export default function MapPage() {
 
   const mapEl = useRef(null)
   const map = useRef(null)
-  const cluster = useRef(null)
-  const markers = useRef(new Map())
-  const focused = useRef(null)
+  const layer = useRef(null)
+  const onPick = useRef(null)
 
-  // Carte Leaflet (une seule instance).
+  // Carte MapLibre (une seule instance), globe au dézoom.
   useEffect(() => {
-    const mp = L.map(mapEl.current, { zoomControl: false, attributionControl: true }).setView([FALLBACK.lat, FALLBACK.lng], 12)
-    L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: 19 }).addTo(mp)
-    mp.attributionControl.setPrefix(false)
-    cluster.current = L.markerClusterGroup({ iconCreateFunction: clusterIcon, showCoverageOnHover: false, maxClusterRadius: 48, spiderfyOnMaxZoom: true })
-    mp.addLayer(cluster.current)
+    const mp = createMap(mapEl.current, { center: [FALLBACK.lat, FALLBACK.lng], zoom: 12 })
     mp.on('click', () => setSelectedId(null))
+    layer.current = new ShopLayer(mp, (s) => onPick.current?.(s))
     map.current = mp
-    return () => mp.remove()
+    return () => {
+      layer.current?.destroy()
+      mp.remove()
+    }
   }, [])
 
   // Villes : celles qui ont des commerces, plus la ville du membre.
@@ -373,9 +372,8 @@ export default function MapPage() {
       const wanted = (list || []).find((s) => s.id === selectedId)
       if (wanted) return select(wanted)
       const pts = (list || []).map((s) => [s.lat, s.lng])
-      if (pts.length > 1) mp.fitBounds(pts, desktop ? { paddingTopLeft: [480, 130], paddingBottomRight: [80, 80], maxZoom: 15 } : { paddingTopLeft: [40, 100], paddingBottomRight: [40, 220], maxZoom: 15 })
-      else if (pts.length === 1) mp.setView(pts[0], 15)
-      else mp.setView([city.lat, city.lng], 13)
+      if (pts.length) fitPoints(mp, pts, desktop ? { top: 130, left: 480, right: 80, bottom: 80 } : { top: 100, left: 40, right: 40, bottom: 220 })
+      else mp.jumpTo({ center: [city.lng, city.lat], zoom: 13 })
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city?.id])
@@ -389,26 +387,10 @@ export default function MapPage() {
   )
   const selected = shops.find((s) => s.id === selectedId) || null
 
-  // Repères.
+  // Repères (le commerce sélectionné reste toujours visible, hors des regroupements).
   useEffect(() => {
-    const cl = cluster.current
-    if (!cl) return
-    cl.clearLayers()
-    markers.current.clear()
-    focused.current?.remove()
-    focused.current = null
-    filtered.forEach((s) => {
-      const on = s.id === selectedId
-      const mk = L.marker([s.lat, s.lng], { icon: shopIcon(s, on), zIndexOffset: on ? 1000 : 0, title: s.name, keyboard: true })
-      mk.on('click', (e) => {
-        L.DomEvent.stopPropagation(e)
-        select(s, false)
-      })
-      // Le commerce sélectionné reste toujours visible, hors des regroupements.
-      if (on) focused.current = mk.addTo(map.current)
-      else cl.addLayer(mk)
-      markers.current.set(s.id, mk)
-    })
+    onPick.current = (s) => select(s, false)
+    layer.current?.set(filtered, selectedId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtered, selectedId])
 
@@ -416,10 +398,10 @@ export default function MapPage() {
   useEffect(() => {
     const mp = map.current
     if (!mp || !selected || !desktop) return setPos(null)
-    const upd = () => setPos(mp.latLngToContainerPoint([selected.lat, selected.lng]))
+    const upd = () => setPos(mp.project([selected.lng, selected.lat]))
     upd()
-    mp.on('move zoom', upd)
-    return () => mp.off('move zoom', upd)
+    mp.on('move', upd)
+    return () => mp.off('move', upd)
   }, [selected, desktop])
 
   useEffect(() => {
@@ -438,19 +420,18 @@ export default function MapPage() {
     setListOpen(false)
     const mp = map.current
     if (!mp) return
-    const z = Math.max(mp.getZoom(), 15)
-    const pt = mp.project([s.lat, s.lng], z)
+    const zoom = Math.max(mp.getZoom(), 15)
     // Desktop : le repère à droite du panneau ; mobile : au-dessus de la feuille.
-    const target = desktop ? pt.add([-160, 40]) : pt.add([0, 120])
-    if (fly) mp.flyTo(mp.unproject(target, z), z, { duration: 0.6 })
-    else mp.panTo(mp.unproject(target, z), { animate: true })
+    const offset = desktop ? [160, -40] : [0, -120]
+    if (fly) mp.flyTo({ center: [s.lng, s.lat], zoom, offset, duration: 600 })
+    else mp.easeTo({ center: [s.lng, s.lat], offset, duration: 400 })
   }
 
   const pickCity = (c, me) => {
     setCityOpen(false)
     setSelectedId(null)
     setQuery('')
-    if (city?.id === c.id && me) map.current?.setView([me.lat, me.lng], 15)
+    if (city?.id === c.id && me) map.current?.jumpTo({ center: [me.lng, me.lat], zoom: 15 })
     setCity(c)
   }
 
@@ -489,9 +470,9 @@ export default function MapPage() {
     if (s) select(s)
   }
 
-  const zoom = (d) => map.current?.setZoom(map.current.getZoom() + d)
+  const zoom = (d) => (d > 0 ? map.current?.zoomIn() : map.current?.zoomOut())
   const locate = () =>
-    navigator.geolocation?.getCurrentPosition((p) => map.current?.setView([p.coords.latitude, p.coords.longitude], 15), () => {}, { timeout: 8000 })
+    navigator.geolocation?.getCurrentPosition((p) => map.current?.flyTo({ center: [p.coords.longitude, p.coords.latitude], zoom: 15 }), () => {}, { timeout: 8000 })
 
   const count = shops.length
   const emptyText = !city ? t.noCity : count ? t.noMatch : t.empty
@@ -508,7 +489,7 @@ export default function MapPage() {
 
   return (
     <div className="fixed inset-0 z-30">
-      <div ref={mapEl} className="km-map absolute inset-0 z-0" role="region" aria-label={t.title} />
+      <div ref={mapEl} className="km-map absolute inset-0 z-0" style={{ position: 'absolute' }} role="region" aria-label={t.title} />
 
       {/* Contrôles de la carte */}
       <div className="absolute bottom-28 right-4 z-[500] flex flex-col items-center gap-3 lg:bottom-16 lg:right-9">

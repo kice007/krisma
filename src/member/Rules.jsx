@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Download, Map as MapIcon, Trash2, TriangleAlert } from 'lucide-react'
+import { Download, Map as MapIcon, Trash2, TriangleAlert } from '../components/icons'
 import { PATHS } from '../waitlist/flow'
 import ExportButtons from './ExportButtons'
 import { useMT, useMember } from './Shell'

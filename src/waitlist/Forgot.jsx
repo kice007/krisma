@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Mail, MailCheck } from 'lucide-react'
+import { Mail, MailCheck } from '../components/icons'
 import { supabase } from '../lib/supabase'
 import FlowLayout, { useT } from './Layout'
 import { Alert, Btn, Field, Sub, Title, Turnstile, useCaptcha } from './ui'

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { AlertTriangle, Download, Search } from 'lucide-react'
+import { AlertTriangle, Download, Search } from '../components/icons'
 import { arpc as rpc } from './api'
 import { TEXT, countryName } from '../waitlist/text'
 import { useAdmin } from './Shell'

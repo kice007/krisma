@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, BadgeCheck, Hourglass, Info, Store, UserPlus } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Hourglass, Info, Store, UserPlus } from '../components/icons'
 import { fmt, useMT, useMember } from './Shell'
 
 const KIND = {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Info } from 'lucide-react'
+import { ArrowLeft, Info } from '../components/icons'
 import { currentUser, rpc, supabase } from '../lib/supabase'
 import FlowLayout, { Loading, useT } from './Layout'
 import { Alert, Btn, Choices, CityInput, CountryPicker, Question, Title } from './ui'

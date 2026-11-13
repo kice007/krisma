@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { AlertCircle, CircleCheck, Heart, LoaderCircle, MapPin, Move, Send, Store, X } from 'lucide-react'
+import { AlertCircle, CircleCheck, Heart, LoaderCircle, MapPin, Move, Send, Store, X } from '../../components/icons'
 import { rpc } from '../../lib/supabase'
 import { isPreview } from '../../waitlist/flow'
-import L, { CATEGORY_ICON, STATUS_COLOR, TILE_ATTRIBUTION, TILE_URL, draftIcon } from './leaflet'
+import { CATEGORY_ICON, STATUS_COLOR, createMap, draftElement, maplibregl } from './maplibre'
 
 const CATS = ['grocery', 'butcher', 'bakery', 'hair_salon', 'restaurant', 'other']
 
@@ -101,14 +101,15 @@ function PinMap({ point, category, onMove, t }) {
   const mp = useRef(null)
   const mk = useRef(null)
   useEffect(() => {
-    const m = L.map(el.current, { zoomControl: false, attributionControl: true, scrollWheelZoom: false }).setView([point.lat, point.lng], 16)
-    L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: 19 }).addTo(m)
-    m.attributionControl.setPrefix(false)
-    const marker = L.marker([point.lat, point.lng], { draggable: true, icon: draftIcon(category), autoPan: true }).addTo(m)
-    marker.on('dragend', () => onMove(marker.getLatLng(), true))
+    const m = createMap(el.current, { center: [point.lat, point.lng], zoom: 16, scrollZoom: false })
+    const marker = new maplibregl.Marker({ element: draftElement(category), anchor: 'bottom', draggable: true }).setLngLat([point.lng, point.lat]).addTo(m)
+    marker.on('dragend', () => {
+      const p = marker.getLngLat()
+      onMove({ lat: p.lat, lng: p.lng }, true)
+    })
     m.on('click', (e) => {
-      marker.setLatLng(e.latlng)
-      onMove(e.latlng, true)
+      marker.setLngLat(e.lngLat)
+      onMove({ lat: e.lngLat.lat, lng: e.lngLat.lng }, true)
     })
     mp.current = m
     mk.current = marker
@@ -117,15 +118,16 @@ function PinMap({ point, category, onMove, t }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   useEffect(() => {
-    mk.current?.setLatLng([point.lat, point.lng])
-    mp.current?.panTo([point.lat, point.lng])
+    mk.current?.setLngLat([point.lng, point.lat])
+    mp.current?.easeTo({ center: [point.lng, point.lat], duration: 300 })
   }, [point.lat, point.lng])
   useEffect(() => {
-    mk.current?.setIcon(draftIcon(category))
+    const el = mk.current?.getElement()
+    if (el) el.innerHTML = draftElement(category).innerHTML
   }, [category])
   return (
     <div className="relative h-[150px] overflow-hidden rounded-2xl lg:h-[160px]">
-      <div ref={el} className="km-map absolute inset-0" />
+      <div ref={el} className="km-map absolute inset-0" style={{ position: 'absolute' }} />
       <span className="pointer-events-none absolute bottom-2 left-2 z-[500] flex h-7 items-center gap-1.5 rounded-full bg-white/95 px-2.5 font-body text-[12px] text-gris">
         <Move size={13} />
         {t.dragHint}
@@ -250,7 +252,7 @@ export default function ProposeDialog({ t, lang, city, desktop, onClose, onDone 
     body = (
       <div className="flex flex-col items-center gap-4 py-6 text-center">
         <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#dcf5e4] text-vert">
-          {done.kind === 'created' ? <CircleCheck size={30} /> : <Heart size={28} className="fill-vert" />}
+          {done.kind === 'created' ? <CircleCheck size={30} /> : <Heart size={28} variant="Bold" />}
         </span>
         <h2 className="font-display text-[26px] font-bold tracking-[-0.8px]">{done.kind === 'created' ? f.doneTitle : f.supportedTitle}</h2>
         <p className="max-w-[440px] font-body text-[15px] leading-[1.55] text-gris">{done.kind === 'created' ? f.doneText(done.name) : f.supportedText(done.name)}</p>

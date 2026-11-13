@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { Globe, ShieldCheck, Users } from 'lucide-react'
+import { Globe, ShieldCheck, Users } from '../components/icons'
 import Reveal from '../components/Reveal'
 import { useLang } from '../i18n'
 

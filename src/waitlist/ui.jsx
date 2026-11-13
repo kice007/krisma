@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
-import { AlertCircle, Check, CircleCheck, CornerDownLeft, CornerDownRight, LoaderCircle, MapPin, Plus, X } from 'lucide-react'
+import { AlertCircle, Check, CircleCheck, CornerDownLeft, CornerDownRight, LoaderCircle, MapPin, Plus, X } from '../components/icons'
 import { AFRICA, countryName } from './text'
 
 export function Title({ children, className = '' }) {

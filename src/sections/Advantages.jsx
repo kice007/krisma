@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { HandCoins, Percent, Star, Store } from 'lucide-react'
+import { HandCoins, Percent, Star, Store } from '../components/icons'
 import Eyebrow from '../components/Eyebrow'
 import Rays from '../components/Rays'
 import Reveal from '../components/Reveal'

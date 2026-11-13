@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { House, LogOut, Map as MapIcon, Sparkles, Trophy, User } from 'lucide-react'
+import { House, LogOut, Map as MapIcon, Sparkles, Trophy, User } from '../components/icons'
 import { LangSwitch } from '../components/Nav'
 import { useLang } from '../i18n'
 import { rpc, supabase } from '../lib/supabase'
@@ -24,8 +24,8 @@ export function useMT() {
 export const fmt = (n, lang) => new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB').format(n ?? 0)
 // awa_k → AK, mariam.dk → MD, kofi → KO
 export const initials = (p = '') => {
-  const parts = p.split(/[._-]+/).filter(Boolean)
-  const ini = parts.length > 1 ? parts[0][0] + parts[1][0] : p.replace(/[^A-Za-z0-9]/g, '').slice(0, 2)
+  const parts = p.split(/[\s._-]+/).filter(Boolean)
+  const ini = parts.length > 1 ? parts[0][0] + parts[1][0] : p.replace(/[^\p{L}\d]/gu, '').slice(0, 2)
   return ini.toUpperCase() || '?'
 }
 
@@ -195,7 +195,7 @@ function Tabs({ t }) {
         <NavLink key={to} to={to} end={end} className="flex w-[76px] flex-col items-center gap-1 font-body text-[11px]">
           {({ isActive }) => (
             <>
-              <I size={22} className={isActive ? 'text-noir' : 'text-[#a3a3a3]'} />
+              <I size={22} variant={isActive ? 'Bold' : 'Linear'} className={isActive ? 'text-noir' : 'text-[#a3a3a3]'} />
               <span className={isActive ? 'font-semibold text-noir' : 'text-[#a3a3a3]'}>{label}</span>
             </>
           )}

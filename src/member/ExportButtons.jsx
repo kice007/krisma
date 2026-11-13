@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FileSpreadsheet, FileText, LoaderCircle } from 'lucide-react'
+import { FileSpreadsheet, FileText, LoaderCircle } from '../components/icons'
 import { exportExcel, exportPdf } from './exportData'
 import { useMT } from './Shell'
 

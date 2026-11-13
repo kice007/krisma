@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { LoaderCircle, X } from 'lucide-react'
+import { LoaderCircle, X } from '../components/icons'
 
 export const fmt = (n) => new Intl.NumberFormat('fr-FR').format(n ?? 0)
 export const pct = (a, b) => (b ? `${new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format((a / b) * 100)} %` : '—')

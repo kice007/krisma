@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Check, X } from 'lucide-react'
+import { ArrowLeft, Check, X } from '../components/icons'
 import { LangSwitch } from '../components/Nav'
 import { useLang } from '../i18n'
 import { TEXT } from './text'

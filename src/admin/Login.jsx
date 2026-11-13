@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { History, LockKeyhole, Mail, MailCheck, MonitorSmartphone, RotateCw, ShieldCheck } from 'lucide-react'
+import { History, LockKeyhole, Mail, MailCheck, MonitorSmartphone, RotateCw, ShieldCheck } from '../components/icons'
 import { supabase } from '../lib/supabase'
 import { EMAIL_RE } from '../waitlist/store'
 import { Field, Turnstile, captchaEnabled, useCaptcha } from '../waitlist/ui'

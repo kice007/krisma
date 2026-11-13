@@ -175,22 +175,23 @@ a svg {
   }
 }
 
-/* KRISMA Map — tuiles OpenStreetMap adoucies, repères et grappes */
-.km-map .leaflet-tile-pane {
-  filter: grayscale(0.85) contrast(0.85) brightness(1.08);
-}
+/* KRISMA Map — fond OpenFreeMap (MapLibre), repères et grappes */
 .km-map {
-  background: #eef0ea;
+  background: #e9eef2;
   font-family: var(--font-body);
 }
-.km-map .leaflet-control-attribution {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 8px 0 0 0;
+.km-map .maplibregl-ctrl-attrib {
   font-size: 11px;
 }
 .km-pin {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 54px;
+  padding: 0;
   background: none;
   border: 0;
+  cursor: pointer;
 }
 .km-pin svg {
   display: block;
@@ -215,14 +216,15 @@ a svg {
   background: #fff;
   z-index: -1;
 }
-.leaflet-marker-icon.km-cluster {
-  display: flex;
-  background: #111111;
-  color: #fff;
-  border-radius: 9999px;
+.km-cluster {
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 0;
+  border-radius: 9999px;
+  background: #111111;
+  color: #fff;
   font: 700 15px var(--font-body);
   box-shadow: 0 0 0 6px rgba(17, 17, 17, 0.12);
+  cursor: pointer;
 }

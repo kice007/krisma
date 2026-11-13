@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { ArrowDownLeft, ArrowUpRight, Coffee, Gift, Percent, ShoppingBag, Store, Utensils } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, Coffee, Gift, Percent, ShoppingBag, Store, Utensils } from '../components/icons'
 import Count from '../components/Count'
 import Reveal, { EASE } from '../components/Reveal'
 import { useViewport } from '../components/useStage'

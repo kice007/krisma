@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Bell, CircleCheck, Download, Globe, KeyRound, LoaderCircle, LogOut, MapPin, Megaphone, ScrollText, Shield, Trash2, User } from 'lucide-react'
+import { Bell, CircleCheck, Download, Globe, KeyRound, LoaderCircle, LogOut, MapPin, Megaphone, ScrollText, Shield, Trash2, User } from '../components/icons'
 import { useLang } from '../i18n'
 import { rpc, supabase } from '../lib/supabase'
 import { NAME_RE, cleanName } from '../waitlist/store'

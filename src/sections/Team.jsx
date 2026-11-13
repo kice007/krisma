@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { User } from 'lucide-react'
+import { User } from '../components/icons'
 import Reveal, { EASE } from '../components/Reveal'
 import { useLang } from '../i18n'
 

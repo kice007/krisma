@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { Check } from 'lucide-react'
+import { Check } from '../components/icons'
 import Button from '../components/Button'
 import Rays from '../components/Rays'
 import Reveal from '../components/Reveal'
