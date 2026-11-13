@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  Beef, Bell, CircleCheck, Heart, ListChecks, Lock, MailCheck, Map as MapIcon, MapPin, Menu, Minus, Plus,
+  Beef, Bell, CircleCheck, Heart, ListChecks, Lock, MailCheck, Map as MapIcon, Menu, Minus, Plus,
   Scissors, ShoppingBasket, Sparkles, Store, Timer, TrendingUp, UserPlus, Utensils, X, BadgeCheck, Info, Circle,
 } from '../components/icons'
 import Reveal, { EASE } from '../components/Reveal'
@@ -18,15 +18,6 @@ import { captureReferral, store } from './store'
 import { PATHS, myDashboard, waitForSession } from './flow'
 
 const VIOLET = '#a351fc'
-
-function Pill({ children, dark, className = '' }) {
-  return (
-    <span className={`inline-flex h-[30px] items-center gap-2 rounded-full px-3 font-body text-[13px] font-medium ${dark ? 'bg-white/10 text-white' : 'bg-white text-noir'} ${className}`}>
-      <span className="h-[7px] w-[7px] rounded-full bg-marque" />
-      {children}
-    </span>
-  )
-}
 
 function H2({ children, className = '', dark }) {
   return (
@@ -162,7 +153,6 @@ function Faq({ f }) {
     <section id="faq" className="scroll-mt-24 bg-clair px-5 py-16 lg:px-10 lg:py-24 xl:px-[120px]">
       <div className="mx-auto grid max-w-[1200px] gap-8 lg:grid-cols-[minmax(0,380px)_1fr] lg:gap-16">
         <Reveal className="flex flex-col items-start gap-4">
-          <Pill className="!bg-transparent !px-0">{f.eyebrow}</Pill>
           <H2>{f.title}</H2>
         </Reveal>
         <div className="flex flex-col gap-3">
@@ -420,10 +410,6 @@ function Simulator({ t, lang }) {
     <section className="px-5 py-16 lg:px-10 lg:py-28 xl:px-[120px]">
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-12 xl:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:gap-20">
         <Reveal className="flex flex-col items-start gap-6">
-          <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-clair px-3 font-body text-[12px] font-semibold">
-            <span className="h-1.5 w-1.5 rounded-full bg-marque" />
-            {t.eyebrow}
-          </span>
           <h2 className="font-display text-[34px] font-bold leading-[1.08] tracking-[-1.2px] lg:text-[48px] lg:tracking-[-1.5px]">{t.title}</h2>
           <p className="font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{t.text}</p>
           <p className="flex items-start gap-2.5 rounded-2xl bg-clair px-4 py-3.5 font-body text-[14px] leading-[1.5] text-gris">
@@ -673,10 +659,6 @@ function Bento({ t }) {
   return (
     <section id="points" className="scroll-mt-24 px-5 py-16 lg:px-10 lg:py-28 xl:px-[120px]">
       <Reveal className="mx-auto flex max-w-[720px] flex-col items-center gap-4 text-center">
-        <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-clair px-3 font-body text-[12px] font-semibold">
-          <span className="h-1.5 w-1.5 rounded-full bg-marque" />
-          {t.eyebrow}
-        </span>
         <h2 className="font-display text-[34px] font-bold leading-[1.05] tracking-[-1.2px] lg:text-[52px] lg:tracking-[-1.8px]">{t.title}</h2>
         <p className="font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{t.sub}</p>
       </Reveal>
@@ -777,10 +759,6 @@ function MapSection({ t, lang }) {
   return (
     <section id="carte" className="scroll-mt-24 bg-[#f7f7f7] px-5 py-16 lg:px-10 lg:py-28 xl:px-[120px]">
       <Reveal className="mx-auto flex max-w-[760px] flex-col items-center gap-4 text-center">
-        <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-white px-3 font-body text-[12px] font-semibold">
-          <MapPin size={14} className="text-vert" />
-          {t.eyebrow}
-        </span>
         <h2 className="font-display text-[34px] font-bold leading-[1.05] tracking-[-1.2px] lg:text-[52px] lg:tracking-[-1.8px]">{t.title}</h2>
         <p className="font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{t.text}</p>
       </Reveal>
