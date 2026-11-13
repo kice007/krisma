@@ -75,7 +75,7 @@ export default function Points() {
         <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
           {[
             ['Points attribués', fmt(sum.awarded), 'total'],
-            ['Seuil top 2 000', `${fmt(sum.top.threshold)} pts`, `${fmt(sum.top.eligible)} membres avec ex æquo`],
+            ['Seuil top 2 000', `${fmt(sum.top.threshold)} pts`, `${fmt(sum.top.eligible)} membres`],
             ['Points suspendus', fmt(sum.suspended), `${fmt(sum.suspended_users)} compte${sum.suspended_users > 1 ? 's' : ''} en vérification`],
             ['Annulations', fmt(sum.revoked_month), 'ce mois-ci'],
           ].map(([k, v, s]) => (

@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { AlertCircle, CircleCheck, Heart, LoaderCircle, MapPin, Move, Send, Store, X } from 'lucide-react'
 import { rpc } from '../../lib/supabase'
-import { CityInput } from '../../waitlist/ui'
-import { TEXT } from '../../waitlist/text'
 import { isPreview } from '../../waitlist/flow'
 import L, { CATEGORY_ICON, STATUS_COLOR, TILE_ATTRIBUTION, TILE_URL, draftIcon } from './leaflet'
 
@@ -401,16 +399,12 @@ export default function ProposeDialog({ t, lang, city, desktop, onClose, onDone 
         </div>
         <div>
           {label(f.city)}
-          <CityInput
-            value={shopCity}
-            lang={lang}
-            t={TEXT[lang].q}
-            onChange={(c) => {
-              setShopCity({ ...c, existing: false })
-              if (!placed) setPoint({ lat: c.lat, lng: c.lng })
-            }}
-          />
-          {req('city')}
+          {/* Ville verrouillée : celle du questionnaire (on ne propose que dans sa ville). */}
+          <div className="flex h-14 w-full items-center gap-2.5 rounded-2xl bg-clair px-[18px] font-body text-[16px]">
+            <MapPin size={18} className="shrink-0 text-gris" />
+            <span className="truncate">{[shopCity?.name, shopCity?.country].filter(Boolean).join(', ')}</span>
+          </div>
+          <p className="mt-1.5 font-body text-[13px] text-gris">{f.cityLocked}</p>
         </div>
         <div>
           {label(desktop ? f.details : f.detailsShort, f.optional)}

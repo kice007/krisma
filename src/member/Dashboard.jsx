@@ -36,6 +36,7 @@ function PointsCard({ d, t, lang }) {
     ['signup', '#ffffff'],
     ['referral', '#fd8030'],
     ['shop', '#15803d'],
+    ['vote', '#93c5fd'],
   ].filter(([k]) => b[k] > 0)
   return (
     <section className="relative flex flex-col overflow-hidden rounded-[28px] bg-noir p-6 text-white lg:p-8">
