@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Circle, CircleCheck, Eye, EyeOff, Lock, TriangleAlert } from 'lucide-react'
+import { Circle, CircleCheck, Eye, EyeOff, Lock, TriangleAlert } from '../components/icons'
 import { rpc, supabase } from '../lib/supabase'
 import FlowLayout, { Loading, useT } from './Layout'
 import { Alert, Btn, Sub, Title } from './ui'

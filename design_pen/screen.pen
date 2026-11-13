@@ -94034,7 +94034,7 @@
               "fill": {
                 "type": "image",
                 "enabled": true,
-                "url": "images/v3/photo-marque-maghreb.png",
+                "url": "images/v2/photo-diaspora-buste.jpg",
                 "mode": "cover"
               },
               "cornerRadius": 24

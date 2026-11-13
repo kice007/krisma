@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Inbox, Mail, MousePointerClick, RotateCw, Timer } from 'lucide-react'
+import { Inbox, Mail, MousePointerClick, RotateCw, Timer } from '../components/icons'
 import { currentUser, supabase } from '../lib/supabase'
 import FlowLayout, { Loading, useT } from './Layout'
 import { Alert, Btn, Field, Sub, Title, Turnstile, captchaEnabled, useCaptcha } from './ui'

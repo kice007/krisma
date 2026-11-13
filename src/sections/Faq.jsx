@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown } from '../components/icons'
 import Reveal, { EASE } from '../components/Reveal'
 import { useLang } from '../i18n'
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Eye, Mail, User, UserPlus } from 'lucide-react'
+import { Eye, Mail, User, UserPlus } from '../components/icons'
 import { currentUser, rpc, supabase } from '../lib/supabase'
 import FlowLayout, { Loading, useT } from './Layout'
 import { Alert, Btn, Checkbox, Field, Sub, Title, Turnstile, useCaptcha } from './ui'

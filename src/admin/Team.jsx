@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, CircleSlash, Download, Ellipsis, Send, ShieldCheck, Store, Trash2, UserPlus, UserX } from 'lucide-react'
+import { Check, CircleSlash, Download, Ellipsis, Send, ShieldCheck, Store, Trash2, UserPlus, UserX } from '../components/icons'
 import { arpc as rpc } from './api'
 import { useAdmin } from './Shell'
 import { Badge, Button, Card, Confirm, PageHead, ROLE, Spinner, date, errText } from './ui'

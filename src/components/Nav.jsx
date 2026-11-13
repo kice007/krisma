@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ChevronDown, Menu, X } from 'lucide-react'
+import { ChevronDown, Menu, X } from './icons'
 import { useLang } from '../i18n'
 import { EASE } from './Reveal'
 import { Socials } from './Socials'

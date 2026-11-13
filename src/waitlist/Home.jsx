@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import {
   Beef, Bell, CircleCheck, Croissant, Heart, ListChecks, Lock, MailCheck, Map as MapIcon, MapPin, Menu, Minus, Plus,
   Scissors, ShoppingBasket, Sparkles, Store, Timer, TrendingUp, UserPlus, Utensils, X, ChevronDown, BadgeCheck, Info, Circle,
-} from 'lucide-react'
+} from '../components/icons'
 import Reveal, { EASE } from '../components/Reveal'
 import { CardMarks } from '../components/CardMark'
 import { LangSwitch } from '../components/Nav'
@@ -717,7 +717,7 @@ function Bento({ t }) {
                 </span>
               ))}
               <span className="-ml-3 flex h-[52px] items-center gap-1 rounded-full border-[3px] border-white bg-noir px-4 font-body text-[15px] font-bold text-white">
-                <Heart size={14} className="fill-marque text-marque" />
+                <Heart size={14} variant="Bold" className="text-marque" />
                 124
               </span>
             </div>

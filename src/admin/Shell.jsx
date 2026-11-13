@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChartColumn, Globe as External, LayoutDashboard, LogOut, Menu, ShieldCheck, ShieldX, Store, Trophy, Users, X } from 'lucide-react'
+import { ChartColumn, Globe as External, LayoutDashboard, LogOut, Menu, ShieldCheck, ShieldX, Store, Trophy, Users, X } from '../components/icons'
 import { supabase } from '../lib/supabase'
 import { arpc as rpc } from './api'
 import { Loading } from '../waitlist/Layout'

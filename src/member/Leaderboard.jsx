@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Info, LoaderCircle } from 'lucide-react'
+import { Info, LoaderCircle } from '../components/icons'
 import { rpc } from '../lib/supabase'
 import { PATHS, isPreview } from '../waitlist/flow'
 import { PREVIEW_AROUND, PREVIEW_BOARD } from './preview'

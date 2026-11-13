@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, CircleCheck, Copy, Search, TriangleAlert, X, XCircle } from 'lucide-react'
+import { Check, CircleCheck, Copy, Search, TriangleAlert, X, XCircle } from '../components/icons'
 import { arpc as rpc } from './api'
-import L, { CATEGORY_ICON, STATUS_COLOR, TILE_ATTRIBUTION, TILE_URL, shopIcon } from '../member/map/leaflet'
+import { CATEGORY_ICON, STATUS_COLOR, createMap, maplibregl, pinElement } from '../member/map/maplibre'
 import { useAdmin } from './Shell'
 import { Badge, Button, CATEGORY, Card, Confirm, Empty, PageHead, SHOP_STATUS, Spinner, ago, date, errText, fmt } from './ui'
 
@@ -15,10 +15,9 @@ const km = (a, b) => {
 function MiniMap({ shop }) {
   const el = useRef(null)
   useEffect(() => {
-    const m = L.map(el.current, { zoomControl: true, attributionControl: true, scrollWheelZoom: false }).setView([shop.lat, shop.lng], 16)
-    L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: 19 }).addTo(m)
-    m.attributionControl.setPrefix(false)
-    L.marker([shop.lat, shop.lng], { icon: shopIcon({ ...shop, public_status: 'partner' }, true) }).addTo(m)
+    const m = createMap(el.current, { center: [shop.lat, shop.lng], zoom: 16, scrollZoom: false })
+    m.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
+    new maplibregl.Marker({ element: pinElement({ ...shop, public_status: 'partner' }, true), anchor: 'bottom' }).setLngLat([shop.lng, shop.lat]).addTo(m)
     return () => m.remove()
   }, [shop])
   return <div ref={el} className="km-map h-[220px] overflow-hidden rounded-2xl" />

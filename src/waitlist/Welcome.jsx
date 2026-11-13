@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Check, Copy, Share2, ShieldAlert } from 'lucide-react'
+import { Check, Copy, Share2, ShieldAlert } from '../components/icons'
 import { EASE } from '../components/Reveal'
 import FlowLayout, { Loading, useT } from './Layout'
 import { Alert, Btn, Sub, Title } from './ui'

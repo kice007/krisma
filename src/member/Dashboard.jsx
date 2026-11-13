@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Beef, Check, Copy, Croissant, History, Mail, MessageCircle, Plus, ScrollText, Scissors, Send, Share2, Store, TrendingDown, TrendingUp, Utensils } from 'lucide-react'
+import { Beef, Check, Copy, Croissant, History, Mail, MessageCircle, Plus, ScrollText, Scissors, Send, Share2, Store, TrendingDown, TrendingUp, Utensils } from '../components/icons'
 import { fmt, initials, useMT, useMember } from './Shell'
 
 export const CATEGORY_ICON = { grocery: Store, butcher: Beef, bakery: Croissant, hair_salon: Scissors, restaurant: Utensils, other: Store }

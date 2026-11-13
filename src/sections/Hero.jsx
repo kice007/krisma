@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
-import { Globe, ShieldCheck, Users } from 'lucide-react'
+import { Globe, ShieldCheck, Users } from '../components/icons'
 import Button from '../components/Button'
 import { CardMarks } from '../components/CardMark'
 import { EASE } from '../components/Reveal'
