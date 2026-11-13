@@ -13,6 +13,8 @@ const Questionnaire = lazy(() => import('./waitlist/Questionnaire'))
 const Verify = lazy(() => import('./waitlist/Verify'))
 const Welcome = lazy(() => import('./waitlist/Welcome'))
 const Login = lazy(() => import('./waitlist/Login'))
+const Forgot = lazy(() => import('./waitlist/Forgot'))
+const Password = lazy(() => import('./waitlist/Password'))
 const Resume = lazy(() => import('./waitlist/Resume'))
 const Shell = lazy(() => import('./member/Shell'))
 const Dashboard = lazy(() => import('./member/Dashboard'))
@@ -57,6 +59,8 @@ createRoot(document.getElementById('root')).render(
             <Route path="/waitlist/bienvenue" element={<Welcome />} />
             <Route path="/waitlist/reprise" element={<Resume />} />
             <Route path="/connexion" element={<Login />} />
+            <Route path="/connexion/mot-de-passe-oublie" element={<Forgot />} />
+            <Route path="/waitlist/mot-de-passe" element={<Password />} />
             <Route element={<Shell />}>
               <Route path="/espace" element={member(<Dashboard />)} />
               <Route path="/espace/points" element={member(<Points />)} />

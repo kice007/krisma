@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { AtSign, Bell, CircleCheck, Download, Globe, LoaderCircle, LogOut, MapPin, Megaphone, ScrollText, Shield, Trash2 } from 'lucide-react'
+import { Bell, CircleCheck, Download, Globe, KeyRound, LoaderCircle, LogOut, MapPin, Megaphone, ScrollText, Shield, Trash2, User } from 'lucide-react'
 import { useLang } from '../i18n'
 import { rpc, supabase } from '../lib/supabase'
-import { CityInput } from '../waitlist/ui'
-import { TEXT } from '../waitlist/text'
-import { PSEUDO_RE } from '../waitlist/store'
+import { NAME_RE, cleanName } from '../waitlist/store'
+import { PATHS } from '../waitlist/flow'
 import { deleteMyAccount } from './account'
 import ExportButtons from './ExportButtons'
 import { initials, useMT, useMember } from './Shell'
@@ -52,11 +51,21 @@ export default function Profile() {
   const p = t.profile
   const navigate = useNavigate()
   const [edit, setEdit] = useState(null)
-  const [pseudo, setPseudo] = useState(d.pseudo)
+  const [first, setFirst] = useState('')
+  const [last, setLast] = useState('')
   const [error, setError] = useState(null)
   const [notice, setNotice] = useState(null)
   const [busy, setBusy] = useState(false)
   const [confirm, setConfirm] = useState(false)
+
+  useEffect(() => {
+    rpc('get_my_name')
+      .then((n) => {
+        setFirst(n?.first_name || '')
+        setLast(n?.last_name || '')
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (!notice) return
@@ -79,17 +88,13 @@ export default function Profile() {
     }
   }
 
-  const savePseudo = () => {
-    if (!PSEUDO_RE.test(pseudo)) return setError(t.errors.pseudo_invalid)
+  const saveName = () => {
+    if (!NAME_RE.test(cleanName(first)) || !NAME_RE.test(cleanName(last))) return setError(t.errors.name_invalid)
     run(async () => {
-      await rpc('update_my_pseudo', { p_pseudo: pseudo })
-      await supabase.auth.updateUser({ data: { pseudo } })
+      await rpc('update_my_name', { p_first_name: cleanName(first), p_last_name: cleanName(last) })
+      await supabase.auth.updateUser({ data: { pseudo: cleanName(first) } })
     })
   }
-  const saveCity = (c) =>
-    run(() =>
-      rpc('set_my_city', { p_source_ref: c.ref, p_name: c.name, p_country_code: c.cc, p_country_name: c.country, p_lat: c.lat, p_lng: c.lng, p_admin_area: c.region || null }),
-    )
   const saveSetting = (key, value) => run(() => rpc('update_my_settings', { [key]: value }))
   const logout = async () => {
     await supabase.auth.signOut()
@@ -128,43 +133,43 @@ export default function Profile() {
       )}
 
       <Group title={p.account}>
-        {edit === 'pseudo' ? (
+        {edit === 'name' ? (
           <div className="flex flex-col gap-3 border-b border-ligne py-4">
-            <label className="font-body text-[14px] font-semibold" htmlFor="pseudo">
-              {p.pseudo}
-            </label>
-            <input
-              id="pseudo"
-              autoFocus
-              value={pseudo}
-              maxLength={20}
-              onChange={(e) => setPseudo(e.target.value.replace(/\s/g, ''))}
-              className="h-12 rounded-2xl border-[1.5px] border-noir px-4 font-body text-[16px] outline-none"
-            />
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                ['first', p.firstName, first, setFirst, 'given-name'],
+                ['last', p.lastName, last, setLast, 'family-name'],
+              ].map(([id, label, value, set, ac]) => (
+                <label key={id} className="flex flex-col gap-1.5 font-body text-[14px] font-semibold">
+                  {label}
+                  <input
+                    value={value}
+                    maxLength={60}
+                    autoComplete={ac}
+                    onChange={(e) => set(e.target.value)}
+                    className="h-12 rounded-2xl border-[1.5px] border-noir px-4 font-body text-[16px] font-normal outline-none"
+                  />
+                </label>
+              ))}
+            </div>
+            <p className="font-body text-[13px] text-gris">{p.nameHint}</p>
             <div className="flex gap-2">
-              <button type="button" onClick={savePseudo} disabled={busy} className="flex h-11 cursor-pointer items-center gap-2 rounded-full bg-noir px-5 font-body text-[14px] font-semibold text-white">
+              <button type="button" onClick={saveName} disabled={busy} className="flex h-11 cursor-pointer items-center gap-2 rounded-full bg-noir px-5 font-body text-[14px] font-semibold text-white">
                 {busy && <LoaderCircle size={15} className="animate-spin" />}
                 {p.save}
               </button>
-              <button type="button" onClick={() => (setEdit(null), setPseudo(d.pseudo), setError(null))} className="h-11 cursor-pointer rounded-full border border-ligne px-5 font-body text-[14px] font-semibold">
+              <button type="button" onClick={() => (setEdit(null), setError(null))} className="h-11 cursor-pointer rounded-full border border-ligne px-5 font-body text-[14px] font-semibold">
                 {p.cancel}
               </button>
             </div>
           </div>
         ) : (
-          <Line icon={AtSign} label={p.pseudo} value={d.pseudo} onClick={() => setEdit('pseudo')} />
+          <Line icon={User} label={p.name} value={[first, last].filter(Boolean).join(' ') || d.pseudo} onClick={() => setEdit('name')} />
         )}
-        {edit === 'city' ? (
-          <div className="flex flex-col gap-3 border-b border-ligne py-4">
-            <span className="font-body text-[14px] font-semibold">{p.city}</span>
-            <CityInput value={null} onChange={saveCity} lang={lang} t={TEXT[lang].q} />
-            <button type="button" onClick={() => setEdit(null)} className="h-11 cursor-pointer self-start rounded-full border border-ligne px-5 font-body text-[14px] font-semibold">
-              {p.cancel}
-            </button>
-          </div>
-        ) : (
-          <Line icon={MapPin} label={p.city} value={d.city?.name} onClick={() => setEdit('city')} />
-        )}
+        <Line icon={KeyRound} label={p.password} value={p.change} to={`${PATHS.password}?reinitialiser`} />
+        {/* Ville fixée à l'inscription : on vote et propose uniquement dans sa ville. */}
+        <Line icon={MapPin} label={p.city} value={d.city?.name} />
+        <p className="-mt-1 border-b border-ligne pb-3 pl-[33px] font-body text-[12px] text-gris">{p.cityLocked}</p>
         <Line icon={Globe} label={p.lang} last>
           <div className="flex rounded-full bg-clair p-1">
             {['fr', 'en'].map((code) => (

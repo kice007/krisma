@@ -8,12 +8,14 @@ export const PATHS = {
   welcome: '/waitlist/bienvenue',
   resume: '/waitlist/reprise',
   login: '/connexion',
+  forgot: '/connexion/mot-de-passe-oublie',
+  password: '/waitlist/mot-de-passe',
   member: '/espace',
 }
 
 // Aperçu des écrans sans session ni écriture en base (développement uniquement) : ?apercu
 export const isPreview = () => import.meta.env.DEV && new URLSearchParams(window.location.search).has('apercu')
-export const SAMPLE = { pseudo: 'awa_k', status: 'verified', points: 170, rank: 4812, referral_code: 'AWAK24', top: { members: 12481 } }
+export const SAMPLE = { pseudo: 'Awa K.', status: 'verified', points: 170, rank: 4812, referral_code: 'AWAK24', top: { members: 12481 } }
 
 export async function myDashboard() {
   try {
@@ -30,7 +32,7 @@ export async function resumePath() {
   const d = await myDashboard()
   switch (d.status) {
     case 'verified':
-      return PATHS.member
+      return (await hasPassword()) ? PATHS.member : PATHS.password
     case 'suspended':
       return PATHS.welcome
     case 'questionnaire_done':
@@ -39,6 +41,16 @@ export async function resumePath() {
       return PATHS.question(1)
     default:
       return PATHS.signup
+  }
+}
+
+// Le mot de passe est choisi juste après la vérification de l'e-mail.
+export async function hasPassword() {
+  try {
+    const n = await rpc('get_my_name')
+    return !!n?.password_set
+  } catch {
+    return true
   }
 }
 
@@ -73,10 +85,12 @@ export function cleanUrl() {
 }
 
 // Envoie (ou renvoie vers une nouvelle adresse) le lien de confirmation.
-// Le pseudo et la langue vont dans les métadonnées du compte : les modèles
-// d'e-mail Supabase s'en servent (« Bonjour awa_k », version FR ou EN).
+// Le prénom et la langue vont dans les métadonnées du compte : les modèles
+// d'e-mail Supabase s'en servent (« Bonjour Awa », version FR ou EN). La clé
+// reste « pseudo » pour ne pas changer les modèles déjà en place.
 export async function sendConfirmation(email, lang) {
-  const { pseudo } = await myDashboard()
+  const n = await rpc('get_my_name').catch(() => null)
+  const pseudo = n?.first_name
   const { error } = await supabase.auth.updateUser(
     { email, data: { locale: lang, ...(pseudo ? { pseudo } : {}) } },
     { emailRedirectTo: `${window.location.origin}${PATHS.welcome}` },

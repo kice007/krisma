@@ -81,8 +81,9 @@ const FULL = {
   local_shop_frequency: "weekly", local_shop_spend: "100_249", interest_cashback: "fairly",
   services: ["account_card", "cashback"], willing_to_pay: "maybe", usage_intent: "primary",
 };
-async function register(uid, pseudo, { code = null, email, confirmFirst = false } = {}) {
-  await rpc(uid, "start_registration", { p_pseudo: pseudo, p_accept_rules: true, p_consent_marketing: false, p_locale: "fr", p_referral_code: code });
+async function register(uid, fullName, { code = null, email, confirmFirst = false } = {}) {
+  const [first, ...rest] = fullName.split(" ");
+  await rpc(uid, "start_registration", { p_first_name: first, p_last_name: rest.join(" "), p_accept_rules: true, p_consent_marketing: false, p_locale: "fr", p_referral_code: code });
   if (confirmFirst) await confirmEmail(uid, email);
   await rpc(uid, "set_my_city", PARIS);
   await rpc(uid, "save_questionnaire", { p_answers: JSON.stringify(FULL) });
@@ -95,7 +96,7 @@ const total = async (uid) => (await db.query("select points from public.member_t
 // --- Scénarios -----------------------------------------------------------------
 console.log("\n1. Inscription standard (questionnaire puis e-mail)");
 const A = await newAnonUser();
-const resA = await register(A, "amina_k", { email: "amina@gmail.com" });
+const resA = await register(A, "Amina Kouassi", { email: "amina@gmail.com" });
 ok(resA.status === "awaiting_email", "questionnaire terminé → en attente de l'e-mail");
 ok((await db.query("select status from public.profiles where id=$1", [A])).rows[0].status === "verified", "e-mail confirmé → inscription validée");
 ok((await total(A)) === 170, "+170 points attribués");
@@ -106,23 +107,23 @@ ok(JSON.stringify(qA.receive_countries) === '["CI","SN"]', "pays normalisés en 
 ok(qA.send_countries.length === 0, "« Jamais » efface les pays de la sous-question");
 const codeA = (await db.query("select referral_code from public.profiles where id=$1", [A])).rows[0].referral_code;
 
-console.log("\n2. Pseudo unique, insensible à la casse");
-ok((await rpc(null, "check_pseudo_available", { p_pseudo: "AMINA_K" })) === false, "« AMINA_K » déjà pris");
-ok((await rpc(null, "check_pseudo_available", { p_pseudo: "ab" })) === false, "pseudo trop court refusé");
+console.log("\n2. Prénom et nom (migration 15)");
+ok((await db.query("select pseudo, first_name, last_name from public.profiles where id=$1", [A])).rows[0].pseudo === "Amina K.", "nom public calculé « Amina K. »");
 const B = await newAnonUser();
-await expectError(rpc(B, "start_registration", { p_pseudo: "Amina_K", p_accept_rules: true }), "pseudo_taken", "inscription avec un pseudo pris");
-await expectError(rpc(B, "start_registration", { p_pseudo: "awa_k", p_accept_rules: false }), "rules_not_accepted", "règlement non accepté");
+await expectError(rpc(B, "start_registration", { p_first_name: "A1", p_last_name: "Koné", p_accept_rules: true }), "first_name_invalid", "prénom avec chiffre refusé");
+await expectError(rpc(B, "start_registration", { p_first_name: "Awa", p_last_name: "  ", p_accept_rules: true }), "last_name_invalid", "nom vide refusé");
+await expectError(rpc(B, "start_registration", { p_first_name: "Awa", p_last_name: "Koné", p_accept_rules: false }), "rules_not_accepted", "règlement non accepté");
 
 console.log("\n3. Parrainage (e-mail vérifié AVANT la fin du questionnaire)");
-ok((await rpc(null, "get_referrer", { p_code: codeA.toLowerCase() })).pseudo === "amina_k", "le code de parrainage affiche le pseudo du parrain");
-const resB = await register(B, "awa_k", { code: codeA, email: "awa@gmail.com", confirmFirst: true });
+ok((await rpc(null, "get_referrer", { p_code: codeA.toLowerCase() })).pseudo === "Amina K.", "le code de parrainage affiche le pseudo du parrain");
+const resB = await register(B, "Awa Koné", { code: codeA, email: "awa@gmail.com", confirmFirst: true });
 ok(resB.status === "verified", "inscription validée directement à la fin du questionnaire");
 ok((await total(B)) === 170, "filleul : +170");
 ok((await total(A)) === 220, "parrain : +50");
 
 console.log("\n4. Questionnaire incomplet");
 const C = await newAnonUser();
-await rpc(C, "start_registration", { p_pseudo: "kev_ci", p_accept_rules: true });
+await rpc(C, "start_registration", { p_first_name: "Kevin", p_last_name: "Coulibaly", p_accept_rules: true });
 await rpc(C, "save_questionnaire", { p_answers: JSON.stringify({ situation: "student", receive_frequency: "rarely" }) });
 const resC = await rpc(C, "complete_questionnaire");
 ok(resC.status === "incomplete" && resC.missing.includes("q1") && resC.missing.includes("q3"), `questions manquantes : ${resC.missing.join(", ")}`);
@@ -130,7 +131,7 @@ await expectError(rpc(C, "save_questionnaire", { p_answers: JSON.stringify({ sit
 
 console.log("\n5. Anti-fraude du parrainage");
 const E = await newAnonUser();
-await register(E, "promo_2026", { code: codeA, email: "x7k2@tempmail.io" });
+await register(E, "Promo Test", { code: codeA, email: "x7k2@tempmail.io" });
 const evE = (await db.query("select status from public.point_events where kind='referral' and source_id=$1", [E])).rows[0];
 ok(evE.status === "suspended", "e-mail jetable → points de parrainage suspendus");
 ok((await total(A)) === 220, "les points suspendus ne comptent pas");
@@ -178,20 +179,20 @@ const cities = await as(null, "select * from public.get_map_cities(null)");
 ok(cities[0].name === "Paris" && cities[0].partners === 1, "liste des villes avec compteurs");
 
 console.log("\n8. Classement et égalités");
-const F = await newAnonUser(); await register(F, "fatou.s", { email: "fatou@gmail.com" });
-const G = await newAnonUser(); await register(G, "zaneb_", { email: "zaneb@gmail.com" });
+const F = await newAnonUser(); await register(F, "Fatou Sow", { email: "fatou@gmail.com" });
+const G = await newAnonUser(); await register(G, "Zaneb Elidrissi", { email: "zaneb@gmail.com" });
 const board = await as(null, "select * from public.get_leaderboard(null, 50, 0)");
-ok(board[0].pseudo === "amina_k" && board[0].rank === 1n || board[0].rank === 1, "1er : amina_k");
+ok(board[0].pseudo === "Amina K." && board[0].rank === 1n || board[0].rank === 1, "1er : Amina K.");
 const tied = board.filter((r) => r.points === 170);
 ok(tied.length === 3 && new Set(tied.map((r) => Number(r.rank))).size === 3, "ex æquo : chacun a son propre rang");
-ok(tied.map((r) => r.pseudo).join(",") === "promo_2026,fatou.s,zaneb_", "à points égaux, le premier validé passe devant");
+ok(tied.map((r) => r.pseudo).join(",") === "Promo T.,Fatou S.,Zaneb E.", "à points égaux, le premier validé passe devant");
 const top = await rpc(null, "get_top_threshold", { p_size: 3 });
 ok(top.eligible === 3, `top 3 strict → ${top.eligible} membres retenus`);
 ok(!("email" in board[0]), "le classement public n'expose pas d'e-mail");
 
 console.log("\n9. Sécurité (RLS et droits)");
 const rows = await as(B, "select pseudo from public.profiles");
-ok(rows.length === 1 && rows[0].pseudo === "awa_k", "un membre ne lit que son propre profil");
+ok(rows.length === 1 && rows[0].pseudo === "Awa K.", "un membre ne lit que son propre profil");
 await expectError(as(B, "insert into public.point_events (user_id, kind, source_id, points, status) values ($1,'signup',$1,170,'awarded')", [B]), "permission denied", "écriture directe dans les points refusée");
 await expectError(as(B, "select public.finalize_registration($1)", [B]), "permission denied", "fonction interne non appelable");
 await expectError(as(null, "select * from public.member_ranking"), "permission denied", "vues internes non exposées");
@@ -199,7 +200,7 @@ await expectError(rpc(B, "admin_overview"), "forbidden", "statistiques réservé
 const ov = await rpc(D, "admin_overview");
 ok(ov.verified === 5 && ov.shops_to_review === 0, "vue d'ensemble admin");
 const users = await as(D, "select * from public.admin_list_users(null, null, null, true, 50, 0)");
-ok(users.length === 1 && users[0].pseudo === "amina_k", "filtre « suspects » : le parrain dont un filleul est suspendu");
+ok(users.length === 1 && users[0].pseudo === "Amina K.", "filtre « suspects » : le parrain dont un filleul est suspendu");
 
 console.log("\n10. Corrections par l'équipe");
 const evId = (await db.query("select id from public.point_events where kind='referral' and source_id=$1", [E])).rows[0].id;
@@ -207,7 +208,7 @@ await expectError(rpc(D, "admin_set_point_status", { p_event_id: evId, p_status:
 await rpc(D, "admin_set_point_status", { p_event_id: evId, p_status: "revoked", p_reason: "Fraude confirmée" });
 ok((await db.query("select count(*)::int n from public.point_event_history where event_id=$1", [evId])).rows[0].n === 2, "historique conservé (suspendu → annulé)");
 await rpc(D, "admin_set_user_suspended", { p_user_id: E, p_suspended: true, p_reason: "Fraude" });
-ok((await as(null, "select * from public.get_leaderboard(null, 50, 0)")).every((r) => r.pseudo !== "promo_2026"), "membre suspendu retiré du classement");
+ok((await as(null, "select * from public.get_leaderboard(null, 50, 0)")).every((r) => r.pseudo !== "Promo T."), "membre suspendu retiré du classement");
 const flagged = await as(D, "select * from public.admin_list_users(null, null, null, true, 50, 0)");
 ok(flagged.length === 1 && flagged[0].email === "x7k2@tempmail.io", "suspects : le membre suspendu (le parrain sort de la liste une fois la fraude tranchée)");
 ok((await db.query("select count(*)::int n from public.admin_audit_log")).rows[0].n >= 5, "opérations sensibles journalisées");
@@ -232,9 +233,9 @@ await db.query("update public.profiles set verified_at = now() - interval '10 da
 await db.query("update public.point_events set created_at = now() - interval '10 days' where user_id = $1", [G]);
 ok(Number((await rpc(G, "get_my_dashboard")).rank_week_ago) === 1, "rang d'il y a 7 jours (seul membre validé à cette date)");
 ok((await rpc(null, "get_leaderboard_meta", {})).members === 4, "nombre de membres classés");
-await expectError(rpc(B, "update_my_pseudo", { p_pseudo: "AMINA_K" }), "pseudo_taken", "changement vers un pseudo pris");
-await expectError(rpc(B, "update_my_pseudo", { p_pseudo: "a b" }), "pseudo_invalid", "pseudo invalide");
-ok((await rpc(B, "update_my_pseudo", { p_pseudo: "awa.kone" })) === "awa.kone", "pseudo modifié");
+await expectError(rpc(B, "update_my_name", { p_first_name: "Awa", p_last_name: "K0né" }), "last_name_invalid", "nom invalide");
+ok((await rpc(B, "update_my_name", { p_first_name: " awa  ", p_last_name: "N'Guessan" })) === "awa N.", "nom modifié (espaces nettoyés)");
+await rpc(B, "update_my_name", { p_first_name: "Awa", p_last_name: "Koné" });
 await rpc(B, "update_my_settings", { p_locale: "en", p_notify_points: false });
 const prefsB = (await db.query("select locale, notify_points, consent_marketing from public.profiles where id = $1", [B])).rows[0];
 ok(prefsB.locale === "en" && prefsB.notify_points === false && prefsB.consent_marketing === false, "réglages enregistrés, le reste inchangé");
@@ -259,7 +260,7 @@ ok(created.result === "created", "commerce proposé dans une autre ville");
 await db.query("update public.shops set status = 'partner', partner_public = false where id = $1", [created.shop_id]);
 const dupL = await rpc(F, "propose_shop", { p_name: "Boulangerie Teranga", p_category: "bakery", p_address: "3 rue de la République", p_city_id: lyon, p_lat: 45.76012, p_lng: 4.8357 });
 ok(dupL.result === "duplicate_candidate" && dupL.shop.public_status === "validated" && dupL.shop.category === "bakery" && dupL.shop.voted === false, "doublon : partenariat non public masqué, catégorie et vote");
-ok((await as(A, "select * from public.get_map_shops($1)", [lyon]))[0].proposer === "amina_k", "auteur affiché sur la carte");
+ok((await as(A, "select * from public.get_map_shops($1)", [lyon]))[0].proposer === "Amina K.", "auteur affiché sur la carte");
 await db.query("update public.profiles set city_id = $1 where id in ($2, $3)", [paris, A, F]);
 const exp = await rpc(A, "export_my_data");
 ok(exp.profile.city_name === "Paris" && exp.votes.some((v) => v.shop === "Boulangerie Teranga") && exp.points.some((e) => e.label === "Boulangerie Teranga"), "export lisible : ville, commerces soutenus, libellés des points");
@@ -293,7 +294,7 @@ ok((await rpc(A, "my_staff_role")) === null, "un membre sans rôle n'a pas de r�
 const ov2 = await rpc(D, "admin_overview", { p_days: 30 });
 ok(ov2.daily.length === 30 && Array.isArray(ov2.cities) && ov2.answers.total >= 1, "vue d'ensemble : 30 jours, villes, réponses");
 const mem = await as(D, "select * from public.admin_list_members(null, null, null, null, true, 50, 0)");
-const e = mem.find((m) => m.pseudo === "promo_2026");
+const e = mem.find((m) => m.pseudo === "Promo Test");
 ok(e && e.flags.includes("disposable_email") && Number(e.total) === mem.length, "membres suspects : e-mail jetable signalé, total renvoyé");
 const det = await rpc(D, "admin_member_detail", { p_user: A });
 ok(det.email === "amina@gmail.com" && det.events.length >= 3 && det.questionnaire.situation === "employee", "fiche membre complète");
@@ -305,7 +306,7 @@ const pts = await as(D, "select * from public.admin_list_points('revoked', null,
 ok(pts.some((x) => x.actor === "ivan"), "historique des points : auteur de l'annulation");
 ok((await rpc(D, "admin_points_summary")).revoked_month >= 1, "résumé des points");
 const audit = await as(D, "select * from public.admin_list_audit(50)");
-ok(audit.length >= 5 && audit.some((x) => x.action === "user_suspend" && x.target === "promo_2026"), "journal lisible (cible nommée)");
+ok(audit.length >= 5 && audit.some((x) => x.action === "user_suspend" && x.target === "Promo T."), "journal lisible (cible nommée)");
 
 // Équipe : invitation d'une personne sans compte, appliquée à la confirmation de l'adresse
 ok((await rpc(D, "admin_invite_member", { p_email: "Yao@Krisma.io", p_role: "moderator" })) === "invited", "invitation enregistrée");
@@ -365,7 +366,7 @@ const ov12b = await rpc(D, "admin_overview", { p_days: 30 });
 ok(ov12b.daily[29].day === today && ov12b.daily.every((d) => !d.future), "campagne plus longue que la période : les 30 derniers jours, aujourd'hui à droite");
 
 console.log("\n19. Votes à 5 points, ville du membre, classement strict (migration 14)");
-const H = await newAnonUser(); await register(H, "hawa_d", { email: "hawa@gmail.com" });
+const H = await newAnonUser(); await register(H, "Hawa Diallo", { email: "hawa@gmail.com" });
 const shopP = (await rpc(G, "propose_shop", { p_name: "Salon Nappy Queen", p_category: "hair_salon", p_address: "8 rue Polonceau, Paris", p_city_id: paris, p_lat: 48.8862, p_lng: 2.3532 })).shop_id;
 ok((await db.query("select count(*)::int n from public.point_events where kind='vote' and user_id=$1", [G])).rows[0].n === 0, "le soutien automatique de l'auteur ne rapporte pas de points de vote");
 await rpc(H, "toggle_shop_vote", { p_shop_id: shopP });
@@ -383,12 +384,29 @@ const hist = (await rpc(H, "get_my_dashboard")).history.find((x) => x.kind === "
 ok(hist && hist.label === "Salon Nappy Queen" && hist.points === 5, "historique : vote · Salon Nappy Queen · +5");
 await expectError(as(H, "select public.vote_source_id($1, $1)", [H]), "permission denied", "fonction interne non appelable");
 await db.query("update public.profiles set verified_at = now() - interval '1 hour' where id = $1", [H]);
-const I = await newAnonUser(); await register(I, "issa_t", { email: "issa@gmail.com" });
+const I = await newAnonUser(); await register(I, "Issa Traoré", { email: "issa@gmail.com" });
 await rpc(I, "toggle_shop_vote", { p_shop_id: shopP });
 const lb = await as(null, "select * from public.get_leaderboard(null, 50, 0)");
-const rH = Number(lb.find((r) => r.pseudo === "hawa_d").rank), rI = Number(lb.find((r) => r.pseudo === "issa_t").rank);
+const rH = Number(lb.find((r) => r.pseudo === "Hawa D.").rank), rI = Number(lb.find((r) => r.pseudo === "Issa T.").rank);
 ok(rH === rI - 1, "175 points chacun : hawa_d (validée plus tôt) juste devant issa_t");
 ok(new Set(lb.map((r) => Number(r.rank))).size === lb.length, "aucun rang partagé dans tout le classement");
+
+console.log("\n20. Chiffres publics (migration 15)");
+const pub15 = await rpc(null, "get_public_stats");
+ok(Number(pub15.members) >= 5 && Number(pub15.countries) === 1 && pub15.latest.length === 5, `compteur public : ${pub15.members} inscrits, ${pub15.countries} pays`);
+ok(pub15.latest.every((x) => /^\S+ \S\.$/.test(x.name) && !("city" in x)), "derniers inscrits : « Prénom N. », sans ville");
+ok(Number(pub15.today) >= 1, "inscrits validés aujourd'hui");
+const nm = await rpc(B ? A : A, "get_my_name");
+ok(nm.first_name === "Amina" && nm.last_name === "Kouassi", "le membre lit son prénom et son nom");
+const det15 = await rpc(D, "admin_member_detail", { p_user: A });
+ok(det15.first_name === "Amina" && det15.last_name === "Kouassi", "fiche admin : nom complet");
+const found15 = await as(D, "select * from public.admin_list_members('Kouassi', null, null, null, false, 50, 0)");
+ok(found15.length === 1 && found15[0].pseudo === "Amina Kouassi", "recherche admin par nom de famille");
+
+await expectError(rpc(A, "set_my_city", PARIS), "city_locked", "ville verrouillée après la validation");
+await rpc(A, "mark_password_set");
+ok((await rpc(A, "get_my_name")).password_set === true, "mot de passe marqué comme choisi");
+await expectError(as(null, "select public.mark_password_set()"), "permission denied", "mark_password_set fermé aux visiteurs");
 
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);

@@ -1,25 +1,23 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Mail, MailCheck } from 'lucide-react'
+import { Mail } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import FlowLayout, { useT } from './Layout'
 import { Alert, Btn, Field, Sub, Title, Turnstile, useCaptcha } from './ui'
 import { EMAIL_RE } from './store'
 import { errorText } from './text'
 import { PATHS } from './flow'
+import { PasswordField } from './Password'
 
-// Sans compte, Supabase refuse l'envoi : on affiche quand même « lien envoyé »
-// pour ne pas révéler quelles adresses sont inscrites.
-const SILENT = ['otp_disabled', 'signup_disabled', 'user_not_found', 'email_address_not_authorized']
-
-// W09 — Connexion par lien magique.
+// W09 — Connexion par e-mail et mot de passe. L'e-mail n'est vérifié qu'une fois,
+// à l'inscription ; ensuite le membre utilise son mot de passe.
 export default function Login() {
   const { t, lang } = useT()
   const l = t.login
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(false)
+  const [pwd, setPwd] = useState('')
   const [tried, setTried] = useState(false)
   const [busy, setBusy] = useState(false)
   const captcha = useCaptcha()
@@ -36,68 +34,62 @@ export default function Login() {
     e.preventDefault()
     setTried(true)
     setError(null)
-    if (!ok) return
+    if (!ok || !pwd) return
     if (captcha.missing) return setError(t.errors.captcha_required)
     setBusy(true)
-    const { error: err } = await supabase.auth.signInWithOtp({
+    const { error: err } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
-      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}${PATHS.resume}`, ...captcha.options },
+      password: pwd,
+      options: captcha.options,
     })
     setBusy(false)
     captcha.reset()
-    if (err && !SILENT.includes(err.code) && !/signups not allowed/i.test(err.message)) return setError(errorText(t, err))
-    setSent(true)
+    if (err) return setError(errorText(t, err))
+    navigate(PATHS.resume, { replace: true })
   }
 
   return (
     <FlowLayout panelTitle={t.panel.loginTitle} mobileTitle={l.mobileTitle} backTo={PATHS.home}>
-      {sent ? (
-        <div className="flex flex-col items-center gap-5 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-[18px] bg-[#dcf5e4]">
-            <MailCheck size={24} className="text-vert" />
-          </div>
-          <Title>{l.sentTitle}</Title>
-          <Sub className="max-w-[460px]">{l.sentSub(email.trim())}</Sub>
-          <button type="button" onClick={() => setSent(false)} className="cursor-pointer font-body text-[14px] font-semibold underline underline-offset-2">
-            {l.other}
-          </button>
+      <form onSubmit={submit} noValidate className="mx-auto flex max-w-[480px] flex-col gap-6">
+        <div className="flex flex-col gap-3 text-center">
+          <Title>{l.title}</Title>
+          <Sub>{l.sub}</Sub>
         </div>
-      ) : (
-        <form onSubmit={submit} noValidate className="mx-auto flex max-w-[480px] flex-col gap-6">
-          <div className="flex flex-col gap-3 text-center">
-            <Title>{l.title}</Title>
-            <Sub>{l.sub}</Sub>
-          </div>
-          <Field
-            label={t.signup.email}
-            icon={Mail}
-            type="email"
-            autoComplete="email"
-            inputMode="email"
-            placeholder={t.signup.emailPh}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            state={tried && !ok ? 'err' : undefined}
-            message={tried && !ok ? t.signup.errEmail : undefined}
-          />
-          <Turnstile key={captcha.key} onToken={captcha.onToken} lang={lang} />
-          <Alert>{error}</Alert>
-          <Btn type="submit" busy={busy} className="w-full">
-            {l.cta}
-          </Btn>
-          <div className="flex items-center gap-3 font-body text-[13px] text-gris">
-            <span className="h-px flex-1 bg-ligne" />
-            {l.or}
-            <span className="h-px flex-1 bg-ligne" />
-          </div>
-          <p className="text-center font-body text-[14px] text-gris">
-            {l.notYet}{' '}
-            <Link to={PATHS.home} className="font-semibold text-noir underline-offset-2 hover:underline">
-              {l.join}
-            </Link>
-          </p>
-        </form>
-      )}
+        <Field
+          label={t.signup.email}
+          icon={Mail}
+          type="email"
+          autoComplete="email"
+          inputMode="email"
+          placeholder={t.signup.emailPh}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          state={tried && !ok ? 'err' : undefined}
+          message={tried && !ok ? t.signup.errEmail : undefined}
+        />
+        <div className="flex flex-col gap-2">
+          <PasswordField label={l.password} value={pwd} onChange={setPwd} autoComplete="current-password" state={tried && !pwd ? 'err' : undefined} t={t.password} />
+          <Link to={PATHS.forgot} className="self-end font-body text-[14px] font-semibold text-[#c2410c] underline-offset-2 hover:underline">
+            {l.forgot}
+          </Link>
+        </div>
+        <Turnstile key={captcha.key} onToken={captcha.onToken} lang={lang} />
+        <Alert>{error}</Alert>
+        <Btn type="submit" busy={busy} className="w-full">
+          {l.cta}
+        </Btn>
+        <div className="flex items-center gap-3 font-body text-[13px] text-gris">
+          <span className="h-px flex-1 bg-ligne" />
+          {l.or}
+          <span className="h-px flex-1 bg-ligne" />
+        </div>
+        <p className="text-center font-body text-[14px] text-gris">
+          {l.notYet}{' '}
+          <Link to={PATHS.home} className="font-semibold text-noir underline-offset-2 hover:underline">
+            {l.join}
+          </Link>
+        </p>
+      </form>
     </FlowLayout>
   )
 }

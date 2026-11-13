@@ -74,7 +74,7 @@ export async function exportMembers() {
     [
       {
         sheet: 'Membres',
-        head: ['Pseudo', 'E-mail', 'Statut', 'Ville', 'Pays', 'Points', 'Filleuls', 'Inscrit le', 'Validé le', 'Actualités', 'Parrain', 'Situation', 'Reçoit', 'Pays (réception)', 'Envoie', 'Pays (envoi)', 'Transferts', 'Fréquence commerces', 'Dépense', 'Cashback', 'Services', '4,99 €/mois', 'Usage'],
+        head: ['Nom', 'E-mail', 'Statut', 'Ville', 'Pays', 'Points', 'Filleuls', 'Inscrit le', 'Validé le', 'Actualités', 'Parrain', 'Situation', 'Reçoit', 'Pays (réception)', 'Envoie', 'Pays (envoi)', 'Transferts', 'Fréquence commerces', 'Dépense', 'Cashback', 'Services', '4,99 €/mois', 'Usage'],
         widths: [16, 28, 16, 16, 14, 8, 8, 16, 16, 10, 14, 22, 22, 22, 22, 22, 22, 22, 18, 22, 40, 22, 20],
         rows: data.map((m) => [
           m.pseudo, m.email, MEMBER_STATUS[m.status]?.[0] || m.status, m.city, m.country, m.points, m.referrals, d(m.created_at), d(m.verified_at), m.consent_marketing ? 'Oui' : 'Non', m.referrer,
@@ -95,7 +95,7 @@ export async function exportRanking() {
     [
       {
         sheet: 'Classement final',
-        head: ['Rang', 'Pseudo', 'E-mail', 'Ville', 'Pays', 'Points', 'Filleuls', 'Commerces', 'Validé le'],
+        head: ['Rang', 'Nom affiché', 'E-mail', 'Ville', 'Pays', 'Points', 'Filleuls', 'Commerces', 'Validé le'],
         widths: [8, 18, 30, 18, 16, 10, 10, 12, 18],
         rows: data.map((r) => [Number(r.rank), r.pseudo, r.email, r.city, r.country, r.points, r.referrals, r.shops, d(r.verified_at)]),
       },

@@ -6,7 +6,7 @@ import { LangSwitch } from '../components/Nav'
 import { useLang } from '../i18n'
 import { rpc, supabase } from '../lib/supabase'
 import { Loading } from '../waitlist/Layout'
-import { PATHS, isPreview, myDashboard, waitForSession } from '../waitlist/flow'
+import { PATHS, hasPassword, isPreview, myDashboard, waitForSession } from '../waitlist/flow'
 import { PREVIEW_MEMBER } from './preview'
 import { MTEXT } from './text'
 
@@ -55,9 +55,18 @@ function useMemberData() {
 // Réservé aux membres validés ; sinon connexion, ou reprise du parcours.
 export function RequireMember({ children }) {
   const m = useMember()
+  const [pwd, setPwd] = useState(isPreview() ? true : null)
+  const verified = m.d?.status === 'verified'
+  useEffect(() => {
+    if (!verified || pwd !== null) return
+    hasPassword().then(setPwd)
+  }, [verified, pwd])
   if (m.loading) return <Loading />
   if (!m.d) return <Navigate to={PATHS.login} replace />
   if (m.d.status !== 'verified' && m.d.status !== 'suspended') return <Navigate to={PATHS.resume} replace />
+  // Le mot de passe se choisit juste après la vérification de l'e-mail.
+  if (verified && pwd === null) return <Loading />
+  if (verified && pwd === false) return <Navigate to={PATHS.password} replace />
   return children
 }
 

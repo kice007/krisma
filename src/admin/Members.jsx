@@ -71,7 +71,7 @@ export default function Members() {
       <div className="mb-4 flex flex-wrap gap-2.5">
         <label className="flex h-11 w-full items-center gap-2.5 rounded-full bg-white px-4 sm:w-[300px]">
           <Search size={17} className="text-gris" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pseudo, e-mail…" aria-label="Rechercher un membre" className="min-w-0 flex-1 bg-transparent font-body text-[14px] outline-none" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Nom, e-mail…" aria-label="Rechercher un membre" className="min-w-0 flex-1 bg-transparent font-body text-[14px] outline-none" />
         </label>
         <Select label="Ville" value={city} onChange={setCity} options={[['', 'toutes'], ...cities.filter((c) => c.members > 0).map((c) => [c.city_id, c.city])]} />
         <Select label="Pays" value={country} onChange={setCountry} options={[['', 'tous'], ...countries.map((c) => [c, countryName(c, 'fr')])]} />
@@ -96,7 +96,7 @@ export default function Members() {
             <table className="w-full min-w-[880px] border-collapse text-left font-body text-[14px]">
               <thead className="text-[12px] text-gris">
                 <tr className="border-b border-ligne">
-                  {['Pseudo', 'E-mail', 'Ville', 'Statut', 'Points', 'Filleuls', 'Inscrit le', 'Signal'].map((h) => (
+                  {['Membre', 'E-mail', 'Ville', 'Statut', 'Points', 'Filleuls', 'Inscrit le', 'Signal'].map((h) => (
                     <th key={h} className="px-5 py-3.5 font-medium">
                       {h}
                     </th>
@@ -200,7 +200,7 @@ export function MemberDetail() {
       <Link to="/admin/membres" className="mb-4 inline-flex items-center gap-2 font-body text-[14px] font-medium text-gris hover:text-noir">
         Utilisateurs
       </Link>
-      <PageHead title={m.pseudo} sub={m.email}>
+      <PageHead title={[m.first_name, m.last_name].filter(Boolean).join(" ") || m.pseudo} sub={m.email}>
         <Badge tone={tone} className="!h-8 !px-3 !text-[13px]">
           {label}
         </Badge>

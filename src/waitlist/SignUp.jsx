@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { AtSign, Mail, UserPlus } from 'lucide-react'
+import { Eye, Mail, User, UserPlus } from 'lucide-react'
 import { currentUser, rpc, supabase } from '../lib/supabase'
 import FlowLayout, { Loading, useT } from './Layout'
 import { Alert, Btn, Checkbox, Field, Sub, Title, Turnstile, useCaptcha } from './ui'
-import { EMAIL_RE, PSEUDO_RE, captureReferral, store } from './store'
+import { EMAIL_RE, NAME_RE, captureReferral, cleanName, publicName, store } from './store'
 import { errorText } from './text'
 import { PATHS, myDashboard } from './flow'
 
-// W02 — Inscription : e-mail, pseudo unique, consentements, parrain éventuel.
+// W02 — Inscription : prénom, nom, e-mail, consentements, parrain éventuel.
 export default function SignUp() {
   const { t, lang } = useT()
   const s = t.signup
@@ -18,19 +18,18 @@ export default function SignUp() {
 
   const [ready, setReady] = useState(false)
   const [email, setEmail] = useState(params.get('email') || store.email())
-  const [pseudo, setPseudo] = useState('')
-  const [ownPseudo, setOwnPseudo] = useState('')
+  const [first, setFirst] = useState('')
+  const [last, setLast] = useState('')
   const [rules, setRules] = useState(false)
   const [marketing, setMarketing] = useState(params.get('news') === '1')
   const [referrer, setReferrer] = useState(null)
-  const [pseudoState, setPseudoState] = useState('idle')
   const captcha = useCaptcha()
   const [hasSession, setHasSession] = useState(false)
   const [tried, setTried] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
 
-  // Reprise : une session existante renvoie à la bonne étape, ou pré-remplit le pseudo.
+  // Reprise : une session existante renvoie à la bonne étape, ou pré-remplit le nom.
   useEffect(() => {
     captureReferral(location.search)
     let alive = true
@@ -47,10 +46,13 @@ export default function SignUp() {
         if (!alive) return
         if (d.status === 'verified') return navigate(PATHS.member, { replace: true })
         if (d.status === 'questionnaire_done') return navigate(PATHS.verify, { replace: true })
-        if (d.pseudo) {
-          setPseudo(d.pseudo)
-          setOwnPseudo(d.pseudo)
-          setRules(true)
+        if (d.status === 'draft') {
+          const n = await rpc('get_my_name').catch(() => null)
+          if (n?.first_name) {
+            setFirst(n.first_name)
+            setLast(n.last_name || '')
+            setRules(true)
+          }
         }
       }
       if (alive) setReady(true)
@@ -60,29 +62,16 @@ export default function SignUp() {
     }
   }, [location.search, navigate])
 
-  // Disponibilité du pseudo, vérifiée pendant la saisie.
-  const seq = useRef(0)
-  useEffect(() => {
-    const p = pseudo.trim()
-    if (!p) return setPseudoState('idle')
-    if (!PSEUDO_RE.test(p)) return setPseudoState('invalid')
-    if (ownPseudo && p.toLowerCase() === ownPseudo.toLowerCase()) return setPseudoState('free')
-    setPseudoState('checking')
-    const id = ++seq.current
-    const timer = setTimeout(async () => {
-      const free = await rpc('check_pseudo_available', { p_pseudo: p }).catch(() => null)
-      if (id === seq.current) setPseudoState(free === null ? 'idle' : free ? 'free' : 'taken')
-    }, 350)
-    return () => clearTimeout(timer)
-  }, [pseudo, ownPseudo])
-
   const emailOk = EMAIL_RE.test(email.trim())
+  const firstOk = NAME_RE.test(cleanName(first))
+  const lastOk = NAME_RE.test(cleanName(last))
+  const shown = firstOk ? publicName(first, lastOk ? last : '') : ''
 
   const submit = async (e) => {
     e.preventDefault()
     setTried(true)
     setError(null)
-    if (!emailOk || !rules || pseudoState === 'invalid' || pseudoState === 'taken' || !pseudo.trim()) return
+    if (!firstOk || !lastOk || !emailOk || !rules) return
     if (!hasSession && captcha.missing) return setError(t.errors.captcha_required)
     setBusy(true)
     try {
@@ -93,7 +82,8 @@ export default function SignUp() {
         setHasSession(true)
       }
       await rpc('start_registration', {
-        p_pseudo: pseudo.trim(),
+        p_first_name: cleanName(first),
+        p_last_name: cleanName(last),
         p_accept_rules: true,
         p_consent_marketing: marketing,
         p_locale: lang,
@@ -103,7 +93,6 @@ export default function SignUp() {
       navigate(PATHS.question(1))
     } catch (err) {
       if (err.code === 'already_registered') return navigate(PATHS.login)
-      if (err.code === 'pseudo_taken') setPseudoState('taken')
       setError(errorText(t, err))
     } finally {
       setBusy(false)
@@ -111,14 +100,6 @@ export default function SignUp() {
   }
 
   if (!ready) return <Loading />
-
-  const pseudoMsg = {
-    checking: [undefined, s.pseudoChecking],
-    free: ['ok', s.pseudoFree],
-    taken: ['err', s.pseudoTaken],
-    invalid: ['err', s.pseudoRules],
-    idle: [tried && !pseudo.trim() ? 'err' : undefined, s.pseudoRules],
-  }[pseudoState]
 
   return (
     <FlowLayout step={0} mobileTitle={s.mobileTitle} backTo={PATHS.home}>
@@ -133,6 +114,38 @@ export default function SignUp() {
           <Title>{s.title}</Title>
           <Sub>{s.sub}</Sub>
         </div>
+        <div className="flex flex-col gap-2">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label={s.firstName}
+              icon={User}
+              autoComplete="given-name"
+              maxLength={60}
+              placeholder={s.firstPh}
+              value={first}
+              onChange={(e) => setFirst(e.target.value)}
+              state={tried && !firstOk ? 'err' : undefined}
+              message={tried && !firstOk ? s.errFirst : undefined}
+            />
+            <Field
+              label={s.lastName}
+              icon={User}
+              autoComplete="family-name"
+              maxLength={60}
+              placeholder={s.lastPh}
+              value={last}
+              onChange={(e) => setLast(e.target.value)}
+              state={tried && !lastOk ? 'err' : undefined}
+              message={tried && !lastOk ? s.errLast : undefined}
+            />
+          </div>
+          {shown && (
+            <p className="flex items-center gap-1.5 font-body text-[13px] text-vert">
+              <Eye size={14} />
+              {s.preview(shown)}
+            </p>
+          )}
+        </div>
         <Field
           label={s.email}
           icon={Mail}
@@ -144,20 +157,6 @@ export default function SignUp() {
           onChange={(e) => setEmail(e.target.value)}
           state={tried && !emailOk ? 'err' : undefined}
           message={tried && !emailOk ? s.errEmail : undefined}
-        />
-        <Field
-          label={s.pseudo}
-          hint={s.pseudoHint}
-          icon={AtSign}
-          autoComplete="username"
-          autoCapitalize="none"
-          spellCheck={false}
-          maxLength={20}
-          placeholder={s.pseudoPh}
-          value={pseudo}
-          onChange={(e) => setPseudo(e.target.value.replace(/\s/g, ''))}
-          state={pseudoMsg[0]}
-          message={pseudoMsg[1]}
         />
         <div className="flex flex-col gap-3.5">
           <Checkbox checked={rules} onChange={setRules} invalid={tried && !rules}>
