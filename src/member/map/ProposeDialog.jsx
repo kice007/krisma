@@ -435,7 +435,7 @@ export default function ProposeDialog({ t, lang, city, desktop, onClose, onDone 
         initial={desktop ? { opacity: 0, y: 16 } : { y: '100%' }}
         animate={desktop ? { opacity: 1, y: 0 } : { y: 0 }}
         transition={{ type: 'spring', damping: 32, stiffness: 320 }}
-        className="max-h-[94vh] w-full overflow-y-auto rounded-t-[28px] bg-white px-5 pb-8 pt-3 lg:max-w-[640px] lg:rounded-[32px] lg:px-9 lg:pb-9 lg:pt-9"
+        className="km-scroll max-h-[94vh] w-full overflow-y-auto rounded-t-[28px] bg-white px-5 pb-8 pt-3 lg:max-w-[640px] lg:rounded-[32px] lg:px-9 lg:pb-9 lg:pt-9"
       >
         <span className="mx-auto mb-3 block h-1 w-10 rounded-full bg-ligne lg:hidden" />
         {!done && (

@@ -134,7 +134,6 @@ function Header({ m, t, full }) {
       <div className="mx-auto flex h-14 max-w-[1360px] items-center justify-between rounded-full border-ligne lg:h-[68px] lg:border lg:bg-white lg:pl-6 lg:pr-2.5">
         <Link to="/" className="flex items-center gap-2" aria-label="KRISMA, retour à l'accueil du site">
           <img src="/img/landing/k-ink.png" alt="" className="h-[23px] w-[18px] object-contain lg:h-[25px] lg:w-5" />
-          <span className="font-display text-[16px] font-extrabold tracking-[1.5px]">KRISMA</span>
         </Link>
         <nav className="hidden items-center gap-[26px] lg:flex">
           {links.map(([to, label, end]) => (

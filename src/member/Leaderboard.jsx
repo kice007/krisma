@@ -6,7 +6,9 @@ import { PATHS, isPreview } from '../waitlist/flow'
 import { PREVIEW_AROUND, PREVIEW_BOARD } from './preview'
 import { fmt, initials, useMT, useMember } from './Shell'
 
-const PAGE = 50
+// Classement affiché : 20 membres d'abord, puis jusqu'à 50 avec « Afficher plus ».
+const FIRST = 20
+const MAX = 50
 
 const MEDALS = ['#fd8030', '#6b6b6b', '#a16207']
 const TOP = 2000
@@ -63,7 +65,6 @@ function Banner({ rows, me, d, t, lang }) {
             <span className="min-w-0 flex-1">
               <span className="block truncate font-body text-[15px] font-semibold">
                 {r.pseudo}
-                {r.is_me && <span className="ml-2 rounded-full bg-marque px-2 py-0.5 font-body text-[11px] font-bold text-white">{b.youPill}</span>}
               </span>
               <span className="block truncate font-body text-[13px] text-gris">{r.city || '—'}</span>
             </span>
@@ -86,7 +87,6 @@ function Row({ r, t, lang, last }) {
         <span className="min-w-0">
           <span className={`flex items-center gap-2 truncate font-body text-[15px] ${r.is_me ? 'font-bold' : 'font-medium'}`}>
             <span className="truncate">{r.pseudo}</span>
-            {r.is_me && <span className="shrink-0 rounded-full bg-marque px-2 py-0.5 font-body text-[11px] font-bold text-white">{t.board.youPill}</span>}
           </span>
           <span className="block truncate font-body text-[12px] text-gris lg:hidden">{r.city}</span>
         </span>
@@ -126,14 +126,14 @@ export default function Leaderboard() {
       return
     }
     Promise.all([
-      rpc('get_leaderboard', { p_city_id: cityId, p_limit: PAGE, p_offset: 0 }),
+      rpc('get_leaderboard', { p_city_id: cityId, p_limit: FIRST, p_offset: 0 }),
       rpc('get_leaderboard_meta', { p_city_id: cityId }),
     ]).then(([list, meta]) => {
       if (!alive) return
       const data = list
       setRows(data)
       setMembers(meta.members)
-      setHasMore(data.length === PAGE)
+      setHasMore(data.length === FIRST)
     }, () => alive && setRows([]))
     return () => {
       alive = false
@@ -152,9 +152,10 @@ export default function Leaderboard() {
 
   const more = async () => {
     setBusy(true)
-    const list = await rpc('get_leaderboard', { p_city_id: cityId, p_limit: PAGE, p_offset: rows.length }).catch(() => [])
+    const want = MAX - rows.length
+    const list = await rpc('get_leaderboard', { p_city_id: cityId, p_limit: want, p_offset: rows.length }).catch(() => [])
     setRows((prev) => [...prev, ...list])
-    setHasMore(list.length === PAGE)
+    setHasMore(false)
     setBusy(false)
   }
 
