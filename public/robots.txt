@@ -1,0 +1,43 @@
+# KRISMA — https://www.krisma.io
+# Pages publiques ouvertes à tous les moteurs, y compris les assistants IA (GEO).
+# Espace membre, administration et étapes d'inscription : non indexés.
+
+User-agent: *
+Allow: /
+Disallow: /espace
+Disallow: /admin
+Disallow: /connexion
+Disallow: /waitlist/inscription
+Disallow: /waitlist/questionnaire
+Disallow: /waitlist/verification
+Disallow: /waitlist/bienvenue
+Disallow: /waitlist/reprise
+Disallow: /waitlist/mot-de-passe
+
+# Assistants et moteurs IA : bienvenus sur les pages publiques
+User-agent: GPTBot
+Allow: /
+Disallow: /espace
+Disallow: /admin
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /espace
+Disallow: /admin
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://www.krisma.io/sitemap.xml

@@ -1,3 +1,53 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/waitlist",
+      "destination": "/waitlist/index.html"
+    },
+    {
+      "source": "/carte",
+      "destination": "/carte/index.html"
+    },
+    {
+      "source": "/classement",
+      "destination": "/classement/index.html"
+    },
+    {
+      "source": "/reglement",
+      "destination": "/reglement/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(espace|admin|connexion)(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/waitlist/(inscription|questionnaire|verification|bienvenue|reprise|mot-de-passe)(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/(llms.txt|robots.txt)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        }
+      ]
+    }
+  ]
 }

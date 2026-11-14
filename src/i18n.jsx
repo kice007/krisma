@@ -268,7 +268,6 @@ export function LanguageProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('krisma-lang', lang)
     document.documentElement.lang = lang
-    document.title = translations[lang].meta.title
   }, [lang])
 
   return (
