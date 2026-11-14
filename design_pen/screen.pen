@@ -81740,72 +81740,6 @@
                   "fontFamily": "$font-body",
                   "fontSize": 18,
                   "fontWeight": "normal"
-                },
-                {
-                  "type": "frame",
-                  "id": "K8RMh",
-                  "name": "Actions hero",
-                  "gap": 10,
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "vIx4K",
-                      "name": "Bouton Rejoindre la liste d'attente",
-                      "height": 54,
-                      "fill": "$v2-orange",
-                      "cornerRadius": 999,
-                      "gap": 10,
-                      "padding": [
-                        0,
-                        26
-                      ],
-                      "justifyContent": "center",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "GSbxE",
-                          "name": "Libellé",
-                          "fill": "$white",
-                          "content": "Commencer mon inscription",
-                          "fontFamily": "$font-body",
-                          "fontSize": 15,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "bfZzl",
-                      "name": "Bouton J'ai déjà un compte",
-                      "height": 54,
-                      "fill": "#FFFFFF",
-                      "cornerRadius": 999,
-                      "stroke": "$v2-ligne",
-                      "strokeWidth": 1,
-                      "strokeAlignment": "inner",
-                      "padding": [
-                        0,
-                        22
-                      ],
-                      "justifyContent": "center",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "JwNjH",
-                          "name": "Libellé",
-                          "fill": "$v2-noir",
-                          "content": "Se connecter",
-                          "lineHeight": 1.4,
-                          "fontFamily": "$font-body",
-                          "fontSize": 15,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    }
-                  ]
                 }
               ]
             },
@@ -84110,8 +84044,11 @@
                           "id": "lPoCZ",
                           "name": "Carte",
                           "width": "fill_container",
-                          "fill": "#EFEFF1",
+                          "fill": "#ffffffff",
                           "cornerRadius": 28,
+                          "stroke": "$line",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
                           "layout": "vertical",
                           "gap": 28,
                           "padding": 24,
@@ -84532,8 +84469,11 @@
                           "id": "rYBRT",
                           "name": "Carte",
                           "width": "fill_container",
-                          "fill": "#EFEFF1",
+                          "fill": "#ffffffff",
                           "cornerRadius": 28,
+                          "stroke": "$line",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
                           "layout": "vertical",
                           "gap": 28,
                           "padding": 24,
@@ -84560,7 +84500,7 @@
                                     "position": 0
                                   },
                                   {
-                                    "color": "#F7F7F7",
+                                    "color": "#ffffffff",
                                     "position": 1
                                   }
                                 ],
@@ -84959,8 +84899,11 @@
                           "id": "oCaKp",
                           "name": "Carte",
                           "width": "fill_container",
-                          "fill": "#EFEFF1",
+                          "fill": "#ffffffff",
                           "cornerRadius": 28,
+                          "stroke": "$line",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
                           "layout": "vertical",
                           "gap": 28,
                           "padding": 24,
@@ -85380,8 +85323,11 @@
                           "id": "IwlAp",
                           "name": "Carte",
                           "width": "fill_container",
-                          "fill": "#EFEFF1",
+                          "fill": "#ffffffff",
                           "cornerRadius": 28,
+                          "stroke": "$line",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
                           "layout": "vertical",
                           "gap": 28,
                           "padding": 24,
