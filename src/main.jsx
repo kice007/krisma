@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import { LanguageProvider } from './i18n'
 import { Loading } from './waitlist/Layout'
+import Seo from './seo/Seo'
 
 // Parcours waitlist et espace membre chargés à la demande : la page d'accueil reste légère.
 const Home = lazy(() => import('./waitlist/Home'))
@@ -49,6 +50,7 @@ createRoot(document.getElementById('root')).render(
     <LanguageProvider>
       <BrowserRouter>
         <ScrollToTop />
+        <Seo />
         <Suspense fallback={<Loading />}>
           <Routes>
             <Route path="/" element={<App />} />
