@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Info, LoaderCircle } from '../components/icons'
+import { ArrowLeft, Info, LoaderCircle } from '../components/icons'
 import { rpc } from '../lib/supabase'
 import { PATHS, isPreview } from '../waitlist/flow'
 import { PREVIEW_AROUND, PREVIEW_BOARD } from './preview'
 import { fmt, initials, useMT, useMember } from './Shell'
 
-const PAGE = 50
+// Classement paginé : 20 membres par page.
+const PAGE = 20
 
 const MEDALS = ['#fd8030', '#6b6b6b', '#a16207']
 const TOP = 2000
@@ -63,7 +64,6 @@ function Banner({ rows, me, d, t, lang }) {
             <span className="min-w-0 flex-1">
               <span className="block truncate font-body text-[15px] font-semibold">
                 {r.pseudo}
-                {r.is_me && <span className="ml-2 rounded-full bg-marque px-2 py-0.5 font-body text-[11px] font-bold text-white">{b.youPill}</span>}
               </span>
               <span className="block truncate font-body text-[13px] text-gris">{r.city || '—'}</span>
             </span>
@@ -86,7 +86,6 @@ function Row({ r, t, lang, last }) {
         <span className="min-w-0">
           <span className={`flex items-center gap-2 truncate font-body text-[15px] ${r.is_me ? 'font-bold' : 'font-medium'}`}>
             <span className="truncate">{r.pseudo}</span>
-            {r.is_me && <span className="shrink-0 rounded-full bg-marque px-2 py-0.5 font-body text-[11px] font-bold text-white">{t.board.youPill}</span>}
           </span>
           <span className="block truncate font-body text-[12px] text-gris lg:hidden">{r.city}</span>
         </span>
@@ -102,66 +101,131 @@ function Row({ r, t, lang, last }) {
   )
 }
 
-// W11 / M13 — Classement public (général ou ville du membre).
+// Numéros de page avec points de suspension : 1 … 4 5 6 … 20
+function pageList(page, pages) {
+  const set = new Set([1, pages, page - 1, page, page + 1].filter((n) => n >= 1 && n <= pages))
+  const list = [...set].sort((a, b) => a - b)
+  const out = []
+  list.forEach((n, i) => {
+    if (i && n - list[i - 1] > 1) out.push('…' + n)
+    out.push(n)
+  })
+  return out
+}
+
+function Pagination({ page, pages, setPage, b, myPage }) {
+  const btn = 'flex h-10 min-w-10 cursor-pointer items-center justify-center rounded-full px-3 font-body text-[14px] font-semibold disabled:cursor-default disabled:opacity-40'
+  return (
+    <nav aria-label={b.pages} className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+      <div className="flex flex-wrap items-center justify-center gap-1.5">
+        <button type="button" onClick={() => setPage(page - 1)} disabled={page <= 1} aria-label={b.prev} className={`${btn} border border-ligne bg-white hover:border-noir`}>
+          <ArrowLeft size={16} className="sm:hidden" />
+          <span className="hidden sm:inline">{b.prev}</span>
+        </button>
+        {pageList(page, pages).map((n) =>
+          typeof n === 'string' ? (
+            <span key={n} className="px-1 font-body text-[14px] text-gris">
+              …
+            </span>
+          ) : (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setPage(n)}
+              aria-current={n === page ? 'page' : undefined}
+              className={`${btn} ${n === page ? 'bg-noir text-white' : 'bg-white hover:bg-ligne'}`}
+            >
+              {n}
+            </button>
+          ),
+        )}
+        <button type="button" onClick={() => setPage(page + 1)} disabled={page >= pages} aria-label={b.next} className={`${btn} border border-ligne bg-white hover:border-noir`}>
+          <ArrowLeft size={16} className="rotate-180 sm:hidden" />
+          <span className="hidden sm:inline">{b.next}</span>
+        </button>
+      </div>
+      {myPage && myPage !== page && (
+        <button type="button" onClick={() => setPage(myPage)} className={`${btn} bg-[#fff3ea] text-[#c2410c] hover:bg-[#ffe6d5]`}>
+          {b.myPos}
+        </button>
+      )}
+    </nav>
+  )
+}
+
+// Données d'aperçu (?apercu) : pages fictives au-delà de la première.
+function previewPage(page) {
+  if (page === 1) return PREVIEW_BOARD
+  const start = (page - 1) * PAGE
+  return Array.from({ length: PAGE }, (_, i) => {
+    const r = start + i + 1
+    const me = PREVIEW_AROUND.find((x) => x.rank === r)
+    return me || { rank: r, pseudo: ['Kofi A.', 'Leïla B.', 'Moussa C.', 'Inès B.', 'Seydou D.'][r % 5], points: Math.max(170, 1040 - r), city: ['Paris', 'Lyon', 'Bruxelles', 'Montréal'][r % 4], referrals: r % 7, shops: r % 4, is_me: false }
+  })
+}
+
+// W11 / M13 — Classement public (général ou ville du membre), paginé par 20.
 export default function Leaderboard() {
   const { d } = useMember()
   const { t, lang } = useMT()
   const b = t.board
   const [scope, setScope] = useState('all')
+  const [top, setTop] = useState(null)
   const [rows, setRows] = useState(null)
   const [members, setMembers] = useState(0)
-  const [hasMore, setHasMore] = useState(false)
+  const [page, setPage] = useState(1)
   const [busy, setBusy] = useState(false)
-  const [around, setAround] = useState([])
+  const table = useRef(null)
   const cityId = scope === 'city' ? d?.city?.id : null
+  const pages = Math.max(1, Math.ceil(Number(members) / PAGE))
 
+  // Top 3 et nombre de membres (à chaque changement de classement).
   useEffect(() => {
     let alive = true
-    setRows(null)
-    setAround([])
+    setTop(null)
+    setPage(1)
     if (isPreview()) {
-      setRows(PREVIEW_BOARD)
+      setTop(PREVIEW_BOARD.slice(0, 3))
       setMembers(12481)
-      setAround(PREVIEW_AROUND)
       return
     }
-    Promise.all([
-      rpc('get_leaderboard', { p_city_id: cityId, p_limit: PAGE, p_offset: 0 }),
-      rpc('get_leaderboard_meta', { p_city_id: cityId }),
-    ]).then(([list, meta]) => {
-      if (!alive) return
-      const data = list
-      setRows(data)
-      setMembers(meta.members)
-      setHasMore(data.length === PAGE)
-    }, () => alive && setRows([]))
+    Promise.all([rpc('get_leaderboard', { p_city_id: cityId, p_limit: 3, p_offset: 0 }), rpc('get_leaderboard_meta', { p_city_id: cityId })]).then(
+      ([list, meta]) => {
+        if (!alive) return
+        setTop(list)
+        setMembers(meta.members)
+      },
+      () => alive && setTop([]),
+    )
     return () => {
       alive = false
     }
   }, [cityId])
 
-  // Le membre hors de la page chargée : on affiche ses voisins directs (classement général).
+  // Lignes de la page demandée.
   useEffect(() => {
-    if (isPreview() || !rows || scope !== 'all' || !d?.rank || rows.some((r) => r.is_me)) return
-    const offset = Math.max(Number(d.rank) - 2, 0)
-    rpc('get_leaderboard', { p_city_id: null, p_limit: 3, p_offset: offset }).then(
-      (list) => setAround(list),
-      () => {},
-    )
-  }, [rows, scope, d])
-
-  const more = async () => {
+    let alive = true
     setBusy(true)
-    const list = await rpc('get_leaderboard', { p_city_id: cityId, p_limit: PAGE, p_offset: rows.length }).catch(() => [])
-    setRows((prev) => [...prev, ...list])
-    setHasMore(list.length === PAGE)
-    setBusy(false)
+    const load = isPreview() ? Promise.resolve(previewPage(page)) : rpc('get_leaderboard', { p_city_id: cityId, p_limit: PAGE, p_offset: (page - 1) * PAGE })
+    load
+      .then((list) => alive && setRows(list || []), () => alive && setRows([]))
+      .finally(() => alive && setBusy(false))
+    return () => {
+      alive = false
+    }
+  }, [cityId, page])
+
+  const goTo = (n) => {
+    setPage(Math.min(Math.max(n, 1), pages))
+    table.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const me = rows?.find((r) => r.is_me) || around.find((r) => r.is_me)
-  const rest = rows ? rows.slice(3) : []
-  // Le membre hors de la page chargée : ses voisins directs, lui compris, sous les points de suspension.
-  const neighbours = around.filter((r) => !rows?.some((x) => Number(x.rank) === Number(r.rank)))
+  // Ma position : dans la page affichée, sinon d'après le tableau de bord.
+  const meRow = rows?.find((r) => r.is_me) || top?.find((r) => r.is_me)
+  const me = meRow || (d?.rank && scope === 'all' ? { rank: d.rank, points: d.points, pseudo: d.pseudo, city: d.city?.name } : null)
+  const myPage = scope === 'all' && d?.rank ? Math.ceil(Number(d.rank) / PAGE) : null
+  // Page 1 : les 3 premiers sont déjà dans le bandeau.
+  const list = rows ? (page === 1 ? rows.slice(3) : rows) : []
 
   return (
     <div className="flex flex-col gap-4 lg:gap-5">
@@ -189,17 +253,17 @@ export default function Leaderboard() {
         )}
       </div>
 
-      {rows === null ? (
+      {top === null ? (
         <div className="flex justify-center py-20">
           <LoaderCircle className="animate-spin text-gris" />
         </div>
-      ) : rows.length === 0 ? (
+      ) : top.length === 0 ? (
         <p className="rounded-[24px] bg-white p-8 text-center font-body text-[15px] text-gris">{b.empty}</p>
       ) : (
         <>
-          <Banner rows={rows} me={me} d={d} t={t} lang={lang} />
-          {(rest.length > 0 || neighbours.length > 0) && (
-            <section className="rounded-[24px] bg-white px-5 lg:px-6">
+          <Banner rows={top} me={me} d={d} t={t} lang={lang} />
+          {(list.length > 0 || pages > 1) && (
+            <section ref={table} className="scroll-mt-28 rounded-[24px] bg-white px-5 lg:px-6">
               <div className="hidden grid-cols-[130px_1fr_180px_130px_130px_120px] border-b border-ligne py-4 font-body text-[13px] font-medium text-gris lg:grid">
                 {b.cols.map((c, i) => (
                   <span key={c} className={i === 5 ? 'text-right' : ''}>
@@ -207,23 +271,14 @@ export default function Leaderboard() {
                   </span>
                 ))}
               </div>
-              <ul>
-                {rest.map((r, i) => (
-                  <Row key={r.rank} r={r} t={t} lang={lang} last={i === rest.length - 1 && !neighbours.length} />
-                ))}
-                {neighbours.length > 0 && <li className="border-b border-ligne py-3 font-body text-[14px] text-gris">…</li>}
-                {neighbours.map((r, i) => (
-                  <Row key={r.rank} r={r} t={t} lang={lang} last={i === neighbours.length - 1} />
+              <ul className={busy ? 'opacity-50 transition-opacity' : 'transition-opacity'}>
+                {list.map((r, i) => (
+                  <Row key={r.rank} r={r} t={t} lang={lang} last={i === list.length - 1} />
                 ))}
               </ul>
             </section>
           )}
-          {hasMore && (
-            <button type="button" onClick={more} disabled={busy} className="mx-auto flex h-12 cursor-pointer items-center gap-2 rounded-full border border-ligne bg-white px-6 font-body text-[14px] font-semibold hover:border-noir">
-              {busy && <LoaderCircle size={16} className="animate-spin" />}
-              {b.more}
-            </button>
-          )}
+          {pages > 1 && <Pagination page={page} pages={pages} setPage={goTo} b={b} myPage={myPage} />}
         </>
       )}
 

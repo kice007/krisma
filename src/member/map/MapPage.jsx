@@ -88,7 +88,7 @@ function CityPicker({ t, lang, cities, current, onPick, onClose, sheet }) {
       </button>
       {err && <p className="px-3 pb-2 font-body text-[13px] text-[#b91c1c]">{err}</p>}
       <p className="mt-1 border-t border-ligne px-1 pb-2 pt-3 font-body text-[13px] font-semibold text-gris">{t.topCities}</p>
-      <ul className="-mx-1 min-h-0 flex-1 overflow-y-auto">
+      <ul className="km-scroll -mx-1 min-h-0 flex-1 overflow-y-auto">
         {list.map((c) => {
           const on = current?.id === c.id
           return (
@@ -231,7 +231,7 @@ function ShopList({ shops, t, lang, selectedId, onSelect, emptyText }) {
 
 function Chips({ t, category, setCategory }) {
   return (
-    <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
+    <div className="flex flex-wrap gap-2">
       {['all', ...CATEGORIES].map((c) => (
         <button
           key={c}
@@ -545,7 +545,7 @@ export default function MapPage() {
           <span className="font-semibold">{city ? t.listTitle(city.name, count) : t.title}</span>
           <span className="text-gris">{t.mostWanted}</span>
         </div>
-        <div className="-mx-1 mt-3 min-h-0 flex-1 overflow-y-auto px-1 pb-3">
+        <div className="km-scroll -mx-1 mt-3 min-h-0 flex-1 overflow-y-auto px-1 pb-3">
           {loading ? (
             <div className="flex justify-center py-8">
               <LoaderCircle className="animate-spin text-gris" />
@@ -618,7 +618,7 @@ export default function MapPage() {
         <div className="mt-3 shrink-0">
           <Chips t={t} category={category} setCategory={setCategory} />
         </div>
-        <div className="mt-3 min-h-0 flex-1 overflow-y-auto">
+        <div className="km-scroll mt-3 min-h-0 flex-1 overflow-y-auto">
           <ShopList shops={filtered} t={t} lang={lang} selectedId={selectedId} onSelect={select} emptyText={emptyText} />
         </div>
       </Sheet>

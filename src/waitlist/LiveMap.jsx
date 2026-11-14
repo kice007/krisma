@@ -241,7 +241,7 @@ export default function LiveMap({ lang, t }) {
             <span className="font-semibold">{city ? m.listTitle(city.name, filtered.length) : m.title}</span>
             <span className="text-gris">{m.mostWanted}</span>
           </div>
-          <div className="-mx-1 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-1">
+          <div className="km-scroll -mx-1 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-1">
             {filtered.map((s) => (
               <ShopItem key={s.id} s={s} m={m} on={s.id === selectedId} onClick={() => pick(s)} />
             ))}

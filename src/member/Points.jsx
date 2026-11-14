@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, BadgeCheck, Hourglass, Info, Store, UserPlus } from '../components/icons'
+import { ArrowLeft, BadgeCheck, Heart, Hourglass, Info, Sparkles, Store, UserPlus } from '../components/icons'
 import { fmt, useMT, useMember } from './Shell'
 
 const KIND = {
   signup: [BadgeCheck, 'bg-noir'],
   referral: [UserPlus, 'bg-marque'],
   shop: [Store, 'bg-vert'],
+  vote: [Heart, 'bg-[#a351fc]'],
 }
+// Type inconnu (ajouté plus tard en base) : on affiche quand même la ligne.
+const FALLBACK = [Sparkles, 'bg-gris']
 
 // M12 — Historique des points (aussi ouvert par « Historique » sur desktop).
 export default function Points() {
@@ -41,7 +44,7 @@ export default function Points() {
       <ul className="rounded-[24px] bg-white px-5">
         {d.history.length === 0 && <li className="py-6 font-body text-[14px] text-gris">{p.empty}</li>}
         {d.history.map((e, i) => {
-          const [I, bg] = KIND[e.kind]
+          const [I, bg] = KIND[e.kind] || FALLBACK
           const off = e.status !== 'awarded'
           const revoked = e.status === 'revoked'
           return (
@@ -50,7 +53,7 @@ export default function Points() {
                 <I size={18} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block font-body text-[15px] font-semibold">{(off && !revoked && p.kindsPending[e.kind]) || p.kinds[e.kind]}</span>
+                <span className="block font-body text-[15px] font-semibold">{(off && !revoked && p.kindsPending[e.kind]) || p.kinds[e.kind] || e.kind}</span>
                 <span className="block truncate font-body text-[13px] text-gris">
                   {[e.label, date(e.created_at, e.kind === 'signup'), off && p.status[e.status]].filter(Boolean).join(' · ')}
                 </span>

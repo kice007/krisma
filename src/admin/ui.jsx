@@ -22,7 +22,7 @@ export const MEMBER_STATUS = {
 }
 export const FLAGS = { disposable_email: 'E-mail jetable', shared_ip: 'IP partagée', suspended_points: 'Points suspendus' }
 export const POINT_STATUS = { awarded: ['Attribué', 'ok'], pending: ['En attente', 'neutral'], suspended: ['Suspendu', 'wait'], revoked: ['Annulé', 'bad'] }
-export const POINT_KIND = { signup: 'Inscription validée', referral: 'Parrainage vérifié', shop: 'Commerce validé' }
+export const POINT_KIND = { signup: 'Inscription validée', referral: 'Parrainage vérifié', shop: 'Commerce validé', vote: 'Vote pour un commerce' }
 export const SHOP_STATUS = {
   proposed: ['Proposé', 'neutral'],
   validated: ['Validé', 'dark'],

@@ -30,6 +30,7 @@ export const PREVIEW_MEMBER = {
     { id: '3', name: 'Boucherie Al Baraka', category: 'butcher', city: 'Paris', status: 'duplicate' },
   ],
   history: [
+    { kind: 'vote', points: 5, status: 'awarded', created_at: ago(0.5), label: 'Boucherie Al Baraka' },
     { kind: 'shop', points: 20, status: 'pending', created_at: ago(1), label: 'Salon Nappy Queen' },
     { kind: 'referral', points: 50, status: 'awarded', created_at: ago(2), label: 'Mamadou D.' },
     { kind: 'shop', points: 20, status: 'awarded', created_at: ago(3), label: 'Épicerie Chez Awa' },
