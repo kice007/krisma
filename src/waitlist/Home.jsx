@@ -13,6 +13,7 @@ import { useLang } from '../i18n'
 import { rpc } from '../lib/supabase'
 import { ago, avatarColor, fmtNumber, usePublicStats } from '../lib/publicStats'
 import { HOME } from './homeText'
+import { MTEXT } from '../member/text'
 import LiveMap from './LiveMap'
 import { captureReferral, store } from './store'
 import { PATHS, myDashboard, waitForSession } from './flow'
@@ -146,6 +147,81 @@ function Header({ h, member, signupHref }) {
   )
 }
 
+
+// Règles de la campagne, visibles sur la page : tableau des points + sections en accordéon.
+function RulesSection({ t, lang }) {
+  const r = MTEXT[lang].rules
+  const sections = r.sections.filter((s) => s.id !== 'points')
+  const [open, setOpen] = useState(0)
+  return (
+    <section id="regles" className="scroll-mt-24 px-5 py-16 lg:px-10 lg:py-24 xl:px-[120px]">
+      <div className="mx-auto grid max-w-[1200px] gap-8 lg:grid-cols-[minmax(0,440px)_1fr] lg:gap-16">
+        <Reveal className="flex flex-col items-start gap-4">
+          <H2>{t.title}</H2>
+          <p className="font-body text-[16px] leading-[1.6] text-gris lg:text-[17px]">{t.sub}</p>
+          <div className="mt-2 w-full overflow-hidden rounded-[20px] border border-ligne">
+            <table className="w-full border-collapse text-left font-body text-[14px]">
+              <thead className="bg-clair text-gris">
+                <tr>
+                  {r.table.head.slice(0, 2).map((x) => (
+                    <th key={x} className="px-4 py-3 font-medium">{x}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {r.table.rows.map(([a, pts, c]) => (
+                  <tr key={a} className="border-t border-ligne">
+                    <td className="px-4 py-3">
+                      <span className="block font-semibold">{a}</span>
+                      <span className="block text-[13px] text-gris">{c}</span>
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-marque">{pts}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Link to="/reglement" className="mt-2 inline-flex h-12 items-center rounded-full border border-ligne px-5 font-body text-[14px] font-semibold hover:border-noir">
+            {t.full}
+          </Link>
+        </Reveal>
+        <div className="flex flex-col gap-3">
+          {sections.map((sec, i) => {
+            const on = open === i
+            return (
+              <Reveal key={sec.id} delay={i * 0.04} y={20}>
+                <div className="rounded-[20px] border border-ligne bg-white">
+                  <button
+                    type="button"
+                    aria-expanded={on}
+                    onClick={() => setOpen(on ? null : i)}
+                    className="flex min-h-[64px] w-full cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left font-body text-[15px] font-semibold lg:min-h-[72px] lg:px-[26px] lg:text-[16px]"
+                  >
+                    {sec.title}
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${on ? 'bg-noir text-white' : 'bg-clair text-noir'}`}>
+                      {on ? <Minus size={16} /> : <Plus size={16} />}
+                    </span>
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {on && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.4, ease: EASE }} className="overflow-hidden">
+                        <div className="flex flex-col gap-3 px-5 pb-6 lg:px-[26px]">
+                          {sec.body.map((para, k) => (
+                            <p key={k} className="font-body text-[14px] leading-[1.6] text-gris lg:text-[15px]">{para}</p>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </Reveal>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
 
 function Faq({ f }) {
   const [open, setOpen] = useState(0)
@@ -687,25 +763,13 @@ function Bento({ t }) {
           </Reveal>
         </div>
         <div className="flex flex-col gap-5">
-          <Reveal delay={0.04} className="flex h-[500px] flex-col items-center gap-6 overflow-hidden rounded-[28px] border border-ligne bg-white px-8 pb-9">
-            <div className="relative h-[300px] w-full max-w-[300px] shrink-0 overflow-hidden rounded-b-[40px] bg-noir px-2.5 pb-2.5" aria-hidden>
-              <div className="relative h-full w-full overflow-hidden rounded-b-[32px] bg-[#eef0ea]">
-                <img src="/img/waitlist/carte-quartier.webp" alt="" className="absolute left-[-60%] top-[-30%] w-[240%] max-w-none" />
-                <Pin x={20} y={20} c="#15803d" I={Store} />
-                <Pin x={57} y={40} c="#111111" I={Beef} />
-                <Pin x={37} y={57} c="#fd8030" I={Scissors} />
-                <span className="absolute bottom-3 left-3.5 right-3.5 flex h-[60px] items-center gap-2.5 rounded-2xl bg-white px-3 shadow-[0_6px_16px_rgba(17,17,17,0.12)]">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#dcfce7] text-vert">
-                    <Store size={18} />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate font-body text-[14px] font-semibold">{t.shopName}</span>
-                    <span className="block font-body text-[12px] font-semibold text-vert">{t.shopStatus}</span>
-                  </span>
-                </span>
+          <Reveal delay={0.04} className="flex h-[500px] flex-col items-center gap-7 overflow-hidden rounded-[28px] border border-ligne bg-white px-8 pt-9">
+            <CardHead item={t.shop} color="#15803d" />
+            <div className="relative w-full max-w-[290px] flex-1 overflow-hidden rounded-t-[40px] bg-noir px-2.5 pt-2.5 shadow-[0_-10px_40px_rgba(17,17,17,0.10)]" aria-hidden>
+              <div className="relative h-full w-full overflow-hidden rounded-t-[32px] bg-[#eef0ea]">
+                <img src="/img/waitlist/krisma-map-ecran.webp" alt="" className="absolute left-0 top-0 w-full max-w-none" />
               </div>
             </div>
-            <CardHead item={t.shop} color="#15803d" />
           </Reveal>
           <Reveal delay={0.12} className="flex min-h-[240px] flex-col items-center justify-center gap-4 rounded-[28px] border border-ligne bg-white p-8">
             <div className="flex items-center" aria-hidden>
@@ -829,6 +893,7 @@ export default function Home() {
         <Bento t={h.points} />
         <Rewards t={h.rewards} start={h.hero.start} signupHref={signupHref} />
         <MapSection t={h.map} lang={lang} />
+        <RulesSection t={h.rules} lang={lang} />
         <Faq f={h.faq} />
         <section className="px-5 py-20 text-center lg:py-28">
           <Reveal className="mx-auto flex max-w-[720px] flex-col items-center gap-5">

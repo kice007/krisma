@@ -4,9 +4,10 @@ const fr = {
   nav: {
     links: [
       { label: 'Accueil', href: '#accueil' },
-      { label: 'Comment ça marche', href: '#etapes' },
-      { label: 'Points', href: '#points' },
+      { label: 'Étapes', href: '#etapes' },
+      { label: 'Fonctionnement', href: '#points' },
       { label: 'KRISMA Map', href: '#carte' },
+      { label: 'Règles', href: '#regles' },
       { label: 'FAQ', href: '#faq' },
     ],
     login: 'Se connecter',
@@ -27,7 +28,7 @@ const fr = {
     live: 'En direct',
     today: (n) => `+${n} aujourd'hui`,
     countries: (n) => `${n} pays`,
-    facts: ["2 minutes pour t'inscrire", '11 questions, 4 thèmes', '+170 points dès la validation'],
+    facts: ["2 minutes pour t'inscrire", '12 questions, 4 thèmes', '+170 points dès la validation'],
     latest: (n) => `${n} vient de s'inscrire`,
     chips: ['+20 · Commerce validé', '+50 · Parrainage vérifié', '+5 · Vote pour un commerce'],
   },
@@ -57,7 +58,7 @@ const fr = {
       },
       {
         title: 'Réponds au questionnaire',
-        text: '11 questions en 4 thèmes pour nous aider à construire KRISMA avec toi.',
+        text: '12 questions en 4 thèmes pour nous aider à construire KRISMA avec toi.',
         checks: ['Environ 2 minutes', "Tu peux t'arrêter et reprendre plus tard"],
       },
       {
@@ -74,7 +75,7 @@ const fr = {
     mock: {
       invited: 'Invitée par Amina D.',
       password: 'Mot de passe créé',
-      question: 'QUESTION 4 SUR 11',
+      question: 'QUESTION 5 SUR 12',
       questionText: "Tu envoies de l'argent en Afrique…",
       options: ['Plusieurs fois par mois', 'Une fois par mois', 'Quelques fois par an'],
       now: "à l'instant",
@@ -127,6 +128,11 @@ const fr = {
       ['Statut', 'Suis son avancement', 'Proposé, validé, contacté, partenaire, puis cashback actif.'],
     ],
   },
+  rules: {
+    title: 'Les règles de la campagne.',
+    sub: "Gratuite, sans obligation d'achat, ouverte à toute personne majeure. Voici l'essentiel.",
+    full: 'Lire le règlement complet',
+  },
   faq: {
     eyebrow: 'FAQ',
     title: 'Questions fréquentes.',
@@ -158,9 +164,10 @@ const en = {
   nav: {
     links: [
       { label: 'Home', href: '#accueil' },
-      { label: 'How it works', href: '#etapes' },
-      { label: 'Points', href: '#points' },
+      { label: 'Steps', href: '#etapes' },
+      { label: 'How it works', href: '#points' },
       { label: 'KRISMA Map', href: '#carte' },
+      { label: 'Rules', href: '#regles' },
       { label: 'FAQ', href: '#faq' },
     ],
     login: 'Log in',
@@ -181,7 +188,7 @@ const en = {
     live: 'Live',
     today: (n) => `+${n} today`,
     countries: (n) => `${n} ${n === '1' ? 'country' : 'countries'}`,
-    facts: ['2 minutes to sign up', '11 questions, 4 themes', '+170 points once confirmed'],
+    facts: ['2 minutes to sign up', '12 questions, 4 themes', '+170 points once confirmed'],
     latest: (n) => `${n} just signed up`,
     chips: ['+20 · Shop approved', '+50 · Referral confirmed', '+5 · Vote for a shop'],
   },
@@ -211,7 +218,7 @@ const en = {
       },
       {
         title: 'Answer the questionnaire',
-        text: '11 questions in 4 themes to help us build KRISMA with you.',
+        text: '12 questions in 4 themes to help us build KRISMA with you.',
         checks: ['About 2 minutes', 'You can stop and pick up later'],
       },
       {
@@ -228,7 +235,7 @@ const en = {
     mock: {
       invited: 'Invited by Amina D.',
       password: 'Password created',
-      question: 'QUESTION 4 OF 11',
+      question: 'QUESTION 5 OF 12',
       questionText: 'You send money to Africa…',
       options: ['Several times a month', 'Once a month', 'A few times a year'],
       now: 'just now',
@@ -280,6 +287,11 @@ const en = {
       ['+5', 'Vote for your favourites', 'One vote per shop, which you can remove at any time.'],
       ['Status', 'Follow its progress', 'Suggested, approved, contacted, partner, then cashback live.'],
     ],
+  },
+  rules: {
+    title: 'The campaign rules.',
+    sub: 'Free, no purchase required, open to any adult. Here are the essentials.',
+    full: 'Read the full rules',
   },
   faq: {
     eyebrow: 'FAQ',

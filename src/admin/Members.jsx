@@ -175,16 +175,17 @@ export function MemberDetail() {
   const qa = m.questionnaire || {}
   const countries = (arr) => (arr?.length ? arr.map((c) => countryName(c, 'fr')).join(', ') : '—')
   const answers = [
-    ['Q2 Situation', opt(QA.situation.options, qa.situation)],
-    ['Q3 Reçoit de l’argent', `${opt(QA.frequency, qa.receive_frequency)} · ${countries(qa.receive_countries)}`],
-    ['Q4 Envoie de l’argent', `${opt(QA.frequency, qa.send_frequency)} · ${countries(qa.send_countries)}`],
-    ['Q5 Transferts', opt(QA.interest, qa.interest_transfers)],
-    ['Q6 Commerces de proximité', opt(QA.shopFrequency.options, qa.local_shop_frequency)],
-    ['Q7 Dépense mensuelle', opt(QA.shopSpend.options, qa.local_shop_spend)],
-    ['Q8 Cashback', opt(QA.interest, qa.interest_cashback)],
-    ['Q9 Services', (qa.services || []).map((c) => opt(QA.services.options, c)).join(', ') || '—'],
-    ['Q10 4,99 €/mois', opt(QA.pay.options, qa.willing_to_pay)],
-    ['Q11 Usage', opt(QA.usage.options, qa.usage_intent)],
+    ['Q2 Pays d’origine', qa.origin_country ? countryName(qa.origin_country, 'fr') : '—'],
+    ['Q3 Situation', opt(QA.situation.options, qa.situation)],
+    ['Q4 Reçoit de l’argent', `${opt(QA.frequency, qa.receive_frequency)} · ${countries(qa.receive_countries)}`],
+    ['Q5 Envoie de l’argent', `${opt(QA.frequency, qa.send_frequency)} · ${countries(qa.send_countries)}`],
+    ['Q6 Transferts', opt(QA.interest, qa.interest_transfers)],
+    ['Q7 Commerces de proximité', opt(QA.shopFrequency.options, qa.local_shop_frequency)],
+    ['Q8 Dépense mensuelle', opt(QA.shopSpend.options, qa.local_shop_spend)],
+    ['Q9 Cashback', opt(QA.interest, qa.interest_cashback)],
+    ['Q10 Services', (qa.services || []).map((c) => opt(QA.services.options, c)).join(', ') || '—'],
+    ['Q11 4,99 €/mois', opt(QA.pay.options, qa.willing_to_pay)],
+    ['Q12 Usage', opt(QA.usage.options, qa.usage_intent)],
   ]
   const alert = [
     m.flags.includes('shared_ip') && `${m.same_ip} autre${m.same_ip > 1 ? 's' : ''} inscription${m.same_ip > 1 ? 's' : ''} depuis la même adresse IP`,

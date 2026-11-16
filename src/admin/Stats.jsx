@@ -55,18 +55,19 @@ export default function Stats() {
     <div>
       <PageHead title="Statistiques" sub="Réponses au questionnaire des membres vérifiés, et demande par ville" />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <Bars title="Q2 · Situation" data={s.situation} options={q.situation.options} />
-        <Bars title="Q3 · Reçoit de l’argent d’Afrique" data={s.receive_frequency} options={q.frequency} />
-        <Bars title="Q3 · Depuis quels pays" data={s.receive_countries} labelOf={(c) => countryName(c, 'fr')} />
-        <Bars title="Q4 · Envoie de l’argent en Afrique" data={s.send_frequency} options={q.frequency} />
-        <Bars title="Q4 · Vers quels pays" data={s.send_countries} labelOf={(c) => countryName(c, 'fr')} />
-        <Bars title="Q5 · Intérêt transferts instantanés" data={s.interest_transfers} options={q.interest} />
-        <Bars title="Q6 · Achats en commerces de proximité" data={s.local_shop_frequency} options={q.shopFrequency.options} />
-        <Bars title="Q7 · Dépense mensuelle" data={s.local_shop_spend} options={q.shopSpend.options} />
-        <Bars title="Q8 · Intérêt cashback" data={s.interest_cashback} options={q.interest} />
-        <Bars title="Q9 · Services (plusieurs réponses)" data={s.services} options={q.services.options} />
-        <Bars title="Q10 · Prêt à payer 4,99 €/mois" data={s.willing_to_pay} options={q.pay.options} />
-        <Bars title="Q11 · Usage envisagé" data={s.usage_intent} options={q.usage.options} />
+        <Bars title="Q2 · Pays d’origine" data={s.origin_country} labelOf={(c) => countryName(c, 'fr')} />
+        <Bars title="Q3 · Situation" data={s.situation} options={q.situation.options} />
+        <Bars title="Q4 · Reçoit de l’argent d’Afrique" data={s.receive_frequency} options={q.frequency} />
+        <Bars title="Q4 · Depuis quels pays" data={s.receive_countries} labelOf={(c) => countryName(c, 'fr')} />
+        <Bars title="Q5 · Envoie de l’argent en Afrique" data={s.send_frequency} options={q.frequency} />
+        <Bars title="Q5 · Vers quels pays" data={s.send_countries} labelOf={(c) => countryName(c, 'fr')} />
+        <Bars title="Q6 · Intérêt transferts instantanés" data={s.interest_transfers} options={q.interest} />
+        <Bars title="Q7 · Achats en commerces de proximité" data={s.local_shop_frequency} options={q.shopFrequency.options} />
+        <Bars title="Q8 · Dépense mensuelle" data={s.local_shop_spend} options={q.shopSpend.options} />
+        <Bars title="Q9 · Intérêt cashback" data={s.interest_cashback} options={q.interest} />
+        <Bars title="Q10 · Services (plusieurs réponses)" data={s.services} options={q.services.options} />
+        <Bars title="Q11 · Prêt à payer 4,99 €/mois" data={s.willing_to_pay} options={q.pay.options} />
+        <Bars title="Q12 · Usage envisagé" data={s.usage_intent} options={q.usage.options} />
       </div>
       <Card className="mt-4 !p-0">
         <h2 className="px-5 pt-5 font-body text-[15px] font-semibold">Demande par ville</h2>

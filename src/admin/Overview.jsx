@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { countryName } from '../waitlist/text'
 import { Download } from '../components/icons'
 import { arpc as rpc } from './api'
 import { useAdmin } from './Shell'
@@ -51,12 +52,54 @@ function Daily({ days }) {
 }
 
 // A1 / AM1 — Vue d'ensemble de la campagne.
+// Inscrits validés par pays d'origine (pays de naissance, question 2).
+function OriginCard({ origins }) {
+  if (!origins) return null
+  const total = origins.list.reduce((n, [, v]) => n + v, 0)
+  const max = Math.max(1, ...origins.list.map(([, v]) => v))
+  const top = origins.list.slice(0, 12)
+  return (
+    <Card className="mt-4">
+      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-body text-[16px] font-semibold">Inscrits par pays d’origine</h2>
+        <span className="font-body text-[12px] text-gris">
+          {fmt(total)} renseignés · {fmt(origins.missing)} non renseignés · {fmt(origins.list.length)} pays
+        </span>
+      </div>
+      {top.length === 0 ? (
+        <p className="font-body text-[14px] text-gris">Pas encore de réponse. La question est posée aux nouveaux inscrits ; les autres peuvent la renseigner dans leur profil.</p>
+      ) : (
+        <ul className="grid gap-x-8 gap-y-3.5 md:grid-cols-2">
+          {top.map(([cc, v], i) => (
+            <li key={cc}>
+              <div className="flex justify-between gap-3 font-body text-[14px]">
+                <span className="font-medium">{countryName(cc, 'fr')}</span>
+                <span className="shrink-0 text-gris tabular-nums">
+                  {fmt(v)} · {pct(v, total)}
+                </span>
+              </div>
+              <div className="mt-1.5 h-1.5 rounded-full bg-clair">
+                <div className={`h-full rounded-full ${i === 0 ? 'bg-marque' : 'bg-noir'}`} style={{ width: `${(v / max) * 100}%` }} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  )
+}
+
 export default function Overview() {
   const { canAdmin } = useAdmin()
   const [days, setDays] = useState('30')
   const [o, setO] = useState(null)
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [origins, setOrigins] = useState(null)
+
+  useEffect(() => {
+    rpc('admin_questionnaire_stats').then((q) => setOrigins({ list: Object.entries(q?.origin_country || {}).sort((x, y) => y[1] - x[1]), missing: Number(q?.origin_missing || 0) }), () => {})
+  }, [])
 
   useEffect(() => {
     setO(null)
@@ -129,11 +172,12 @@ export default function Overview() {
           </ul>
         </Card>
       </div>
+      <OriginCard origins={origins} />
       <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
-        <Kpi label="Intérêt transferts (Q5)" value={pct(a.transfers_interested, a.total)} sub="très ou assez intéressés" tone="text-gris" />
-        <Kpi label="Intérêt cashback (Q8)" value={pct(a.cashback_interested, a.total)} sub="très ou assez intéressés" tone="text-gris" />
-        <Kpi label="Prêts à payer 4,99 € (Q10)" value={`${pct(a.pay_yes, a.total)} oui`} sub={`+ ${pct(a.pay_maybe, a.total)} peut-être`} tone="text-gris" />
-        <Kpi label="Compte principal (Q11)" value={pct(a.usage_primary, a.total)} sub={`${pct(a.usage_secondary, a.total)} secondaire`} tone="text-gris" />
+        <Kpi label="Intérêt transferts (Q6)" value={pct(a.transfers_interested, a.total)} sub="très ou assez intéressés" tone="text-gris" />
+        <Kpi label="Intérêt cashback (Q9)" value={pct(a.cashback_interested, a.total)} sub="très ou assez intéressés" tone="text-gris" />
+        <Kpi label="Prêts à payer 4,99 € (Q11)" value={`${pct(a.pay_yes, a.total)} oui`} sub={`+ ${pct(a.pay_maybe, a.total)} peut-être`} tone="text-gris" />
+        <Kpi label="Compte principal (Q12)" value={pct(a.usage_primary, a.total)} sub={`${pct(a.usage_secondary, a.total)} secondaire`} tone="text-gris" />
       </div>
     </div>
   )

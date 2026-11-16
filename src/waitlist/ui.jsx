@@ -138,7 +138,7 @@ export function Choices({ name, options, value, onChange, multi = false, cols = 
 }
 
 // Sous-question « Depuis / Vers quel(s) pays ? » : pastilles + recherche parmi les pays d'Afrique.
-export function CountryPicker({ label, value, onChange, lang, t, error }) {
+export function CountryPicker({ label, value, onChange, lang, t, error, options = AFRICA, single = false, addLabel }) {
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const box = useRef(null)
@@ -149,21 +149,23 @@ export function CountryPicker({ label, value, onChange, lang, t, error }) {
     return () => document.removeEventListener('mousedown', off)
   }, [open])
   const norm = (s) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
-  const list = AFRICA.filter((c) => !value.includes(c))
+  const list = options.filter((c) => !value.includes(c))
     .map((c) => [c, countryName(c, lang)])
     .filter(([, n]) => norm(n).includes(norm(q)))
     .sort((a, b) => a[1].localeCompare(b[1], lang))
   const add = (c) => {
-    onChange([...value, c])
+    onChange(single ? [c] : [...value, c])
     setQ('')
     setOpen(false)
   }
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-clair p-[18px]">
-      <p className="flex items-center gap-2 font-body text-[14px] font-semibold text-noir">
-        <CornerDownRight size={16} className="text-marque" />
-        {label}
-      </p>
+      {label && (
+        <p className="flex items-center gap-2 font-body text-[14px] font-semibold text-noir">
+          <CornerDownRight size={16} className="text-marque" />
+          {label}
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-2" ref={box}>
         {value.map((c) => (
           <span key={c} className="flex h-9 items-center gap-2 rounded-full border border-ligne bg-white pl-3.5 pr-2 font-body text-[14px] font-medium">
@@ -173,10 +175,10 @@ export function CountryPicker({ label, value, onChange, lang, t, error }) {
             </button>
           </span>
         ))}
-        <div className="relative">
+        <div className={`relative ${single && value.length ? 'hidden' : ''}`}>
           <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-noir/40 px-3.5 font-body text-[14px] text-gris hover:border-noir hover:text-noir">
             <Plus size={15} />
-            {t.countries.add}
+            {addLabel || t.countries.add}
           </button>
           {open && (
             <div className="absolute left-0 top-full z-30 mt-2 w-[280px] rounded-2xl border border-ligne bg-white p-2 shadow-[0_16px_40px_rgba(0,0,0,0.12)]">

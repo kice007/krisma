@@ -56,7 +56,7 @@ function AddressInput({ value, onChange, onPick, center, lang, t, invalid }) {
     }
   }, [value, typing, center, lang])
   return (
-    <div className="relative">
+    <div className="relative z-30">
       <div className={`flex h-14 items-center gap-2.5 rounded-2xl border-[1.5px] px-[18px] ${invalid ? 'border-[#dc2626] bg-white' : 'border-transparent bg-clair focus-within:border-noir focus-within:bg-white'}`}>
         <MapPin size={18} className="shrink-0 text-gris" />
         <input
@@ -126,9 +126,9 @@ function PinMap({ point, category, onMove, t }) {
     if (el) el.innerHTML = draftElement(category).innerHTML
   }, [category])
   return (
-    <div className="relative h-[150px] overflow-hidden rounded-2xl lg:h-[160px]">
+    <div className="relative isolate h-[150px] overflow-hidden rounded-2xl lg:h-[160px]">
       <div ref={el} className="km-map absolute inset-0" style={{ position: 'absolute' }} />
-      <span className="pointer-events-none absolute bottom-2 left-2 z-[500] flex h-7 items-center gap-1.5 rounded-full bg-white/95 px-2.5 font-body text-[12px] text-gris">
+      <span className="pointer-events-none absolute bottom-2 left-2 z-10 flex h-7 items-center gap-1.5 rounded-full bg-white/95 px-2.5 font-body text-[12px] text-gris">
         <Move size={13} />
         {t.dragHint}
       </span>
