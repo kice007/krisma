@@ -34,6 +34,8 @@ const AdminShops = lazy(() => import('./admin/Shops'))
 const AdminPoints = lazy(() => import('./admin/Points'))
 const AdminStats = lazy(() => import('./admin/Stats'))
 const AdminTeam = lazy(() => import('./admin/Team'))
+const AdminMessages = lazy(() => import('./admin/Messages'))
+const ChatWidget = lazy(() => import('./chat/ChatWidget'))
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -51,6 +53,9 @@ createRoot(document.getElementById('root')).render(
       <BrowserRouter>
         <ScrollToTop />
         <Seo />
+        <Suspense fallback={null}>
+          <ChatWidget />
+        </Suspense>
         <Suspense fallback={<Loading />}>
           <Routes>
             <Route path="/" element={<App />} />
@@ -80,6 +85,7 @@ createRoot(document.getElementById('root')).render(
               <Route path="points" element={<AdminPoints />} />
               <Route path="statistiques" element={<AdminStats />} />
               <Route path="equipe" element={<AdminTeam />} />
+              <Route path="messages" element={<AdminMessages />} />
             </Route>
             <Route path="/confidentialite" element={<Navigate to="/reglement#donnees" replace />} />
             <Route path="/conditions" element={<Navigate to="/reglement" replace />} />
