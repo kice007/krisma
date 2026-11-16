@@ -78,7 +78,7 @@ export const translations = {
       eyebrow: 'KRISMA Partners',
       title: ['Votre carte pourrait', 'vous rapporter plus.'],
       text: 'Restaurants, commerces, services du quotidien… KRISMA ambitionne de développer un réseau de partenaires pour récompenser vos achats éligibles.',
-      cta: 'Devenir partenaire',
+      cta: 'Nous rejoindre',
     },
     advantages: {
       eyebrow: 'KRISMA Partners',
@@ -90,7 +90,7 @@ export const translations = {
         { title: 'Des offres exclusives', text: 'pour la communauté KRISMA' },
       ],
     },
-    photoAlt: 'Un jeune homme africain sourit dans une rue parisienne',
+    photoAlt: 'Des membres de la diaspora africaine et maghrébine dans une rue parisienne',
     team: {
       title: 'Le premier cercle',
       text: 'Fondée par des membres de la diaspora africaine',
@@ -102,9 +102,8 @@ export const translations = {
       items: [
         { q: 'Quand KRISMA sera-t-il disponible ?', a: "KRISMA est en préparation et les services présentés ne sont pas encore disponibles. Rejoignez la liste d'attente pour être prévenu du lancement." },
         { q: 'Comment pourrai-je ouvrir un compte ?', a: "Les modalités d'ouverture seront précisées avant le lancement. Les inscrits à la liste d'attente seront informés en premier." },
-        { q: 'Quels pays seront couverts au lancement ?', a: "La liste n'est pas encore arrêtée. Rejoignez la liste d'attente pour être informé en premier." },
         { q: 'KRISMA est-elle une banque ?', a: 'KRISMA est une fintech en phase de développement. Nous avançons avec des partenaires réglementés pour proposer une solution fiable, sécurisée et conforme.' },
-        { q: 'Combien coûtera KRISMA ?', a: "L'offre envisagée est de 4,99 € par mois, avec 3 premiers mois gratuits. Ce tarif est indicatif et susceptible d'évoluer avant le lancement." },
+        { q: 'Combien coûtera KRISMA ?', a: "L'offre envisagée est de 4,99 € par mois, avec 3 premiers mois gratuits." },
       ],
     },
     waitlist: {
@@ -205,7 +204,7 @@ export const translations = {
       eyebrow: 'KRISMA Partners',
       title: ['Your card could', 'earn you more.'],
       text: 'Restaurants, shops, everyday services… KRISMA aims to build a partner network that rewards your eligible purchases.',
-      cta: 'Become a partner',
+      cta: 'Join us',
     },
     advantages: {
       eyebrow: 'KRISMA Partners',
@@ -218,7 +217,7 @@ export const translations = {
       ],
     },
 
-    photoAlt: 'A young African man smiling on a Paris street',
+    photoAlt: 'Members of the African and North African diaspora on a Paris street',
     team: {
       title: 'The inner circle',
       text: 'Founded by members of the African diaspora',
@@ -230,9 +229,8 @@ export const translations = {
       items: [
         { q: 'When will KRISMA be available?', a: 'KRISMA is in preparation and the services shown are not available yet. Join the waitlist to hear about the launch.' },
         { q: 'How will I open an account?', a: 'Account opening details will be shared before launch. People on the waitlist will be told first.' },
-        { q: 'Which countries will be covered at launch?', a: "The list isn't final yet. Join the waitlist to be the first to know." },
         { q: 'Is KRISMA a bank?', a: 'KRISMA is a fintech in development. We are working with regulated partners to offer a reliable, secure and compliant solution.' },
-        { q: 'How much will KRISMA cost?', a: 'The planned offer is €4.99 per month, with the first 3 months free. This price is indicative and may change before launch.' },
+        { q: 'How much will KRISMA cost?', a: 'The planned offer is €4.99 per month, with the first 3 months free.' },
       ],
     },
     waitlist: {

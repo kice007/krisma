@@ -69,7 +69,7 @@ function CityPicker({ t, lang, cities, current, onPick, onClose, sheet }) {
     )
   }
   return (
-    <div className="flex max-h-full flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       {sheet && (
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-[22px] font-bold tracking-[-0.6px]">{t.chooseCity}</h2>
@@ -482,8 +482,9 @@ export default function MapPage() {
       {t.propose}
     </button>
   ) : (
-    <Link to={PATHS.home} className="flex h-14 w-full shrink-0 items-center justify-center rounded-full bg-marque font-body text-[15px] font-semibold text-white hover:bg-[#f06e1b]">
-      {t.join}
+    <Link to={PATHS.home} className="flex h-14 w-full shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-marque px-4 font-body text-[15px] font-semibold text-white hover:bg-[#f06e1b]">
+      <span className="lg:hidden">{t.joinShort}</span>
+      <span className="hidden lg:inline">{t.join}</span>
     </Link>
   )
 
@@ -524,7 +525,7 @@ export default function MapPage() {
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -8 }}
-                className="absolute left-[calc(100%+40px)] top-[-60px] z-10 flex max-h-[560px] w-[340px] flex-col rounded-[24px] bg-white p-3 shadow-[0_16px_50px_rgba(17,17,17,0.16)]"
+                className="absolute left-[calc(100%+40px)] top-[-60px] z-10 flex max-h-[min(560px,calc(100vh-160px))] w-[340px] flex-col overflow-hidden rounded-[24px] bg-white p-3 shadow-[0_16px_50px_rgba(17,17,17,0.16)]"
               >
                 <CityPicker t={t} lang={lang} cities={cities || []} current={city} onPick={pickCity} />
               </motion.div>

@@ -4,11 +4,12 @@ import { ArrowLeft, Info } from '../components/icons'
 import { currentUser, rpc, supabase } from '../lib/supabase'
 import FlowLayout, { Loading, useT } from './Layout'
 import { Alert, Btn, Choices, CityInput, CountryPicker, Question, Title } from './ui'
-import { countryName, errorText } from './text'
+import { WORLD, countryName, errorText } from './text'
 import { PATHS, isPreview, myDashboard, sendConfirmation } from './flow'
 import { store } from './store'
 
 const EMPTY = {
+  origin_country: null,
   situation: null,
   receive_frequency: null,
   receive_countries: [],
@@ -25,19 +26,20 @@ const EMPTY = {
 
 // Champs enregistrés à chaque étape (Q1, la ville, passe par set_my_city).
 const STEP_FIELDS = {
-  1: ['situation'],
+  1: ['origin_country', 'situation'],
   2: ['receive_frequency', 'receive_countries', 'send_frequency', 'send_countries', 'interest_transfers'],
   3: ['local_shop_frequency', 'local_shop_spend', 'interest_cashback'],
   4: ['services', 'willing_to_pay', 'usage_intent'],
 }
-const FIELD_Q = { situation: 'q2', receive_frequency: 'q3', receive_countries: 'q3c', send_frequency: 'q4', send_countries: 'q4c', interest_transfers: 'q5', local_shop_frequency: 'q6', local_shop_spend: 'q7', interest_cashback: 'q8', services: 'q9', willing_to_pay: 'q10', usage_intent: 'q11' }
-const QUESTION_STEP = { q1: 1, q2: 1, q3: 2, q4: 2, q5: 2, q6: 3, q7: 3, q8: 3, q9: 4, q10: 4, q11: 4 }
+const FIELD_Q = { origin_country: 'qo', situation: 'q2', receive_frequency: 'q3', receive_countries: 'q3c', send_frequency: 'q4', send_countries: 'q4c', interest_transfers: 'q5', local_shop_frequency: 'q6', local_shop_spend: 'q7', interest_cashback: 'q8', services: 'q9', willing_to_pay: 'q10', usage_intent: 'q11' }
+const QUESTION_STEP = { q1: 1, qo: 1, q2: 1, q3: 2, q4: 2, q5: 2, q6: 3, q7: 3, q8: 3, q9: 4, q10: 4, q11: 4 }
 
 function validate(step, a, city) {
   const e = {}
   const need = (k, q) => (a[k] == null || (Array.isArray(a[k]) && a[k].length === 0)) && (e[q] = 'required')
   if (step === 1) {
     if (!city) e.q1 = 'required'
+    need('origin_country', 'qo')
     need('situation', 'q2')
   }
   if (step === 2) {
@@ -245,8 +247,21 @@ export default function Questionnaire() {
                 />
               </Question>
             </div>
+            <div data-invalid={!!errors.qo}>
+              <Question n={2} label={q.origin.label} hint={q.origin.hint} error={err('qo')}>
+                <CountryPicker
+                  value={a.origin_country ? [a.origin_country] : []}
+                  onChange={(v) => set('origin_country')(v[0] || null)}
+                  options={WORLD}
+                  single
+                  addLabel={q.origin.choose}
+                  lang={lang}
+                  t={q}
+                />
+              </Question>
+            </div>
             <div data-invalid={!!errors.q2}>
-              <Question n={2} label={q.situation.label} error={err('q2')}>
+              <Question n={3} label={q.situation.label} error={err('q2')}>
                 <Choices name="situation" options={q.situation.options} value={a.situation} onChange={set('situation')} />
               </Question>
             </div>
@@ -260,7 +275,7 @@ export default function Questionnaire() {
               ['q4', 'send', 'send_frequency', 'send_countries'],
             ].map(([key, txt, freq, countries], i) => (
               <div key={key} data-invalid={!!(errors[key] || errors[key + 'c'])}>
-                <Question n={3 + i} label={q[txt].label} error={err(key)}>
+                <Question n={4 + i} label={q[txt].label} error={err(key)}>
                   <Choices name={freq} options={q.frequency} value={a[freq]} onChange={set(freq)} />
                   {a[freq] && a[freq] !== 'never' && (
                     <CountryPicker label={q[txt].sub} value={a[countries]} onChange={set(countries)} lang={lang} t={q} error={errors[key + 'c'] ? q.countriesRequired : null} />
@@ -269,7 +284,7 @@ export default function Questionnaire() {
               </div>
             ))}
             <div data-invalid={!!errors.q5}>
-              <Question n={5} label={q.transfers.label} error={err('q5')}>
+              <Question n={6} label={q.transfers.label} error={err('q5')}>
                 <Choices name="interest_transfers" options={q.interest} value={a.interest_transfers} onChange={set('interest_transfers')} />
               </Question>
             </div>
@@ -279,17 +294,17 @@ export default function Questionnaire() {
         {step === 3 && (
           <>
             <div data-invalid={!!errors.q6}>
-              <Question n={6} label={q.shopFrequency.label} error={err('q6')}>
+              <Question n={7} label={q.shopFrequency.label} error={err('q6')}>
                 <Choices name="local_shop_frequency" options={q.shopFrequency.options} value={a.local_shop_frequency} onChange={set('local_shop_frequency')} />
               </Question>
             </div>
             <div data-invalid={!!errors.q7}>
-              <Question n={7} label={q.shopSpend.label} error={err('q7')}>
+              <Question n={8} label={q.shopSpend.label} error={err('q7')}>
                 <Choices name="local_shop_spend" options={q.shopSpend.options} value={a.local_shop_spend} onChange={set('local_shop_spend')} />
               </Question>
             </div>
             <div data-invalid={!!errors.q8}>
-              <Question n={8} label={q.cashback.label} error={err('q8')}>
+              <Question n={9} label={q.cashback.label} error={err('q8')}>
                 <Choices name="interest_cashback" options={q.interest} value={a.interest_cashback} onChange={set('interest_cashback')} />
               </Question>
             </div>
@@ -299,12 +314,12 @@ export default function Questionnaire() {
         {step === 4 && (
           <>
             <div data-invalid={!!errors.q9}>
-              <Question n={9} label={q.services.label} hint={q.several} error={err('q9')}>
+              <Question n={10} label={q.services.label} hint={q.several} error={err('q9')}>
                 <Choices name="services" multi options={q.services.options} value={a.services} onChange={toggleService} />
               </Question>
             </div>
             <div data-invalid={!!errors.q10}>
-              <Question n={10} label={q.pay.label} error={err('q10')}>
+              <Question n={11} label={q.pay.label} error={err('q10')}>
                 <Choices name="willing_to_pay" cols={3} options={q.pay.options} value={a.willing_to_pay} onChange={set('willing_to_pay')} />
                 <p className="flex items-start gap-2 font-body text-[13px] leading-[1.5] text-gris">
                   <Info size={15} className="mt-px shrink-0" />
@@ -313,7 +328,7 @@ export default function Questionnaire() {
               </Question>
             </div>
             <div data-invalid={!!errors.q11}>
-              <Question n={11} label={q.usage.label} error={err('q11')}>
+              <Question n={12} label={q.usage.label} error={err('q11')}>
                 <Choices name="usage_intent" cols={3} options={q.usage.options} value={a.usage_intent} onChange={set('usage_intent')} />
               </Question>
             </div>

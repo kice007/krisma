@@ -42,10 +42,10 @@ const fr = {
     countriesRequired: 'Ajoute au moins un pays.',
     several: 'Plusieurs réponses possibles',
     steps: [
-      { label: 'Informations générales', range: 'Q1–Q2', title: 'Faisons connaissance.' },
-      { label: 'Transferts internationaux', range: 'Q3–Q5', title: 'Tes transferts entre l’Europe et l’Afrique.' },
-      { label: 'Commerces de proximité', range: 'Q6–Q8', title: 'Tes commerces du quotidien.' },
-      { label: 'Intérêt pour KRISMA', range: 'Q9–Q11', title: 'Dernière ligne droite.' },
+      { label: 'Informations générales', range: 'Q1–Q3', title: 'Faisons connaissance.' },
+      { label: 'Transferts internationaux', range: 'Q4–Q6', title: 'Tes transferts entre l’Europe et l’Afrique.' },
+      { label: 'Commerces de proximité', range: 'Q7–Q9', title: 'Tes commerces du quotidien.' },
+      { label: 'Intérêt pour KRISMA', range: 'Q10–Q12', title: 'Dernière ligne droite.' },
     ],
     city: {
       label: 'Dans quelle ville résides-tu ?',
@@ -55,6 +55,7 @@ const fr = {
       error: 'La recherche de villes ne répond pas. Réessaie dans un instant.',
       change: 'Modifier',
     },
+    origin: { label: "Quel est ton pays d'origine ?", hint: 'Ton pays de naissance.', choose: 'Choisir un pays' },
     countries: { add: 'Ajouter un pays', search: 'Rechercher un pays', remove: (c) => `Retirer ${c}`, none: 'Aucun pays trouvé' },
     situation: {
       label: 'Quelle est ta situation actuelle ?',
@@ -235,10 +236,10 @@ const en = {
     countriesRequired: 'Add at least one country.',
     several: 'Several answers possible',
     steps: [
-      { label: 'About you', range: 'Q1–Q2', title: "Let's get to know you." },
-      { label: 'International transfers', range: 'Q3–Q5', title: 'Your transfers between Europe and Africa.' },
-      { label: 'Local shops', range: 'Q6–Q8', title: 'Your everyday shops.' },
-      { label: 'Interest in KRISMA', range: 'Q9–Q11', title: 'Almost there.' },
+      { label: 'About you', range: 'Q1–Q3', title: "Let's get to know you." },
+      { label: 'International transfers', range: 'Q4–Q6', title: 'Your transfers between Europe and Africa.' },
+      { label: 'Local shops', range: 'Q7–Q9', title: 'Your everyday shops.' },
+      { label: 'Interest in KRISMA', range: 'Q10–Q12', title: 'Almost there.' },
     ],
     city: {
       label: 'Which city do you live in?',
@@ -248,6 +249,7 @@ const en = {
       error: 'City search is not responding. Try again in a moment.',
       change: 'Change',
     },
+    origin: { label: 'What is your country of origin?', hint: 'Your country of birth.', choose: 'Choose a country' },
     countries: { add: 'Add a country', search: 'Search a country', remove: (c) => `Remove ${c}`, none: 'No country found' },
     situation: {
       label: 'What is your current situation?',
@@ -399,6 +401,9 @@ export function errorText(t, err) {
 }
 
 // Les 54 pays d'Afrique (ISO 3166-1 alpha-2). Les noms viennent du navigateur.
+// Tous les pays (ISO 3166-1), pour le pays d'origine.
+export const WORLD = 'AF AL DZ AD AO AG AR AM AU AT AZ BS BH BD BB BY BE BZ BJ BT BO BA BW BR BN BG BF BI CV KH CM CA CF TD CL CN CO KM CG CD CR CI HR CU CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FJ FI FR GA GM GE DE GH GR GD GT GN GW GY HT HN HU IS IN ID IR IQ IE IL IT JM JP JO KZ KE KI KW KG LA LV LB LS LR LY LI LT LU MG MW MY MV ML MT MH MR MU MX FM MD MC MN ME MA MZ MM NA NR NP NL NZ NI NE NG KP MK NO OM PK PW PS PA PG PY PE PH PL PT QA RO RU RW KN LC VC WS SM ST SA SN RS SC SL SG SK SI SB SO ZA KR SS ES LK SD SR SE CH SY TW TJ TZ TH TL TG TO TT TN TR TM TV UG UA AE GB US UY UZ VU VA VE VN YE ZM ZW HK MO PR RE GP MQ GF YT NC PF'.split(' ')
+
 export const AFRICA = 'DZ AO BJ BW BF BI CV CM CF TD KM CG CD CI DJ EG GQ ER SZ ET GA GM GH GN GW KE LS LR LY MG MW ML MR MU MA MZ NA NE NG RW ST SN SC SL SO ZA SS SD TZ TG TN UG ZM ZW'.split(' ')
 
 export function countryName(code, lang) {

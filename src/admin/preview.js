@@ -75,6 +75,8 @@ export const PREVIEW = {
     usage_intent: { primary: 3619, secondary: 6490, unsure: 2372 },
     receive_countries: { CI: 4210, SN: 2310, ML: 1820, CM: 1340, CD: 890 },
     send_countries: { CI: 5120, SN: 2780, ML: 2120, CM: 1610, BF: 940 },
+    origin_country: { CI: 3980, SN: 2140, CM: 1510, ML: 1290, MA: 1120, DZ: 860, CD: 740, FR: 610, TN: 520, BF: 410 },
+    origin_missing: 312,
   },
   admin_list_team: {
     members: [

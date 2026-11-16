@@ -7,13 +7,13 @@ Informations clés (novembre 2026) :
 - Statut : en préparation, pas encore lancé. KRISMA n'est pas une banque ; l'entreprise travaille avec des partenaires réglementés.
 - Public : étudiants internationaux arrivant en Europe, diaspora africaine vivant entre deux continents, et à terme les voyageurs.
 - Produit envisagé : compte européen avec IBAN, carte de paiement, transferts Europe ↔ Afrique dans les deux sens, cashback jusqu'à 5 % chez les commerces partenaires (épiceries, boucheries, salons de coiffure, restaurants).
-- Prix envisagé : 4,99 € par mois, 3 premiers mois gratuits (indicatif, peut évoluer avant le lancement).
+- Prix envisagé : 4,99 € par mois, 3 premiers mois gratuits.
 - Pays couverts au lancement : pas encore arrêtés.
 - Langues du site : français et anglais.
 
 ## Liste d'attente (campagne de préinscription)
 
-- Inscription gratuite en 2 minutes : prénom, nom, e-mail, mot de passe, puis un questionnaire de 11 questions en 4 thèmes.
+- Inscription gratuite en 2 minutes : prénom, nom, e-mail, mot de passe, puis un questionnaire de 12 questions en 4 thèmes.
 - Points : +170 quand l'inscription est validée (questionnaire terminé et e-mail vérifié), +50 par proche parrainé qui valide son inscription, +20 par commerce proposé dont l'existence est vérifiée par l'équipe, +5 par vote pour un commerce de sa ville.
 - Classement public : prénom et initiale du nom, ville et points. À points égaux, le membre inscrit le plus tôt passe devant.
 - Récompenses : les 2 000 membres les mieux classés à la clôture de la campagne seront récompensés. Nature des récompenses et date de clôture annoncées prochainement.
@@ -33,4 +33,4 @@ Informations clés (novembre 2026) :
 
 ## English summary
 
-KRISMA is a fintech in preparation for international students and the African diaspora in Europe: a European account with IBAN, a payment card, transfers between Europe and Africa, and up to 5% cashback at partner local shops (KRISMA Partners). Not launched yet; planned price €4.99/month with the first 3 months free (indicative). A waitlist is open at https://www.krisma.io/waitlist: members earn points (+170 sign-up, +50 per referral, +20 per verified shop, +5 per vote) and the top 2,000 at the end of the campaign will be rewarded.
+KRISMA is a fintech in preparation for international students and the African diaspora in Europe: a European account with IBAN, a payment card, transfers between Europe and Africa, and up to 5% cashback at partner local shops (KRISMA Partners). Not launched yet; planned price €4.99/month with the first 3 months free. A waitlist is open at https://www.krisma.io/waitlist: members earn points (+170 sign-up, +50 per referral, +20 per verified shop, +5 per vote) and the top 2,000 at the end of the campaign will be rewarded.

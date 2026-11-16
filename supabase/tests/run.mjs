@@ -408,5 +408,23 @@ await rpc(A, "mark_password_set");
 ok((await rpc(A, "get_my_name")).password_set === true, "mot de passe marqué comme choisi");
 await expectError(as(null, "select public.mark_password_set()"), "permission denied", "mark_password_set fermé aux visiteurs");
 
+console.log("\n21. Pays d'origine (migration 16)");
+const J = await newAnonUser(); await register(J, "Jamila Benali", { email: "jamila@gmail.com" });
+ok((await rpc(J, "get_my_origin_country")) === null, "inscrite sans pays d'origine : non renseigné");
+await expectError(rpc(J, "save_questionnaire", { p_answers: JSON.stringify({ origin_country: "ma" }) }), "questionnaire_locked", "questionnaire verrouillé après validation");
+await rpc(J, "set_my_origin_country", { p_country: "ma" });
+ok((await rpc(J, "get_my_origin_country")) === "MA", "pays d'origine renseigné depuis l'espace (majuscules)");
+await expectError(rpc(J, "set_my_origin_country", { p_country: "Maroc" }), "invalid_answer", "code pays invalide refusé");
+const L = await newAnonUser();
+await rpc(L, "start_registration", { p_first_name: "Lamine", p_last_name: "Diop", p_accept_rules: true, p_consent_marketing: false, p_locale: "fr", p_referral_code: null });
+await rpc(L, "save_questionnaire", { p_answers: JSON.stringify({ origin_country: "sn" }) });
+ok((await rpc(L, "get_my_origin_country")) === "SN", "pays d'origine enregistré par le questionnaire");
+await expectError(rpc(L, "save_questionnaire", { p_answers: JSON.stringify({ origin_country: "SEN" }) }), "invalid_answer", "code à 3 lettres refusé");
+const qs16 = await rpc(D, "admin_questionnaire_stats");
+ok(Number(qs16.origin_country.MA) === 1 && !qs16.origin_country.SN, "statistique admin par pays d'origine (membres validés seulement)");
+ok(Number(qs16.origin_missing) >= 1, `membres validés sans pays d'origine : ${qs16.origin_missing}`);
+await expectError(as(null, "select public.set_my_origin_country('CI')"), "permission denied", "set_my_origin_country fermé aux visiteurs");
+await expectError(rpc(A, "admin_questionnaire_stats"), "forbidden", "statistiques réservées à l'équipe");
+
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);

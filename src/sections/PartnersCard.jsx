@@ -28,7 +28,7 @@ export default function PartnersCard() {
             {p.text}
           </Reveal>
           <Reveal x={-70} y={0} delay={0.24} className="lg:mt-2">
-            <Button href="#contact" tone="noir" className="h-[54px]">
+            <Button href="/waitlist" tone="noir" className="h-[54px]">
               {p.cta}
             </Button>
           </Reveal>

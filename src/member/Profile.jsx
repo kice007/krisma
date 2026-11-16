@@ -6,6 +6,7 @@ import { useLang } from '../i18n'
 import { rpc, supabase } from '../lib/supabase'
 import { NAME_RE, cleanName } from '../waitlist/store'
 import { PATHS } from '../waitlist/flow'
+import { WORLD, countryName } from '../waitlist/text'
 import { deleteMyAccount } from './account'
 import ExportButtons from './ExportButtons'
 import { initials, useMT, useMember } from './Shell'
@@ -57,6 +58,7 @@ export default function Profile() {
   const [notice, setNotice] = useState(null)
   const [busy, setBusy] = useState(false)
   const [confirm, setConfirm] = useState(false)
+  const [origin, setOrigin] = useState(null)
 
   useEffect(() => {
     rpc('get_my_name')
@@ -65,6 +67,7 @@ export default function Profile() {
         setLast(n?.last_name || '')
       })
       .catch(() => {})
+    rpc('get_my_origin_country').then(setOrigin, () => {})
   }, [])
 
   useEffect(() => {
@@ -95,6 +98,11 @@ export default function Profile() {
       await supabase.auth.updateUser({ data: { pseudo: cleanName(first) } })
     })
   }
+  const saveOrigin = (cc) =>
+    run(async () => {
+      await rpc('set_my_origin_country', { p_country: cc })
+      setOrigin(cc)
+    })
   const saveSetting = (key, value) => run(() => rpc('update_my_settings', { [key]: value }))
   const logout = async () => {
     await supabase.auth.signOut()
@@ -170,6 +178,25 @@ export default function Profile() {
         {/* Ville fixée à l'inscription : on vote et propose uniquement dans sa ville. */}
         <Line icon={MapPin} label={p.city} value={d.city?.name} />
         <p className="-mt-1 border-b border-ligne pb-3 pl-[33px] font-body text-[12px] text-gris">{p.cityLocked}</p>
+        {/* Pays d'origine (pays de naissance) : statistique de l'équipe, modifiable. */}
+        <Line icon={Globe} label={p.origin}>
+          <select
+            value={origin || ''}
+            disabled={busy}
+            onChange={(e) => e.target.value && saveOrigin(e.target.value)}
+            aria-label={p.origin}
+            className={`h-9 max-w-[190px] cursor-pointer rounded-full bg-clair px-3 font-body text-[13px] font-semibold outline-none ${origin ? 'text-noir' : 'text-marque'}`}
+          >
+            {!origin && <option value="">{p.originPick}</option>}
+            {WORLD.map((c) => [c, countryName(c, lang)])
+              .sort((a, b) => a[1].localeCompare(b[1], lang))
+              .map(([c, n]) => (
+                <option key={c} value={c}>
+                  {n}
+                </option>
+              ))}
+          </select>
+        </Line>
         <Line icon={Globe} label={p.lang} last>
           <div className="flex rounded-full bg-clair p-1">
             {['fr', 'en'].map((code) => (
