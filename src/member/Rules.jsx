@@ -94,6 +94,11 @@ export default function Rules() {
               </Link>
             )}
             {s.data && (
+              <Link to="/confidentialite" className="mt-4 inline-block font-body text-[14px] font-semibold underline underline-offset-2">
+                {r.privacyLink}
+              </Link>
+            )}
+            {s.data && (
               <div className="mt-5 flex flex-wrap gap-2.5">
                 {d ? (
                   <>

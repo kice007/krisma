@@ -26,6 +26,8 @@ Informations clés (novembre 2026) :
 - [KRISMA Map](https://www.krisma.io/carte) : carte en direct des commerces proposés.
 - [Classement](https://www.krisma.io/classement) : classement en direct des membres.
 - [Règles de la campagne](https://www.krisma.io/reglement) : règlement complet, données personnelles.
+- [Politique de confidentialité](https://www.krisma.io/confidentialite) : données collectées, finalités, sous-traitants, droits RGPD.
+- [Mentions légales](https://www.krisma.io/mentions-legales) : KRISMA SASU, 47 rue Vivienne, 75002 Paris, RCS Paris 109 830 299 ; KRISMA n'est pas un établissement de crédit ni de paiement.
 
 ## Contact
 

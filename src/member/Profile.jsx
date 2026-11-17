@@ -224,7 +224,7 @@ export default function Profile() {
 
       <Group title={p.data}>
         <Line icon={ScrollText} label={p.rules} to="/reglement" />
-        <Line icon={Shield} label={p.privacy} to="/reglement#donnees" />
+        <Line icon={Shield} label={p.privacy} to="/confidentialite" />
         <div className="flex flex-col gap-3 border-b border-ligne py-4 sm:flex-row sm:items-center">
           <span className="flex min-w-0 flex-1 items-start gap-3.5">
             <Download size={19} className="mt-0.5 shrink-0" />

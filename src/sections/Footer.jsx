@@ -40,7 +40,7 @@ export default function Footer() {
               <Column key={c.h} title={c.h} links={c.links} href={c.href} delay={i * 0.08} />
             ))}
             <div className="lg:hidden">
-              <Column title={f.legalTitle} links={f.legal} delay={0.24} />
+              <Column title={f.legalTitle} links={f.legal} href={f.legalHref} delay={0.24} />
             </div>
           </div>
         </div>
@@ -48,8 +48,8 @@ export default function Footer() {
           <p className="font-body text-[13px] text-gris lg:text-[14px]">{f.copyright}</p>
           <div className="flex items-center gap-5">
             <div className="hidden gap-5 lg:flex">
-              {f.legal.map((l) => (
-                <a key={l} href="#" className="font-body text-[14px] text-gris hover:text-noir">
+              {f.legal.map((l, i) => (
+                <a key={l} href={f.legalHref[i]} className="font-body text-[14px] text-gris hover:text-noir">
                   {l}
                 </a>
               ))}

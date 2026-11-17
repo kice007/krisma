@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 import { LANDING_FAQ, PAGES, SITE } from '../src/seo/pages.js'
 import { HOME } from '../src/waitlist/homeText.js'
 import { MTEXT } from '../src/member/text.js'
+import { LEGAL } from '../src/legal/text.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const dist = join(root, 'dist')
@@ -22,6 +23,18 @@ const faqLd = (items) => ({
   mainEntity: items.map(([q, a]) => ({ '@type': 'Question', name: strip(q), acceptedAnswer: { '@type': 'Answer', text: strip(a) } })),
 })
 const link = (href, label) => `<p><a href="${href}">${esc(label)}</a></p>`
+
+// Texte des pages légales : paragraphes, listes, définitions et tableaux.
+function legalHtml(doc) {
+  const block = ([kind, data]) => {
+    if (kind === 'p') return `<p>${esc(data)}</p>`
+    if (kind === 'ul') return list(data)
+    if (kind === 'dl') return `<ul>${data.map(([k, v]) => `<li><strong>${esc(k)}</strong> : ${esc(v)}</li>`).join('')}</ul>`
+    const [head, rows] = data
+    return `<table><tr>${head.map((x) => `<th>${esc(x)}</th>`).join('')}</tr>${rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table>`
+  }
+  return `<h1>${esc(doc.title)}</h1><p>${esc(doc.intro)}</p>${doc.sections.map((s) => `<h2>${esc(s.title)}</h2>${s.blocks.map(block).join('')}`).join('')}`
+}
 
 const h = HOME.fr
 const rules = MTEXT.fr.rules
@@ -41,7 +54,7 @@ const CONTENT = {
         'Pour les étudiants internationaux, la diaspora africaine et, à terme, les voyageurs.',
       ])}
       <h2>Offre envisagée</h2>
-      <p>4,99 € par mois, avec les 3 premiers mois gratuits. Tarif indicatif, susceptible d’évoluer avant le lancement.</p>
+      <p>4,99 € par mois, avec les 3 premiers mois gratuits.</p>
       ${faqHtml(LANDING_FAQ.fr)}
       ${link('/waitlist', 'Rejoindre la liste d’attente KRISMA')}`,
     ld: [faqLd(LANDING_FAQ.fr)],
@@ -87,6 +100,8 @@ const CONTENT = {
       <p>${esc(rules.intro)}</p>
       ${rules.sections.map((s) => `<h2>${esc(s.title)}</h2>${(s.body || []).map((b) => `<p>${esc(b)}</p>`).join('')}${s.after ? `<p>${esc(s.after)}</p>` : ''}`).join('')}`,
   },
+  '/confidentialite': { html: legalHtml(LEGAL.fr.privacy) },
+  '/mentions-legales': { html: legalHtml(LEGAL.fr.mentions) },
 }
 
 const setAttr = (html, selector, attr, value) => {
