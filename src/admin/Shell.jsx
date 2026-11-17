@@ -7,6 +7,7 @@ import { arpc as rpc } from './api'
 import { Loading } from '../waitlist/Layout'
 import { isPreview, waitForSession } from '../waitlist/flow'
 import { ROLE } from './ui'
+import Mfa, { mfaState } from './Mfa'
 
 const AdminContext = createContext(null)
 export const useAdmin = () => useContext(AdminContext)
@@ -96,7 +97,9 @@ export default function AdminShell() {
 
   useEffect(() => {
     if (isPreview()) {
-      setState({ loading: false, role: 'super_admin', email: 'ivan@krisma.io', name: 'ivan' })
+      // ?apercu&mfa : écran du code (aperçu, sans appel à Supabase)
+      const mfa = new URLSearchParams(window.location.search).has('mfa') ? { needed: true, enrolled: true } : { needed: false }
+      setState({ loading: false, role: 'super_admin', email: 'ivan@krisma.io', name: 'ivan', mfa })
       refreshCounts()
       return
     }
@@ -104,8 +107,10 @@ export default function AdminShell() {
       if (!s || s.user.is_anonymous) return setState({ loading: false, out: true })
       const role = await rpc('my_staff_role').catch(() => null)
       const name = (s.user.email || '').split('@')[0]
-      setState({ loading: false, role, email: s.user.email, name })
-      if (role) refreshCounts()
+      // Équipe : code d'authentification exigé avant tout accès (migration 18).
+      const mfa = role ? await mfaState() : { needed: false }
+      setState({ loading: false, role, email: s.user.email, name, mfa })
+      if (role && !mfa.needed) refreshCounts()
     })
   }, [refreshCounts])
 
@@ -114,6 +119,17 @@ export default function AdminShell() {
   if (state.loading) return <Loading />
   if (state.out) return <Navigate to="/admin/connexion" replace />
   if (!state.role) return <Denied email={state.email} />
+  if (state.mfa?.needed)
+    return (
+      <Mfa
+        email={state.email}
+        enrolled={state.mfa.enrolled}
+        onDone={() => {
+          setState((x) => ({ ...x, mfa: { needed: false, enrolled: true } }))
+          refreshCounts()
+        }}
+      />
+    )
 
   const role = state.role
   const ctx = { role, email: state.email, name: state.name, canAdmin: role !== 'moderator', canSuper: role === 'super_admin', review, refreshCounts }

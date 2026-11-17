@@ -1,12 +1,14 @@
 // Fonction Edge « send-emails » : vide la file email_outbox via Resend.
 // À planifier chaque minute (Supabase → Integrations → Cron → Edge Function).
-// Secrets : RESEND_API_KEY (obligatoire), EMAIL_FROM et SITE_URL (facultatifs).
+// Secrets : RESEND_API_KEY (obligatoire), CRON_SECRET (recommandé), EMAIL_FROM et SITE_URL (facultatifs).
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { render, type Row } from './templates.ts'
 
 const SITE = Deno.env.get('SITE_URL') ?? 'https://www.krisma.io'
 const FROM = Deno.env.get('EMAIL_FROM') ?? 'KRISMA <waitlist@krisma.io>'
 const RESEND = Deno.env.get('RESEND_API_KEY')
+// Secret partagé avec le cron (en-tête x-cron-secret) : sans lui, la fonction refuse l'appel.
+const CRON_SECRET = Deno.env.get('CRON_SECRET')
 
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
   auth: { persistSession: false },
@@ -15,7 +17,10 @@ const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SE
 const finish = (id: number, status: 'sent' | 'skipped' | 'failed', error: string | null = null) =>
   db.rpc('finish_email', { p_id: id, p_status: status, p_error: error })
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
+  if (CRON_SECRET && req.headers.get('x-cron-secret') !== CRON_SECRET) {
+    return Response.json({ error: 'forbidden' }, { status: 403 })
+  }
   if (!RESEND) return Response.json({ error: 'RESEND_API_KEY manquante' }, { status: 500 })
 
   const { data, error } = await db.rpc('claim_email_batch', { p_limit: 50 })
