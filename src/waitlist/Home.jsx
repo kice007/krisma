@@ -11,7 +11,8 @@ import { LangSwitch } from '../components/Nav'
 import { useViewport } from '../components/useStage'
 import { useLang } from '../i18n'
 import { rpc } from '../lib/supabase'
-import { ago, avatarColor, fmtNumber, usePublicStats } from '../lib/publicStats'
+import LiveAvatars from '../components/LiveAvatars'
+import { ago, fmtNumber, usePublicStats } from '../lib/publicStats'
 import { HOME } from './homeText'
 import { MTEXT } from '../member/text'
 import LiveMap from './LiveMap'
@@ -284,28 +285,23 @@ function Chip({ icon: I, color, children, className = '', style, float = 6, dela
 }
 
 // Compteur en direct : avatars des derniers inscrits, total, inscrits du jour, pays.
+// Sans inscrit, on parle seulement des places disponibles.
 function Live({ h, s, lang, light }) {
   if (s.members == null) return <div className="h-[52px]" />
-  const names = s.latest.length ? s.latest.slice(0, 3).map((x) => x.name) : ['A', 'Y', 'K']
+  const empty = s.members === 0
   return (
     <div className="flex items-center gap-3">
-      <div className="flex -space-x-2.5" aria-hidden>
-        {names.map((n, i) => (
-          <span key={i} className={`flex h-9 w-9 items-center justify-center rounded-full border-2 font-body text-[13px] font-bold text-white ${light ? 'border-white' : 'border-[#f1f1f1]'}`} style={{ background: avatarColor(i) }}>
-            {n.trim()[0]?.toUpperCase()}
-          </span>
-        ))}
-      </div>
+      <LiveAvatars latest={s.latest} ring={light ? 'border-white' : 'border-[#f1f1f1]'} />
       <div>
         <p className="font-display text-[20px] font-bold tracking-[-0.4px] text-noir">
-          {fmtNumber(s.members, lang)} {h.members(s.members)}
+          {empty ? h.open : `${fmtNumber(s.members, lang)} ${h.members(s.members)}`}
         </p>
         <p className="flex items-center gap-1.5 font-body text-[13px] text-gris">
           <span className="relative flex h-[7px] w-[7px]">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22c55e] opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-[#22c55e]" />
           </span>
-          {[h.live, s.countries ? h.countries(fmtNumber(s.countries, lang)) : null].filter(Boolean).join(' · ')}
+          {empty ? h.openSub : [h.live, s.countries ? h.countries(fmtNumber(s.countries, lang)) : null].filter(Boolean).join(' · ')}
         </p>
       </div>
     </div>

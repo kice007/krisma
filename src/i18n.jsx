@@ -24,6 +24,8 @@ export const translations = {
       live: {
         people: (n) => (n > 1 ? 'personnes déjà inscrites' : 'personne déjà inscrite'),
         status: 'En direct',
+        open: "La liste d'attente est ouverte",
+        first: 'Sois parmi les premiers',
         today: (n) => `+${n} aujourd'hui`,
       },
     },
@@ -151,6 +153,8 @@ export const translations = {
       live: {
         people: (n) => (n === 1 ? 'person already signed up' : 'people already signed up'),
         status: 'Live',
+        open: 'The waitlist is open',
+        first: 'Be among the first',
         today: (n) => `+${n} today`,
       },
     },
