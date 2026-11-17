@@ -6,33 +6,35 @@ import { CardMarks } from '../components/CardMark'
 import { EASE } from '../components/Reveal'
 import { useViewport } from '../components/useStage'
 import { useLang } from '../i18n'
-import { avatarColor, fmtNumber, usePublicStats } from '../lib/publicStats'
+import LiveAvatars from '../components/LiveAvatars'
+import { fmtNumber, usePublicStats } from '../lib/publicStats'
 
 // Compteur en direct sous le bouton : avatars des derniers inscrits + total.
+// Sans inscrit, on annonce seulement que la liste d'attente est ouverte.
 function LiveCount({ className = '' }) {
   const { t, lang } = useLang()
   const s = usePublicStats()
   if (s.members == null) return <div className={`h-9 ${className}`} />
-  const names = s.latest.length ? s.latest.slice(0, 3).map((x) => x.name) : ['A', 'Y', 'K']
+  const empty = s.members === 0
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      <div className="flex -space-x-2.5" aria-hidden>
-        {names.map((n, i) => (
-          <span key={i} className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#f1f1f1] font-body text-[13px] font-bold text-white" style={{ background: avatarColor(i) }}>
-            {n.trim()[0]?.toUpperCase()}
-          </span>
-        ))}
-      </div>
+      <LiveAvatars latest={s.latest} />
       <div className="flex flex-col">
         <p className="font-body text-[15px] text-noir">
-          <span className="font-display font-bold">{fmtNumber(s.members, lang)}</span> {t.hero.live.people(s.members)}
+          {empty ? (
+            <span className="font-display font-bold">{t.hero.live.open}</span>
+          ) : (
+            <>
+              <span className="font-display font-bold">{fmtNumber(s.members, lang)}</span> {t.hero.live.people(s.members)}
+            </>
+          )}
         </p>
         <p className="flex items-center gap-1.5 font-body text-[13px] text-gris">
           <span className="relative flex h-[7px] w-[7px]">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22c55e] opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-[#22c55e]" />
           </span>
-          {t.hero.live.status}
+          {empty ? t.hero.live.first : t.hero.live.status}
         </p>
       </div>
     </div>
