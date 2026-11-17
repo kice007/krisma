@@ -100,7 +100,7 @@ ${box ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"
 <p style="margin:24px 0 28px;font-size:15px;font-weight:700;color:#111111;">${en ? 'The KRISMA team' : 'L’équipe KRISMA'}</p>
 </td></tr></table>
 <p style="margin:20px 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#6b6b6b;">${chat ? (en ? 'You’re receiving this email because you asked the KRISMA team a question on krisma.io.' : 'Tu reçois cet e-mail car tu as posé une question à l’équipe KRISMA sur krisma.io.') : en ? "You're receiving this email because you joined the KRISMA waitlist." : 'Tu reçois cet e-mail car tu t’es inscrit·e à la liste d’attente KRISMA.'}</p>
-<p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b6b6b;"><a href="${site}/reglement" style="color:#6b6b6b;">${en ? 'Campaign rules' : 'Règles de la campagne'}</a> · <a href="${site}/reglement#donnees" style="color:#6b6b6b;">${en ? 'Privacy' : 'Confidentialité'}</a> · <a href="${site}/espace/profil" style="color:#6b6b6b;">${en ? 'Manage my preferences' : 'Gérer mes préférences'}</a></p>
+<p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b6b6b;"><a href="${site}/reglement" style="color:#6b6b6b;">${en ? 'Campaign rules' : 'Règles de la campagne'}</a> · <a href="${site}/confidentialite" style="color:#6b6b6b;">${en ? 'Privacy' : 'Confidentialité'}</a> · <a href="${site}/espace/profil" style="color:#6b6b6b;">${en ? 'Manage my preferences' : 'Gérer mes préférences'}</a></p>
 </td></tr></table>
 </body></html>`
 

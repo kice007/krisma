@@ -85,6 +85,32 @@ export const PAGES = [
       description: 'Campaign rules: points, referrals, KRISMA Map, leaderboard and ties, rewards, personal data.',
     },
   },
+  {
+    path: '/confidentialite',
+    image: '/og/og-landing.png',
+    priority: '0.3',
+    fr: {
+      title: 'Politique de confidentialité — KRISMA',
+      description: 'Données collectées par la liste d’attente KRISMA, finalités, durée de conservation, sous-traitants et vos droits (RGPD).',
+    },
+    en: {
+      title: 'Privacy policy — KRISMA',
+      description: 'Data collected by the KRISMA waitlist, purposes, retention period, processors and your rights (GDPR).',
+    },
+  },
+  {
+    path: '/mentions-legales',
+    image: '/og/og-landing.png',
+    priority: '0.2',
+    fr: {
+      title: 'Mentions légales — KRISMA',
+      description: 'KRISMA SASU, 47 rue Vivienne, 75002 Paris — RCS Paris 109 830 299. Éditeur, directeur de la publication, hébergement et statut de KRISMA.',
+    },
+    en: {
+      title: 'Legal notice — KRISMA',
+      description: 'KRISMA SASU, 47 rue Vivienne, 75002 Paris, France — RCS Paris 109 830 299. Publisher, publication director, hosting and KRISMA’s status.',
+    },
+  },
 ]
 
 // Pages privées ou d'étape : titre seulement, jamais indexées.

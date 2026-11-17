@@ -130,7 +130,7 @@ const fr = {
   },
   rules: {
     title: 'Les règles de la campagne.',
-    sub: "Gratuite, sans obligation d'achat, ouverte à toute personne majeure. Voici l'essentiel.",
+    sub: "Gratuite, sans obligation d'achat, ouverte à partir de 16 ans. Voici l'essentiel.",
     full: 'Lire le règlement complet',
   },
   faq: {
@@ -153,7 +153,7 @@ const fr = {
       ['La landing KRISMA', '/'],
       ['Règles de la campagne', '/reglement'],
       ['Confidentialité', '/confidentialite'],
-      ['Conditions', '/conditions'],
+      ['Mentions légales', '/mentions-legales'],
       ['Contact', 'mailto:contact@krisma.io'],
     ],
     legal: '© 2026 KRISMA. Services en préparation, non encore disponibles.',
@@ -290,7 +290,7 @@ const en = {
   },
   rules: {
     title: 'The campaign rules.',
-    sub: 'Free, no purchase required, open to any adult. Here are the essentials.',
+    sub: 'Free, no purchase required, open to anyone aged 16 and over. Here are the essentials.',
     full: 'Read the full rules',
   },
   faq: {
@@ -313,7 +313,7 @@ const en = {
       ['KRISMA homepage', '/'],
       ['Campaign rules', '/reglement'],
       ['Privacy', '/confidentialite'],
-      ['Terms', '/conditions'],
+      ['Legal notice', '/mentions-legales'],
       ['Contact', 'mailto:contact@krisma.io'],
     ],
     legal: '© 2026 KRISMA. Services in preparation, not yet available.',
