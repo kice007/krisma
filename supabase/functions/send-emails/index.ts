@@ -26,7 +26,8 @@ Deno.serve(async () => {
   const toSend: Row[] = []
   let skipped = 0
   for (const r of rows) {
-    if (r.template !== 'welcome' && r.notify_points === false) {
+    // La réponse du chat est toujours envoyée : c'est la personne qui l'a demandée.
+    if (r.template !== 'welcome' && r.template !== 'chat_reply' && r.notify_points === false) {
       await finish(r.id, 'skipped', 'notify_points désactivé')
       skipped++
     } else toSend.push(r)

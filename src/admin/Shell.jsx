@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChartColumn, Globe as External, LayoutDashboard, LogOut, Menu, ShieldCheck, ShieldX, Store, Trophy, Users, X } from '../components/icons'
+import { ChartColumn, Globe as External, LayoutDashboard, LogOut, Menu, MessageCircle, ShieldCheck, ShieldX, Store, Trophy, Users, X } from '../components/icons'
 import { supabase } from '../lib/supabase'
 import { arpc as rpc } from './api'
 import { Loading } from '../waitlist/Layout'
@@ -13,6 +13,7 @@ export const useAdmin = () => useContext(AdminContext)
 
 const NAV = [
   ['/admin', LayoutDashboard, 'Vue d’ensemble', 'Vue', true],
+  ['/admin/messages', MessageCircle, 'Messages', 'Messages'],
   ['/admin/membres', Users, 'Utilisateurs', 'Membres'],
   ['/admin/commerces', Store, 'Commerces', 'Commerces'],
   ['/admin/points', Trophy, 'Points & classement', 'Points'],
@@ -76,11 +77,22 @@ function Denied({ email }) {
 export default function AdminShell() {
   const [state, setState] = useState({ loading: true })
   const [review, setReview] = useState(0)
+  const [unread, setUnread] = useState(0)
   const [menu, setMenu] = useState(false)
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
-  const refreshCounts = useCallback(() => rpc('admin_shop_counts').then((c) => setReview(c.review), () => {}), [])
+  const refreshCounts = useCallback(() => {
+    rpc('admin_shop_counts').then((c) => setReview(c.review), () => {})
+    rpc('admin_chat_unread').then((n) => setUnread(Number(n) || 0), () => {})
+  }, [])
+
+  // Nouveaux messages du chat : badge mis à jour toutes les 30 s.
+  useEffect(() => {
+    if (!state.role) return
+    const id = setInterval(() => rpc('admin_chat_unread').then((n) => setUnread(Number(n) || 0), () => {}), 30000)
+    return () => clearInterval(id)
+  }, [state.role])
 
   useEffect(() => {
     if (isPreview()) {
@@ -125,6 +137,7 @@ export default function AdminShell() {
                 <I size={18} />
                 <span className="flex-1">{label}</span>
                 {to === '/admin/commerces' && review > 0 && <span className="rounded-full bg-marque px-2 py-0.5 font-body text-[11px] font-bold text-white">{review}</span>}
+                {to === '/admin/messages' && unread > 0 && <span className="rounded-full bg-marque px-2 py-0.5 font-body text-[11px] font-bold text-white">{unread}</span>}
               </NavLink>
             ))}
           </nav>
@@ -163,6 +176,7 @@ export default function AdminShell() {
               <I size={22} />
               {short}
               {to === '/admin/commerces' && review > 0 && <span className="absolute -top-1 left-[38px] rounded-full bg-marque px-1.5 font-body text-[9px] font-bold text-white">{review}</span>}
+              {to === '/admin/messages' && unread > 0 && <span className="absolute -top-1 left-[38px] rounded-full bg-marque px-1.5 font-body text-[9px] font-bold text-white">{unread}</span>}
             </NavLink>
           ))}
           <button type="button" onClick={() => setMenu(true)} className="flex w-[66px] cursor-pointer flex-col items-center gap-1 font-body text-[11px] text-white/45">

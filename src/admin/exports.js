@@ -105,3 +105,25 @@ export async function exportRanking() {
     'krisma-classement-final',
   )
 }
+
+// Chat : une ligne par question posée, avec la réponse de l'équipe.
+export const CHAT_TOPIC = {
+  pricing: 'Prix', security: 'Sécurité / fiabilité', countries: 'Pays', account_card: 'Compte et carte', transfers: 'Transferts',
+  waitlist_points: 'Liste d’attente et points', shops_map: 'Commerces / KRISMA Map', partnership: 'Partenariat commerçant', account_help: 'Connexion / inscription', other: 'Autre',
+}
+export const CHAT_KIND = { member: 'Inscrit', registrant: 'Inscription en cours', visitor: 'Visiteur anonyme' }
+export async function exportChat() {
+  const { data, error } = await supabase.rpc('admin_chat_export')
+  if (error) throw error
+  await save(
+    [
+      {
+        sheet: 'Questions',
+        head: ['Date', 'Nom', 'Type', 'E-mail', 'Sujet', 'Statut', 'Langue', 'Page', 'Question', 'Réponse', 'Répondu le'],
+        widths: [16, 20, 18, 26, 22, 12, 8, 18, 60, 60, 16],
+        rows: data.map((r) => [d(r.asked_at), r.name || 'Anonyme', CHAT_KIND[r.kind] || r.kind, r.email, CHAT_TOPIC[r.topic] || r.topic, { open: 'En attente', answered: 'Répondu', closed: 'Fermé' }[r.status], r.locale?.toUpperCase(), r.page, r.question, r.reply, d(r.replied_at)]),
+      },
+    ],
+    'krisma-questions',
+  )
+}

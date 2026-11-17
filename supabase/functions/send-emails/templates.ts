@@ -3,7 +3,7 @@
 
 export type Row = {
   id: number
-  template: 'welcome' | 'referral_awarded' | 'shop_validated'
+  template: 'welcome' | 'referral_awarded' | 'shop_validated' | 'chat_reply'
   payload: Record<string, unknown>
   email: string
   locale: string
@@ -26,13 +26,26 @@ export function render(row: Row, site: string) {
   const shortLink = link.replace(/^https?:\/\/(www\.)?/, '')
   const rank = row.rank ? `#${n(row.rank)}` : '—'
   let subject: string
-  let points: number
+  let points: number | null
   let title: string
   let paragraphs: string[]
   let cta: [string, string]
   let box: [string, string] | null = null
 
-  if (row.template === 'welcome') {
+  const chat = row.template === 'chat_reply'
+  if (chat) {
+    // Réponse de l'équipe à une question posée dans le chat du site.
+    points = null
+    const br = (x: unknown) => esc(x).replace(/\n/g, '<br>')
+    subject = en ? 'The KRISMA team answered your question' : 'L’équipe KRISMA a répondu à ta question'
+    title = en ? 'Here is our answer' : 'Voici notre réponse'
+    paragraphs = [
+      ...(row.payload.question ? [`<span style="color:#6b6b6b;">${en ? 'Your question' : 'Ta question'} : « ${br(row.payload.question)} »</span>`] : []),
+      br(row.payload.reply),
+      en ? 'Another question? Open the chat bubble on the site, we read everything.' : 'Une autre question ? Ouvre la bulle de discussion sur le site, on lit tout.',
+    ]
+    cta = [en ? 'Back to KRISMA' : 'Retourner sur KRISMA', site]
+  } else if (row.template === 'welcome') {
     points = 170
     subject = en ? 'Welcome to the KRISMA waitlist: +170 points' : 'Bienvenue sur la liste d’attente KRISMA : +170 points'
     title = en ? 'Welcome to the waitlist!' : 'Bienvenue dans la liste d’attente !'
@@ -66,15 +79,17 @@ export function render(row: Row, site: string) {
   const html = `<!DOCTYPE html>
 <html lang="${en ? 'en' : 'fr'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>KRISMA</title></head>
 <body style="margin:0;padding:0;background:#f5f5f5;">
-<div style="display:none;max-height:0;overflow:hidden;">${esc(paragraphs[0]).slice(0, 140)}</div>
+<div style="display:none;max-height:0;overflow:hidden;">${chat ? esc(String(row.payload.reply ?? '').slice(0, 140)) : esc(paragraphs[0]).slice(0, 140)}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5;"><tr><td align="center" style="padding:32px 16px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:536px;background:#ffffff;border-radius:24px;overflow:hidden;">
 <tr><td style="background:#111111 url('${site}/img/waitlist/email-header.jpg') left top / cover no-repeat;padding:28px 28px 26px;">
 <img src="${site}/img/landing/k-white.png" width="17" height="21" alt="" style="display:inline-block;vertical-align:middle;border:0;">
 <span style="font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:800;letter-spacing:1.5px;color:#ffffff;vertical-align:middle;padding-left:6px;">KRISMA</span>
 <div style="height:34px;line-height:34px;">&nbsp;</div>
-<span style="font-family:Arial,Helvetica,sans-serif;font-size:52px;font-weight:800;letter-spacing:-2px;color:#ffffff;">+${points}</span>
-<span style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#bdbdbd;padding-left:6px;">points</span>
+${points === null
+  ? `<span style="font-family:Arial,Helvetica,sans-serif;font-size:40px;font-weight:800;letter-spacing:-1.5px;color:#ffffff;">${en ? 'Answer' : 'Réponse'}</span>`
+  : `<span style="font-family:Arial,Helvetica,sans-serif;font-size:52px;font-weight:800;letter-spacing:-2px;color:#ffffff;">+${points}</span>
+<span style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#bdbdbd;padding-left:6px;">points</span>`}
 </td></tr>
 <tr><td style="padding:32px 32px 8px;font-family:Arial,Helvetica,sans-serif;">
 <h1 style="margin:0 0 16px;font-size:26px;line-height:1.2;letter-spacing:-0.6px;color:#111111;font-weight:700;">${title}</h1>
@@ -84,11 +99,15 @@ ${box ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"
 <a href="${cta[1]}" style="display:block;padding:16px 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">${cta[0]}</a></td></tr></table>
 <p style="margin:24px 0 28px;font-size:15px;font-weight:700;color:#111111;">${en ? 'The KRISMA team' : 'L’équipe KRISMA'}</p>
 </td></tr></table>
-<p style="margin:20px 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#6b6b6b;">${en ? "You're receiving this email because you joined the KRISMA waitlist." : 'Tu reçois cet e-mail car tu t’es inscrit·e à la liste d’attente KRISMA.'}</p>
+<p style="margin:20px 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#6b6b6b;">${chat ? (en ? 'You’re receiving this email because you asked the KRISMA team a question on krisma.io.' : 'Tu reçois cet e-mail car tu as posé une question à l’équipe KRISMA sur krisma.io.') : en ? "You're receiving this email because you joined the KRISMA waitlist." : 'Tu reçois cet e-mail car tu t’es inscrit·e à la liste d’attente KRISMA.'}</p>
 <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b6b6b;"><a href="${site}/reglement" style="color:#6b6b6b;">${en ? 'Campaign rules' : 'Règles de la campagne'}</a> · <a href="${site}/reglement#donnees" style="color:#6b6b6b;">${en ? 'Privacy' : 'Confidentialité'}</a> · <a href="${site}/espace/profil" style="color:#6b6b6b;">${en ? 'Manage my preferences' : 'Gérer mes préférences'}</a></p>
 </td></tr></table>
 </body></html>`
 
+  if (chat) {
+    const text = [title, '', row.payload.question ? `${en ? 'Your question' : 'Ta question'} : « ${row.payload.question} »` : '', '', String(row.payload.reply ?? ''), '', `${cta[0]} : ${cta[1]}`].join('\n')
+    return { subject, html, text }
+  }
   const text = [title, '', ...paragraphs.map((x) => x.replace(/<[^>]+>/g, '')), '', box ? `${box[0]} : ${link}` : '', `${cta[0]} : ${cta[1]}`].filter(Boolean).join('\n')
   return { subject, html, text }
 }

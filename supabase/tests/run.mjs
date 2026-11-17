@@ -426,5 +426,64 @@ ok(Number(qs16.origin_missing) >= 1, `membres validés sans pays d'origine : ${q
 await expectError(as(null, "select public.set_my_origin_country('CI')"), "permission denied", "set_my_origin_country fermé aux visiteurs");
 await expectError(rpc(A, "admin_questionnaire_stats"), "forbidden", "statistiques réservées à l'équipe");
 
+console.log("\n22. Chat visiteurs → équipe (migration 17)");
+const tokV = "v".repeat(20) + "-visiteur-anonyme-0001";
+const tokM = "m".repeat(20) + "-membre-amina-0000001";
+await expectError(rpc(null, "chat_send", { p_token: "court", p_body: "Bonjour" }), "invalid_token", "jeton trop court refusé");
+await expectError(rpc(null, "chat_send", { p_token: tokV, p_body: "   " }), "invalid_message", "message vide refusé");
+await expectError(rpc(null, "chat_send", { p_token: tokV, p_body: "Salut", p_email: "pas-un-mail" }), "invalid_email", "e-mail invalide refusé");
+const c1 = await rpc(null, "chat_send", { p_token: tokV, p_body: "Combien coûtera KRISMA par mois ?", p_email: "Visiteur@Mail.com", p_page: "/", p_locale: "fr" });
+ok(c1.status === "open" && c1.messages.length === 1 && c1.messages[0].from === "visitor", "visiteur anonyme : question envoyée");
+const thV = (await db.query("select * from public.chat_threads where token_hash = public.chat_token_hash($1)", [tokV])).rows[0];
+ok(thV.user_id === null && thV.email === "visiteur@mail.com" && thV.topic === "pricing", `anonyme, e-mail facultatif gardé, sujet deviné : ${thV.topic}`);
+ok(!(await db.query("select count(*)::int n from public.chat_threads where token_hash = $1", [tokV])).rows[0].n, "le jeton n'est pas stocké en clair");
+await rpc(A, "chat_send", { p_token: tokM, p_body: "Mon parrainage n'apparaît pas dans mes points", p_page: "/espace" });
+const thM = (await db.query("select * from public.chat_threads where token_hash = public.chat_token_hash($1)", [tokM])).rows[0];
+ok(thM.user_id === A && thM.email === null && thM.topic === "waitlist_points", "inscrit : profil joint, pas d'e-mail stocké, sujet « points »");
+await expectError(as(null, "select * from public.chat_threads"), "permission denied", "table des conversations fermée au public");
+await expectError(as(A, "select * from public.chat_messages"), "permission denied", "messages fermés aux membres");
+await expectError(rpc(A, "admin_chat_threads", {}), "forbidden", "liste des conversations réservée à l'équipe");
+
+const list22 = await rpc(D, "admin_chat_threads", {});
+ok(list22.total === 2 && list22.rows.every((r) => r.unread), "équipe : 2 conversations non lues");
+const rowM = list22.rows.find((r) => r.id === thM.id);
+ok(rowM.name === "Amina Kouassi" && rowM.kind === "member" && rowM.email, "nom et prénom de l'inscrit affichés");
+ok(list22.rows.find((r) => r.id === thV.id).name === null && list22.rows.find((r) => r.id === thV.id).kind === "visitor", "visiteur affiché en anonyme");
+ok((await rpc(D, "admin_chat_unread")) === 2, "badge : 2 non lues");
+const opened22 = await rpc(D, "admin_chat_thread", { p_thread: thV.id });
+ok(opened22.messages.length === 1 && (await rpc(D, "admin_chat_unread")) === 1, "ouvrir une conversation la marque comme lue");
+
+// Le visiteur a la fenêtre ouverte : pas d'e-mail.
+const before22 = (await db.query("select count(*)::int n from public.email_outbox where template = 'chat_reply'")).rows[0].n;
+const rep22 = await rpc(D, "admin_chat_reply", { p_thread: thV.id, p_body: "L'offre envisagée est de 4,99 € par mois." });
+ok(rep22.status === "answered" && rep22.messages.at(-1).from === "staff", "réponse de l'équipe enregistrée");
+const seen22 = await rpc(null, "chat_poll", { p_token: tokV });
+ok(seen22.messages.length === 2 && seen22.messages[1].body.startsWith("L'offre"), "la réponse s'affiche dans la fenêtre du visiteur");
+ok((await db.query("select count(*)::int n from public.email_outbox where template = 'chat_reply'")).rows[0].n === before22, "fenêtre ouverte : pas d'e-mail");
+ok((await rpc(null, "chat_poll", { p_token: "x".repeat(40) })).messages.length === 0, "un autre jeton ne voit rien");
+
+// Fenêtre fermée depuis plus de 2 minutes : e-mail.
+await db.query("update public.chat_threads set visitor_seen_at = now() - interval '10 minutes' where id in ($1, $2)", [thV.id, thM.id]);
+await rpc(D, "admin_chat_reply", { p_thread: thV.id, p_body: "Et les 3 premiers mois sont offerts." });
+await rpc(D, "admin_chat_reply", { p_thread: thM.id, p_body: "Ton filleul doit d'abord vérifier son e-mail." });
+const mails22 = (await db.query("select user_id, to_email, payload from public.email_outbox where template = 'chat_reply' order by id")).rows;
+ok(mails22.length === before22 + 2 && mails22.some((m) => m.to_email === "visiteur@mail.com" && m.user_id === null) && mails22.some((m) => m.user_id === A && m.to_email === null), "fenêtre fermée : réponse envoyée par e-mail (visiteur et inscrit)");
+const claimed22 = await as(null, "select * from public.claim_email_batch(100)").catch(() => null);
+ok(claimed22 === null, "claim_email_batch fermé aux visiteurs");
+const batch22 = (await db.query("select * from public.claim_email_batch(100)")).rows.filter((r) => r.template === "chat_reply");
+ok(batch22.length === 2 && batch22.some((r) => r.email === "visiteur@mail.com" && r.locale === "fr"), "la file d'e-mails sait envoyer à une adresse sans compte");
+
+await rpc(D, "admin_chat_update", { p_thread: thV.id, p_topic: "security", p_status: "closed" });
+await expectError(rpc(D, "admin_chat_update", { p_thread: thV.id, p_topic: "n_importe" }), "invalid_answer", "sujet hors liste refusé");
+const again22 = await rpc(null, "chat_send", { p_token: tokV, p_body: "Merci ! Et c'est sécurisé ?" });
+ok(again22.status === "open", "nouveau message : la conversation fermée se rouvre");
+for (let i = 0; i < 3; i++) await rpc(null, "chat_send", { p_token: tokV, p_body: `Message ${i}` });
+await expectError(rpc(null, "chat_send", { p_token: tokV, p_body: "Encore" }), "rate_limited", "plus de 5 messages par minute refusés");
+
+const st22 = await rpc(D, "admin_chat_stats", { p_days: 30 });
+ok(st22.threads === 2 && st22.questions === 6 && st22.answered === 2 && st22.by_topic.security === 1 && st22.by_kind.member === 1 && st22.by_kind.visitor === 1, `statistiques : ${st22.threads} conversations, ${st22.questions} questions`);
+const exp22 = await as(D, "select * from public.admin_chat_export()");
+ok(exp22.length === 6 && exp22.some((r) => r.reply && r.question.startsWith("Combien")), "export : une ligne par question, avec la réponse");
+
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);

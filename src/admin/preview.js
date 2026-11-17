@@ -93,3 +93,41 @@ export const PREVIEW = {
     { created_at: ago(27), actor: 'yao', action: 'shop_validate', target: 'Épicerie Chez Awa', details: {} },
   ],
 }
+
+// Chat (migration 17)
+const CHAT = [
+  { id: 't1', name: null, kind: 'visitor', email: 'moussa.b@gmail.com', topic: 'pricing', status: 'open', locale: 'fr', page: '/', created_at: ago(0.2), last_message_at: ago(0.2), preview: 'Bonjour, combien coûtera KRISMA par mois ? Et est-ce que la carte sera gratuite ?', last_sender: 'visitor', count: 1, unread: true },
+  { id: 't2', name: 'Awa Koné', kind: 'member', email: 'awa.kone@gmail.com', topic: 'waitlist_points', status: 'open', locale: 'fr', page: '/espace', created_at: ago(1.5), last_message_at: ago(1.2), preview: 'Mon cousin s’est inscrit avec mon lien mais je n’ai pas reçu les 50 points.', last_sender: 'visitor', count: 3, unread: true },
+  { id: 't3', name: null, kind: 'visitor', email: null, topic: 'security', status: 'answered', locale: 'en', page: '/waitlist', created_at: ago(5), last_message_at: ago(4.6), preview: 'KRISMA works with regulated partners: your money will be held by a licensed institution.', last_sender: 'staff', count: 2, unread: false },
+  { id: 't4', name: 'Yacine Benali', kind: 'registrant', email: 'yacine.b@outlook.fr', topic: 'countries', status: 'answered', locale: 'fr', page: '/', created_at: ago(26), last_message_at: ago(25), preview: 'Le Maroc fera partie des premiers pays, on t’écrit dès que c’est confirmé.', last_sender: 'staff', count: 2, unread: false },
+  { id: 't5', name: null, kind: 'visitor', email: null, topic: 'partnership', status: 'closed', locale: 'fr', page: '/', created_at: ago(50), last_message_at: ago(49), preview: 'Merci beaucoup !', last_sender: 'visitor', count: 4, unread: false },
+]
+const THREAD = (id) => {
+  const t = CHAT.find((x) => x.id === id) || CHAT[0]
+  const msgs = id === 't2'
+    ? [
+        { id: 1, from: 'visitor', body: 'Bonjour ! Mon cousin s’est inscrit hier avec mon lien.', at: ago(1.5) },
+        { id: 2, from: 'staff', body: 'Bonjour Awa ! Est-ce qu’il a bien cliqué sur le lien reçu par e-mail ? Les 50 points arrivent dès que son inscription est validée.', at: ago(1.4), staff: 'ivan' },
+        { id: 3, from: 'visitor', body: 'Mon cousin s’est inscrit avec mon lien mais je n’ai pas reçu les 50 points.', at: ago(1.2) },
+      ]
+    : [{ id: 1, from: 'visitor', body: t.preview, at: t.created_at }]
+  return { ...t, user_id: t.kind === 'visitor' ? null : 'u1', online: id === 't1', visitor_seen_at: ago(0.01), messages: msgs }
+}
+Object.assign(PREVIEW, {
+  admin_chat_unread: 2,
+  admin_chat_threads: ({ p_status }) => {
+    const rows = CHAT.filter((t) => !p_status || (p_status === 'unread' ? t.unread : t.status === p_status))
+    return { total: rows.length, rows }
+  },
+  admin_chat_thread: ({ p_thread }) => THREAD(p_thread),
+  admin_chat_reply: ({ p_thread, p_body }) => {
+    const t = THREAD(p_thread)
+    return { ...t, status: 'answered', messages: [...t.messages, { id: 99, from: 'staff', body: p_body, at: new Date().toISOString(), staff: 'ivan' }] }
+  },
+  admin_chat_update: null,
+  admin_chat_stats: {
+    threads: 148, questions: 231, answered: 139, waiting: 9, median_reply_minutes: 42,
+    by_topic: { pricing: 41, waitlist_points: 33, security: 24, countries: 19, account_card: 12, transfers: 8, partnership: 5, other: 6 },
+    by_kind: { visitor: 92, member: 47, registrant: 9 }, by_locale: { fr: 121, en: 27 }, by_day: [],
+  },
+})
