@@ -503,5 +503,21 @@ AAL = "aal2";
 ok((await rpc(D, "admin_overview", {})) !== null, "équipe avec code validé : accès rétabli");
 await expectError(as(D, "select public.session_aal2()"), "permission denied", "session_aal2 non appelable directement");
 
+console.log("\n24. Plafonds globaux du chat (migration 19)");
+const anon19 = (await db.query("select count(*)::int n from public.chat_threads where user_id is null and created_at > now() - interval '10 minutes'")).rows[0].n;
+await db.query("insert into public.chat_threads (token_hash, created_at) select 'flood-' || g, now() from generate_series(1, $1::int) g", [60 - anon19]);
+await expectError(rpc(null, "chat_send", { p_token: "f".repeat(40), p_body: "Spam" }), "rate_limited", "61e conversation anonyme en 10 min refusée");
+const thF = (await db.query("select id from public.chat_threads where token_hash = 'flood-1'")).rows[0].id;
+await db.query("delete from public.chat_threads where token_hash like 'flood-%' and token_hash <> 'flood-1'");
+await db.query("update public.chat_threads set created_at = now() - interval '1 hour' where token_hash = 'flood-1'");
+const vis19 = (await db.query("select count(*)::int n from public.chat_messages where sender = 'visitor' and created_at > now() - interval '10 minutes'")).rows[0].n;
+await db.query("insert into public.chat_messages (thread_id, sender, body) select $1, 'visitor', 'x' from generate_series(1, $2::int)", [thF, 300 - vis19]);
+await expectError(rpc(null, "chat_send", { p_token: "g".repeat(40), p_body: "Spam" }), "rate_limited", "301e message de visiteur en 10 min refusé");
+const repF = await rpc(D, "admin_chat_reply", { p_thread: thF, p_body: "Réponse" });
+ok(repF.status === "answered", "les réponses de l'équipe ne sont jamais bloquées");
+await db.query("delete from public.chat_threads where token_hash = 'flood-1'");
+ok((await rpc(null, "chat_send", { p_token: "h".repeat(40), p_body: "Bonjour" })).messages.length === 1, "trafic normal : message accepté");
+await expectError(as(null, "select public.chat_flood_guard()"), "permission denied", "chat_flood_guard non appelable");
+
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);
