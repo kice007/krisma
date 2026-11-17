@@ -31,6 +31,10 @@ await db.exec(`
     select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
   $$;
   grant execute on function auth.uid() to anon, authenticated;
+  create function auth.jwt() returns jsonb language sql stable as $$
+    select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb
+  $$;
+  grant execute on function auth.jwt() to anon, authenticated;
 `);
 
 const dir = join(here, "..", "migrations");
@@ -48,8 +52,11 @@ const ok = (cond, label) => {
 };
 
 /** Exécute une requête en tant qu'utilisateur (rôle authenticated) ou anonyme (uid null). */
+// Niveau de session simulé : aal2 (code d'authentification validé) par défaut.
+let AAL = "aal2";
 async function as(uid, sql, params = []) {
   await db.query("select set_config('request.jwt.claim.sub', $1, false)", [uid ?? ""]);
+  await db.query("select set_config('request.jwt.claims', $1, false)", [uid ? JSON.stringify({ sub: uid, aal: AAL }) : ""]);
   await db.exec(uid ? "set role authenticated" : "set role anon");
   try {
     return (await db.query(sql, params)).rows;
@@ -484,6 +491,17 @@ const st22 = await rpc(D, "admin_chat_stats", { p_days: 30 });
 ok(st22.threads === 2 && st22.questions === 6 && st22.answered === 2 && st22.by_topic.security === 1 && st22.by_kind.member === 1 && st22.by_kind.visitor === 1, `statistiques : ${st22.threads} conversations, ${st22.questions} questions`);
 const exp22 = await as(D, "select * from public.admin_chat_export()");
 ok(exp22.length === 6 && exp22.some((r) => r.reply && r.question.startsWith("Combien")), "export : une ligne par question, avec la réponse");
+
+console.log("\n23. Double authentification de l'équipe (migration 18)");
+AAL = "aal1";
+await expectError(rpc(D, "admin_overview", {}), "forbidden", "équipe sans code (lien magique seul) : vue d'ensemble refusée");
+await expectError(rpc(D, "admin_export_members", {}).then(() => as(D, "select * from public.admin_export_members()")), "forbidden", "équipe sans code : export des membres refusé");
+ok((await rpc(D, "admin_chat_unread")) === 0, "équipe sans code : aucun message visible");
+ok((await as(D, "select count(*)::int n from public.profiles"))[0].n === (await as(D, "select count(*)::int n from public.profiles where id = auth.uid()"))[0].n, "équipe sans code : ne lit que son propre profil");
+ok((await rpc(D, "my_staff_role")) !== null, "le rôle reste connu, pour demander le code");
+AAL = "aal2";
+ok((await rpc(D, "admin_overview", {})) !== null, "équipe avec code validé : accès rétabli");
+await expectError(as(D, "select public.session_aal2()"), "permission denied", "session_aal2 non appelable directement");
 
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);
