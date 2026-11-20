@@ -6,7 +6,6 @@ import { useLang } from '../i18n'
 const PEOPLE = [
   { name: 'Christian Ehouman', img: '/img/landing/equipe-christian.webp' },
   { name: 'Ivan Ehouman', img: '/img/landing/equipe-ivan.webp' },
-  { name: 'Élyse Ehouman' },
 ]
 
 function Portrait({ p, delay }) {

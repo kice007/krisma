@@ -96,7 +96,7 @@ export const translations = {
     team: {
       title: 'Le premier cercle',
       text: 'Fondée par des membres de la diaspora africaine',
-      roles: ['CEO & co-fondateur', 'CTO & co-fondateur', 'Lead mobile'],
+      roles: ['CEO & co-fondateur', 'CTO & co-fondateur'],
     },
     faq: {
       title: 'Questions fréquentes',
@@ -226,7 +226,7 @@ export const translations = {
     team: {
       title: 'The inner circle',
       text: 'Founded by members of the African diaspora',
-      roles: ['CEO & co-founder', 'CTO & co-founder', 'Mobile lead'],
+      roles: ['CEO & co-founder', 'CTO & co-founder'],
     },
     faq: {
       title: 'Frequently asked questions',
