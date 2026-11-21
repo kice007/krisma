@@ -5,6 +5,7 @@ import { ChevronDown, Menu, X } from './icons'
 import { useLang } from '../i18n'
 import { EASE } from './Reveal'
 import { Socials } from './Socials'
+import { PATHS, myDashboard, waitForSession } from '../waitlist/flow'
 
 export function LangSwitch({ up = false }) {
   const { lang, setLang, t } = useLang()
@@ -55,6 +56,14 @@ export default function Nav() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('#hero')
+  // Comme sur /waitlist : « Se connecter », ou « Mon espace » pour un inscrit vérifié déjà connecté.
+  const [member, setMember] = useState(false)
+  useEffect(() => {
+    waitForSession(400).then(async (s) => {
+      if (s && !s.user.is_anonymous) setMember((await myDashboard()).status === 'verified')
+    })
+  }, [])
+  const account = member ? { to: PATHS.member, label: t.nav.space } : { to: PATHS.login, label: t.nav.login }
 
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 40)
@@ -97,7 +106,7 @@ export default function Nav() {
           <a href="#hero" aria-label="KRISMA" className="shrink-0">
             <img src="/img/landing/k-ink.png" alt="" className="h-[23px] w-[18px] object-contain lg:h-[25px] lg:w-5" />
           </a>
-          <nav className="hidden items-center gap-[26px] lg:flex">
+          <nav className="hidden items-center gap-[18px] lg:flex xl:gap-[26px]">
             {t.nav.links.map((l) => (
               <a
                 key={l.href}
@@ -110,6 +119,12 @@ export default function Nav() {
           </nav>
           <div className="flex items-center gap-2.5 lg:gap-3.5">
             <LangSwitch />
+            <Link
+              to={account.to}
+              className="hidden h-12 items-center whitespace-nowrap rounded-full border border-ligne px-5 font-body text-[14px] font-semibold text-noir hover:border-noir lg:flex"
+            >
+              {account.label}
+            </Link>
             <Link
               to="/waitlist"
               className="hidden h-12 items-center whitespace-nowrap rounded-full bg-marque px-5 font-body text-[14px] font-semibold text-white hover:bg-[#f06e1b] lg:flex"
@@ -166,6 +181,13 @@ export default function Nav() {
                 className="flex h-14 w-full items-center justify-center rounded-full bg-marque font-body text-[15px] font-semibold text-white"
               >
                 {t.nav.cta}
+              </Link>
+              <Link
+                to={account.to}
+                onClick={() => setOpen(false)}
+                className="-mt-1.5 flex h-14 w-full items-center justify-center rounded-full bg-white font-body text-[15px] font-semibold text-noir"
+              >
+                {account.label}
               </Link>
               <Socials className="text-white" size={22} gap="gap-[22px]" />
             </motion.div>
